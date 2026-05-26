@@ -12,7 +12,6 @@ Proyecto del equipo para el **hackIAthon 2026 — Reto Aseguradora del Sur**.
 
 Toda la documentación del proyecto está en [`docs/`](./docs/):
 
-- [Resumen inicial del reto](./docs/reto-inicial.md)
 - [Especificación completa del reto](./docs/reto-aseguradora-del-sur.md)
 - [Planteamiento técnico RastroSeguro](./docs/planteamiento-tecnico-rastoseguro.md)
 
