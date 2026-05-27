@@ -19,4 +19,4 @@ dist/
 build/
 
 # Data
-data/
+data/raw/
