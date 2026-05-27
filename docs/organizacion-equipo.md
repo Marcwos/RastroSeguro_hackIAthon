@@ -1,3 +1,18 @@
+# Actualización operativa — coordinación actual
+
+Para trabajar mejor en paralelo, la coordinación vigente está resumida en:
+
+- [`01-guia-general-equipo.md`](./01-guia-general-equipo.md)
+- [`02-contratos-integracion.md`](./02-contratos-integracion.md)
+- [`04-demo-y-vistas.md`](./04-demo-y-vistas.md)
+- [`equipo/carlos-datos-modelos.md`](./equipo/carlos-datos-modelos.md)
+- [`equipo/jeremy-scoring-agente.md`](./equipo/jeremy-scoring-agente.md)
+- [`equipo/justin-dashboard-demo.md`](./equipo/justin-dashboard-demo.md)
+
+Decisión actual: mantenemos funcionalidades avanzadas, pero reducimos pantallas independientes. Las capacidades de grafo, narrativas, agente, simulador y reporte se agrupan en vistas con tabs internas. “Modo jurado” deja de ser un módulo formal y pasa a cubrirse como **casos estrella / demo ejecutiva**.
+
+---
+
 # RastroSeguro — Organización del Equipo y Plan de Trabajo
 
 ## 1. Objetivo de esta organización

@@ -1,3 +1,22 @@
+# Actualización operativa — alcance de producto
+
+La estrategia sigue siendo construir una solución avanzada y diferenciada. La actualización es de organización, no de ambición:
+
+```txt
+Funcionalidades avanzadas: sí.
+Demasiadas vistas independientes: no.
+```
+
+La app se organizará en cinco secciones principales: Dashboard, Revisión de siniestros, Inteligencia antifraude, Agente y simulador, Reporte/demo. Grafo, NLP, rankings, simulador y agente se mantienen como diferenciadores, pero agrupados para reducir carga visual y acelerar integración.
+
+Ver:
+
+- [`03-arquitectura-pipeline.md`](./03-arquitectura-pipeline.md)
+- [`04-demo-y-vistas.md`](./04-demo-y-vistas.md)
+- [`02-contratos-integracion.md`](./02-contratos-integracion.md)
+
+---
+
 # RastroSeguro — Planteamiento técnico y estratégico actualizado
 
 ## 1. Concepto principal

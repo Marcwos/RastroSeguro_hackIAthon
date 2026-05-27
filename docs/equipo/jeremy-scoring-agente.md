@@ -1,0 +1,104 @@
+# Jeremy — Scoring, reglas, explicación, agente y simulador
+
+Jeremy construye el núcleo lógico de RastroSeguro. Convierte datos y modelos en riesgo explicable para la app.
+
+## Objetivo
+
+Entregar un pipeline que tome el dataset de Carlos y genere scores, niveles de riesgo, alertas, explicaciones y herramientas para el agente.
+
+## Responsabilidades
+
+- Motor de reglas base y por ramo.
+- Score final compuesto.
+- Explicación por siniestro.
+- Integración de modelos de Carlos.
+- Herramientas del agente.
+- Router de intención básico.
+- RAG documental liviano.
+- Simulador de nuevo siniestro.
+
+## Módulos
+
+```txt
+src/rules/base_rules.py
+src/rules/vehicle_rules.py
+src/rules/health_rules.py
+src/rules/home_rules.py
+src/rules/life_rules.py
+src/rules/general_rules.py
+src/rules/rule_registry.py
+src/scoring/final_score.py
+src/explainability/explain_claim.py
+src/agent/tools.py
+src/agent/router.py
+src/agent/rag.py
+src/agent/antifraud_agent.py
+```
+
+## Entrada
+
+```txt
+data/synthetic/siniestros.csv
+models/fraud_classifier.joblib
+models/anomaly_detector.joblib
+```
+
+## Salida
+
+```txt
+data/processed/siniestros_scored.csv
+```
+
+Columnas clave:
+
+```txt
+score_reglas, score_modelo, score_anomalia, score_nlp, score_grafo,
+score_categorico, score_final, nivel_riesgo, alertas_activadas,
+explicacion, accion_sugerida
+```
+
+## Score final
+
+```txt
+score_final =
+  30% score_reglas
++ 25% score_modelo
++ 15% score_anomalia
++ 15% score_nlp
++ 10% score_grafo
++ 5% score_categorico
+```
+
+Si un componente aún no existe, usar valor neutro o documentado para no romper el pipeline.
+
+## Semáforo
+
+| Score | Nivel | Acción |
+|---:|---|---|
+| 0–40 | Verde | Continuar flujo normal |
+| 41–75 | Amarillo | Revisión documental |
+| 76–100 | Rojo | Revisión especializada |
+
+## Funciones que Justin necesita
+
+```python
+explain_claim(id_siniestro)
+simulate_new_claim(claim_data)
+get_top_risky_claims(limit=10)
+get_provider_risk_ranking()
+get_city_risk_distribution()
+generate_executive_summary()
+```
+
+## Regla para el agente
+
+El agente no inventa. Para datos tabulares llama herramientas; para reglas, metodología y limitaciones puede usar RAG documental.
+
+## Prioridad
+
+1. Reglas + score + CSV procesado.
+2. Explicación por siniestro.
+3. Integración de modelos.
+4. Herramientas del agente.
+5. Simulador.
+6. RAG documental.

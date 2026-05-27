@@ -1,3 +1,15 @@
+# Nota interna
+
+Este documento conserva la especificación del reto. Para coordinación diaria del equipo usar primero:
+
+- [`01-guia-general-equipo.md`](./01-guia-general-equipo.md)
+- [`02-contratos-integracion.md`](./02-contratos-integracion.md)
+- [`04-demo-y-vistas.md`](./04-demo-y-vistas.md)
+
+La interpretación actual del reto es: cumplir lo obligatorio con una demo clara y destacar con IA híbrida, explicabilidad, relaciones, agente y simulador, sin multiplicar vistas innecesarias.
+
+---
+
 # hackIAthon - Reto Aseguradora del Sur
 
 # Detector de Posibles Fraudes en Siniestros usando Inteligencia Artificial
