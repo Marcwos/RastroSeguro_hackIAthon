@@ -32,6 +32,11 @@ src/explainability/explain_claim.py
 src/agent/tools.py
 src/agent/router.py
 src/agent/rag.py
+src/agent/llm/base.py
+src/agent/llm/disabled_provider.py
+src/agent/llm/openai_provider.py
+src/agent/llm/prompts.py
+src/agent/llm/settings.py
 src/agent/antifraud_agent.py
 ```
 
@@ -102,6 +107,8 @@ generate_executive_summary()
 ## Regla para el agente
 
 El agente no inventa. Para datos tabulares llama herramientas; para reglas, metodología y limitaciones puede usar RAG documental.
+
+La redacción con OpenAI es opcional: solo sintetiza respuestas desde salidas verificadas del pipeline. Si no está configurado, el agente sigue funcionando de forma determinística.
 
 ## Prioridad
 
@@ -210,6 +217,30 @@ El agente ahora devuelve respuestas consistentes para Justin:
 
 También expone preguntas rápidas con `get_quick_questions()` para la vista de agente/simulador. Si falta el CSV procesado, responde con un mensaje accionable en lugar de romper la UI.
 
+
+
+
+## Capa LLM opcional con OpenAI
+
+El paquete `src/agent/llm/` separa la síntesis conversacional del router principal:
+
+```txt
+src/agent/llm/
+├── base.py
+├── disabled_provider.py
+├── openai_provider.py
+├── prompts.py
+└── settings.py
+```
+
+El LLM no calcula riesgo ni modifica datos. Recibe la intención, la pregunta y la salida estructurada de herramientas/RAG para redactar una respuesta más clara. Se activa solo con:
+
+```env
+OPENAI_API_KEY=...
+RASTRO_LLM_ENABLED=true
+```
+
+Por defecto queda deshabilitado para evitar costos accidentales y mantener tests/demo local sin red.
 
 ## Reporte ejecutivo
 

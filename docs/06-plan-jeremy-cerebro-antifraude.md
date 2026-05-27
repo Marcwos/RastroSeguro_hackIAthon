@@ -388,6 +388,12 @@ src/agent/
 ├── router.py
 ├── tools.py
 ├── rag.py
+├── llm/
+│   ├── base.py
+│   ├── disabled_provider.py
+│   ├── openai_provider.py
+│   ├── prompts.py
+│   └── settings.py
 └── antifraud_agent.py
 ```
 
@@ -403,6 +409,7 @@ Responsabilidades:
 | `tools.py` | Herramientas determinísticas sobre `siniestros_scored.csv` |
 | `rag.py` | Búsqueda liviana sobre documentación |
 | `antifraud_agent.py` | Fachada que enruta, valida y despacha |
+| `llm/` | Capa opcional de síntesis conversacional con OpenAI y fallback deshabilitado |
 
 Intenciones soportadas:
 
@@ -421,6 +428,17 @@ documentacion
 ```
 
 Si falta `data/processed/siniestros_scored.csv`, el agente devuelve un error accionable para ejecutar el scoring.
+
+La capa LLM es opcional y no reemplaza el motor determinístico. Para demo se activa con variables de entorno:
+
+```env
+OPENAI_API_KEY=...
+RASTRO_LLM_ENABLED=true
+RASTRO_LLM_PROVIDER=openai
+RASTRO_LLM_MODEL=gpt-5.4-mini
+```
+
+Si la llave falta, el proveedor falla o `RASTRO_LLM_ENABLED=false`, el agente conserva la respuesta local con `source="tools"` o `source="rag"`.
 
 
 ## Reporte ejecutivo

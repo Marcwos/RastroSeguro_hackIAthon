@@ -7,6 +7,13 @@ from src.agent.router import route, route_intent
 
 
 class AgentTest(unittest.TestCase):
+    def setUp(self):
+        self.env_patch = patch.dict("os.environ", {"RASTRO_LLM_ENABLED": "false"}, clear=False)
+        self.env_patch.start()
+
+    def tearDown(self):
+        self.env_patch.stop()
+
     def test_router_detects_key_intents(self):
         self.assertEqual(route_intent("¿Qué proveedores concentran alertas?"), "ranking_proveedores")
         self.assertEqual(route_intent("Explícame SIN-0045"), "explicar_siniestro")
@@ -41,6 +48,27 @@ class AgentTest(unittest.TestCase):
         self.assertTrue(response["ok"])
         self.assertEqual(response["intent"], "ranking_proveedores")
         self.assertEqual(response["source"], "tools")
+        self.assertEqual(response["data"], [{"id_proveedor": "PROV-1"}])
+
+    def test_agent_uses_llm_message_when_provider_returns_text(self):
+        class FakeProvider:
+            def generate(self, request):
+                from src.agent.llm import LLMResult
+
+                return LLMResult(
+                    message="Respuesta ejecutiva generada con evidencia verificada.",
+                    provider="openai",
+                    model="test-model",
+                    status="ok",
+                )
+
+        with patch("src.agent.tools.get_provider_risk_ranking", return_value=[{"id_proveedor": "PROV-1"}]), \
+             patch("src.agent.antifraud_agent.build_llm_provider", return_value=FakeProvider()):
+            response = answer_question("top 3 proveedores")
+
+        self.assertTrue(response["ok"])
+        self.assertEqual(response["source"], "llm")
+        self.assertIn("Respuesta ejecutiva", response["message"])
         self.assertEqual(response["data"], [{"id_proveedor": "PROV-1"}])
 
     def test_documentation_intent_uses_rag_source(self):

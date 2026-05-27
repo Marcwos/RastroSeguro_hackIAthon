@@ -313,6 +313,17 @@ Si hay error:
 
 Justin puede usar `get_quick_questions()` para mostrar botones de preguntas rápidas en la UI.
 
+Valores esperados de `source`:
+
+| Valor | Significado |
+|---|---|
+| `tools` | Respuesta local desde herramientas determinísticas |
+| `rag` | Respuesta local basada en documentación interna |
+| `llm` | Síntesis conversacional opcional sobre datos verificados |
+| `agent` | Error o validación de la fachada del agente |
+
+La fuente `llm` solo aparece si `OPENAI_API_KEY` y `RASTRO_LLM_ENABLED=true` están configurados.
+
 
 ## 13. Contrato de reporte ejecutivo
 
