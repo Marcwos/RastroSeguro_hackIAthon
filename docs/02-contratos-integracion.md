@@ -313,6 +313,19 @@ Si hay error:
 
 Justin puede usar `get_quick_questions()` para mostrar botones de preguntas rápidas en la UI.
 
+La respuesta exitosa incluye metadata `llm` para que Justin pueda mostrar o depurar si hubo síntesis generativa:
+
+```json
+{
+  "llm": {
+    "enabled": false,
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "status": "disabled_by_config"
+  }
+}
+```
+
 Valores esperados de `source`:
 
 | Valor | Significado |

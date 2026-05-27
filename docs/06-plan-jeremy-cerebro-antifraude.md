@@ -435,10 +435,21 @@ La capa LLM es opcional y no reemplaza el motor determinístico. Para demo se ac
 OPENAI_API_KEY=...
 RASTRO_LLM_ENABLED=true
 RASTRO_LLM_PROVIDER=openai
-RASTRO_LLM_MODEL=gpt-5.4-mini
+RASTRO_LLM_MODEL=gpt-4o-mini
 ```
 
-Si la llave falta, el proveedor falla o `RASTRO_LLM_ENABLED=false`, el agente conserva la respuesta local con `source="tools"` o `source="rag"`.
+Si la llave falta, el proveedor falla o `RASTRO_LLM_ENABLED=false`, el agente conserva la respuesta local con `source="tools"` o `source="rag"`. El modelo por defecto es `gpt-4o-mini` porque basta para síntesis conversacional, reduce costo/latencia y soporta Responses API.
+
+Cada respuesta exitosa incluye metadata de trazabilidad:
+
+```json
+"llm": {
+  "enabled": true,
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "status": "ok"
+}
+```
 
 
 ## Reporte ejecutivo

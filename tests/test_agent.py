@@ -49,6 +49,8 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(response["intent"], "ranking_proveedores")
         self.assertEqual(response["source"], "tools")
         self.assertEqual(response["data"], [{"id_proveedor": "PROV-1"}])
+        self.assertEqual(response["llm"]["status"], "disabled_by_config")
+        self.assertEqual(response["llm"]["model"], "gpt-4o-mini")
 
     def test_agent_uses_llm_message_when_provider_returns_text(self):
         class FakeProvider:
@@ -60,6 +62,7 @@ class AgentTest(unittest.TestCase):
                     provider="openai",
                     model="test-model",
                     status="ok",
+                    enabled=True,
                 )
 
         with patch("src.agent.tools.get_provider_risk_ranking", return_value=[{"id_proveedor": "PROV-1"}]), \
@@ -70,6 +73,9 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(response["source"], "llm")
         self.assertIn("Respuesta ejecutiva", response["message"])
         self.assertEqual(response["data"], [{"id_proveedor": "PROV-1"}])
+        self.assertEqual(response["llm"]["provider"], "openai")
+        self.assertEqual(response["llm"]["status"], "ok")
+        self.assertTrue(response["llm"]["enabled"])
 
     def test_documentation_intent_uses_rag_source(self):
         response = answer_question("¿Qué reglas se usan para calcular el score?")

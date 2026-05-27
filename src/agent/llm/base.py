@@ -23,11 +23,23 @@ class LLMResult:
     provider: str
     model: str | None = None
     status: str = "disabled"
+    enabled: bool = False
     error: str | None = None
 
     @property
     def has_message(self) -> bool:
         return bool(self.message and self.message.strip())
+
+    def metadata(self) -> dict[str, Any]:
+        meta: dict[str, Any] = {
+            "enabled": self.enabled,
+            "provider": self.provider,
+            "model": self.model,
+            "status": self.status,
+        }
+        if self.error:
+            meta["error"] = self.error
+        return meta
 
 
 class LLMProvider(Protocol):

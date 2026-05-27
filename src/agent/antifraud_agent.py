@@ -34,10 +34,17 @@ def answer_question(question: str) -> dict[str, Any]:
         return error(intent.name, str(exc))
 
     llm_result = build_llm_provider().generate(LLMRequest(intent=intent.name, data=data, question=question))
+    llm_metadata = {"llm": llm_result.metadata()}
     if llm_result.has_message:
-        return success(intent.name, llm_result.message or "", data, source="llm")
+        return success(intent.name, llm_result.message or "", data, source="llm", metadata=llm_metadata)
 
-    return success(intent.name, _message_for(intent.name), data, source="rag" if intent.uses_documentation else "tools")
+    return success(
+        intent.name,
+        _message_for(intent.name),
+        data,
+        source="rag" if intent.uses_documentation else "tools",
+        metadata=llm_metadata,
+    )
 
 
 def _dispatch(intent: str, claim_id: str | None, limit: int, question: str) -> Any:

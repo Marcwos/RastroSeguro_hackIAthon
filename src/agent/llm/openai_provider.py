@@ -19,7 +19,7 @@ class OpenAIProvider:
 
     def generate(self, request: LLMRequest) -> LLMResult:
         if not self.settings.api_key:
-            return LLMResult(None, provider="openai", model=self.settings.model, status="missing_api_key")
+            return LLMResult(None, provider="openai", model=self.settings.model, status="missing_api_key", enabled=True)
 
         payload = {
             "model": self.settings.model,
@@ -46,10 +46,11 @@ class OpenAIProvider:
                 provider="openai",
                 model=self.settings.model,
                 status="missing_dependency",
+                enabled=True,
                 error=str(exc),
             )
         except Exception as exc:
-            return LLMResult(None, provider="openai", model=self.settings.model, status="request_error", error=str(exc))
+            return LLMResult(None, provider="openai", model=self.settings.model, status="request_error", enabled=True, error=str(exc))
 
         if response.status_code != 200:
             return LLMResult(
@@ -57,19 +58,20 @@ class OpenAIProvider:
                 provider="openai",
                 model=self.settings.model,
                 status=f"http_{response.status_code}",
+                enabled=True,
                 error=_response_error(response),
             )
 
         try:
             data = response.json()
         except ValueError as exc:
-            return LLMResult(None, provider="openai", model=self.settings.model, status="invalid_json", error=str(exc))
+            return LLMResult(None, provider="openai", model=self.settings.model, status="invalid_json", enabled=True, error=str(exc))
 
         text = _extract_text(data)
         if not text:
-            return LLMResult(None, provider="openai", model=self.settings.model, status="empty_response")
+            return LLMResult(None, provider="openai", model=self.settings.model, status="empty_response", enabled=True)
 
-        return LLMResult(text, provider="openai", model=self.settings.model, status="ok")
+        return LLMResult(text, provider="openai", model=self.settings.model, status="ok", enabled=True)
 
 
 def _post_json(url: str, payload: dict[str, Any], headers: dict[str, str], timeout: float) -> Any:
