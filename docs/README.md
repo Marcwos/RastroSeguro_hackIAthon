@@ -21,6 +21,7 @@
 | [03-arquitectura-pipeline.md](./03-arquitectura-pipeline.md) | Arquitectura técnica y flujo de datos |
 | [04-demo-y-vistas.md](./04-demo-y-vistas.md) | Organización de la app en menos páginas con tabs internas |
 | [05-instrucciones-ejecucion.md](./05-instrucciones-ejecucion.md) | Comandos esperados para correr el proyecto |
+| [06-plan-jeremy-cerebro-antifraude.md](./06-plan-jeremy-cerebro-antifraude.md) | Plan del núcleo de reglas, scoring y agente de Jeremy |
 
 ## Documentos por integrante
 

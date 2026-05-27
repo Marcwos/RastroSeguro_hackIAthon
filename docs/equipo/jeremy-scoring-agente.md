@@ -71,6 +71,15 @@ score_final =
 
 Si un componente aún no existe, usar valor neutro o documentado para no romper el pipeline.
 
+## Guardrail por reglas críticas
+
+Para que reglas críticas no se diluyan cuando los componentes de Carlos o módulos avanzados aún estén neutrales:
+
+```txt
+score_reglas >= 90 → score_final mínimo 80
+score_reglas >= 75 → score_final mínimo 76
+```
+
 ## Semáforo
 
 | Score | Nivel | Acción |

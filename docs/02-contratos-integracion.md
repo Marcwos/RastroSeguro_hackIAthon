@@ -174,3 +174,15 @@ recommend_review_order()
 simulate_new_claim(claim_data)
 compare_branches()
 ```
+
+
+## 6. Guardrail de scoring
+
+Mientras algunos componentes avanzados estén pendientes, Jeremy usará valores neutros para no romper el pipeline. Para que los casos críticos no queden subestimados:
+
+```txt
+Si score_reglas >= 90 → score_final mínimo 80
+Si score_reglas >= 75 → score_final mínimo 76
+```
+
+Este ajuste es trazable y se basa únicamente en reglas auditables.
