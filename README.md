@@ -14,6 +14,7 @@ Toda la documentación del proyecto está en [`docs/`](./docs/):
 
 - [Especificación completa del reto](./docs/reto-aseguradora-del-sur.md)
 - [Planteamiento técnico RastroSeguro](./docs/planteamiento-tecnico-rastoseguro.md)
+- [Organización del equipo y plan de trabajo](./docs/organizacion-equipo.md)
 
 ---
 
@@ -25,7 +26,7 @@ En fase de planificación. La implementación del prototipo está por comenzar.
 
 ## Equipo
 
-Proyecto desarrollado en equipo de 3 integrantes para el hackIAthon 2026.
+Proyecto desarrollado por **Carlos, Justin y Jeremy** para el hackIAthon 2026.
 
 ---
 

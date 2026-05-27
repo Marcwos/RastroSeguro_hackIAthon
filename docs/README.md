@@ -8,8 +8,10 @@
 |---|---|---|
 | 1 | [reto-aseguradora-del-sur.md](./reto-aseguradora-del-sur.md) | Especificación completa del reto (funcional, técnica y evaluación) |
 | 2 | [planteamiento-tecnico-rastoseguro.md](./planteamiento-tecnico-rastoseguro.md) | Planteamiento técnico y estratégico de la solución RastroSeguro |
+| 3 | [organizacion-equipo.md](./organizacion-equipo.md) | Organización del equipo, roles, módulos y plan de trabajo |
 
 ## Orden de lectura recomendado
 
 1. **reto-aseguradora-del-sur.md** — detalle oficial: reglas, señales, rúbrica y entregables.
 2. **planteamiento-tecnico-rastoseguro.md** — cómo implementaremos RastroSeguro.
+3. **organizacion-equipo.md** — cómo nos organizamos Carlos, Justin y Jeremy.
