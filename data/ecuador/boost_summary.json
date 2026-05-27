@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-05-27T06:33:22.316923+00:00",
+  "sercop": {
+    "rows": 203,
+    "rucs_validos": 189,
+    "unique_rucs": 172,
+    "path": "C:\\Users\\carlo\\Videos\\RastroSeguro_hackIAthon\\data\\raw\\ecuador\\sercop_sanciones_2021_2026.csv"
+  },
+  "ocds": {
+    "rows": 374,
+    "path": "C:\\Users\\carlo\\Videos\\RastroSeguro_hackIAthon\\data\\raw\\ecuador\\ocds_proveedores_2021_2026.csv"
+  }
+}
