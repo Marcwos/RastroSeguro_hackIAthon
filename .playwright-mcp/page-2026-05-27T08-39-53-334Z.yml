@@ -1,0 +1,97 @@
+- generic [ref=e2]:
+  - generic [ref=e12]:
+    - generic [ref=e17]:
+      - generic [ref=e19]: security
+      - generic [ref=e20]:
+        - generic [ref=e21]: RastroSeguro
+        - generic [ref=e22]: Expert Intelligence
+    - button "Carga" [ref=e25] [cursor=pointer]:
+      - paragraph [ref=e29]: Carga
+    - button "Resumen" [ref=e32] [cursor=pointer]:
+      - paragraph [ref=e36]: Resumen
+    - button "Análisis IA" [ref=e39] [cursor=pointer]:
+      - paragraph [ref=e43]: Análisis IA
+    - generic [ref=e48]:
+      - paragraph [ref=e50]: La IA alerta y explica. No acusa ni rechaza reclamos.
+      - generic [ref=e51]:
+        - generic [ref=e52]: help
+        - generic [ref=e53]: Ayuda
+      - generic [ref=e54]:
+        - generic [ref=e55]: logout
+        - generic [ref=e56]: Cerrar Sesión
+  - generic [ref=e59]:
+    - generic [ref=e60]:
+      - generic [ref=e62]: RastroSeguro
+      - generic [ref=e63]: Evaluador Preliminar de Riesgo
+      - generic [ref=e64]:
+        - generic [ref=e65]: notifications
+        - generic [ref=e66]: settings
+        - generic [ref=e69]: person
+    - generic [ref=e172]:
+      - generic [ref=e173]: Predictive Risk Matrix
+      - generic [ref=e174]: Análisis IA y Score de Riesgo
+      - generic [ref=e175]: Análisis neuronal para asignar nivel de riesgo auditable.
+    - generic [ref=e177]:
+      - generic [ref=e330]:
+        - generic [ref=e331]: "87"
+        - generic [ref=e332]: / 100 Riesgo
+      - generic [ref=e284]:
+        - generic [ref=e337]:
+          - generic [ref=e338]: "Nivel: Crítico"
+          - generic [ref=e339]: "Acción sugerida: Escalar a revisión antifraude especializada."
+        - generic [ref=e316]:
+          - generic [ref=e340]: Alta Probabilidad
+          - generic [ref=e342]:
+            - generic [ref=e343]: visibility
+            - text: Auditable
+    - generic [ref=e349]:
+      - generic [ref=e356]:
+        - generic [ref=e357]:
+          - generic [ref=e358]: rule
+          - generic [ref=e359]: +92 pts
+        - generic [ref=e360]: Reglas
+        - generic [ref=e361]: Incumplimiento de reglas.
+      - generic [ref=e370]:
+        - generic [ref=e371]:
+          - generic [ref=e372]: hub
+          - generic [ref=e373]: +88 pts
+        - generic [ref=e374]: Modelo ML
+        - generic [ref=e375]: Comportamiento inusual.
+      - generic [ref=e384]:
+        - generic [ref=e385]:
+          - generic [ref=e386]: warning
+          - generic [ref=e387]: +80 pts
+        - generic [ref=e388]: Anomalías
+        - generic [ref=e389]: Outliers en datos.
+    - generic [ref=e393]:
+      - generic [ref=e400]:
+        - generic [ref=e401]:
+          - generic [ref=e402]: description
+          - generic [ref=e403]: +91 pts
+        - generic [ref=e404]: NLP
+        - generic [ref=e405]: Patrones de texto sospechosos.
+      - generic [ref=e414]:
+        - generic [ref=e415]:
+          - generic [ref=e416]: account_tree
+          - generic [ref=e417]: +75 pts
+        - generic [ref=e418]: Grafo
+        - generic [ref=e419]: Conexión con entidades de riesgo.
+      - generic [ref=e428]:
+        - generic [ref=e429]:
+          - generic [ref=e430]: category
+          - generic [ref=e431]: +70 pts
+        - generic [ref=e432]: Categórico
+        - generic [ref=e433]: Antigüedad del cliente.
+    - generic [ref=e440]: El score no confirma fraude. Prioriza revisión humana.
+    - group [ref=e443]:
+      - generic "keyboard_arrow_right Simular nuevo siniestro (MVP)" [ref=e444] [cursor=pointer]:
+        - generic [ref=e445]:
+          - generic [ref=e447]: keyboard_arrow_right
+          - paragraph [ref=e450]: Simular nuevo siniestro (MVP)
+    - button "✨" [ref=e144] [cursor=pointer]:
+      - paragraph [ref=e148]: ✨
+    - generic [ref=e455]: STEP 03 / 03
+    - button "⬅️ Anterior" [ref=e156] [cursor=pointer]:
+      - paragraph [ref=e160]: ⬅️ Anterior
+    - button "Finalizar ✅" [active] [ref=e456] [cursor=pointer]:
+      - paragraph [ref=e167]: Finalizar ✅

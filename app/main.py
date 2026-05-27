@@ -37,8 +37,8 @@ from src.simulator.simulate_claim import simulate_new_claim
 st.set_page_config(
     page_title="RastroSeguro | Expert Intelligence",
     page_icon="🛡️",
-    layout="wide",
-    initial_sidebar_state="collapsed",
+    layout="wide", # Standardized for Stitch Split View
+    initial_sidebar_state="expanded",
 )
 
 # Initialize Data
@@ -54,6 +54,8 @@ if "chat_messages" not in st.session_state:
     st.session_state.chat_messages = []
 if "show_chat" not in st.session_state:
     st.session_state.show_chat = False
+if "sidebar_visible" not in st.session_state:
+    st.session_state.sidebar_visible = True
 
 # Constants
 SLIDES = ["Carga de información", "Resumen del caso", "Análisis IA"]
@@ -84,6 +86,43 @@ def render_agent_response(response: dict) -> str:
 
 # --- Layout Rendering ---
 inject_base_styles()
+sidebar_toggle_label = "×" if st.session_state.sidebar_visible else "☰"
+if st.button(
+    sidebar_toggle_label,
+    key="sidebar_toggle_btn",
+    help="Abrir/cerrar menú lateral",
+):
+    st.session_state.sidebar_visible = not st.session_state.sidebar_visible
+    st.rerun()
+
+if not st.session_state.sidebar_visible:
+    st.markdown(
+        """
+        <style>
+        section[data-testid="stSidebar"] {
+            transform: translateX(-310px) !important;
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+            overflow: hidden !important;
+            border-right: 0 !important;
+            transition: transform 180ms ease, width 180ms ease;
+        }
+        section[data-testid="stMain"] {
+            margin-left: 0 !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+        }
+        [data-testid="stMainBlockContainer"] {
+            margin-left: 0 !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
 sidebar_branding(active_step=CURRENT_SLIDE)
 top_app_bar(current_step=CURRENT_SLIDE)
 
@@ -93,42 +132,45 @@ claim = df[df["id_siniestro"] == st.session_state.selected_claim_id].iloc[0]
 # --- Main Content ---
 
 if CURRENT_SLIDE == 0:
-    # Slide 0: Carga (Calibrated Split View)
+    # Slide 0: Carga (Fixed Background Overlay)
     st.markdown("""
     <div class="rs-split-bg">
         <div class="rs-split-bg-left"></div>
-        <div class="rs-split-bg-right"></div>
+        <div class="rs-split-bg-right" style="background:#19191b;"></div>
     </div>
     """, unsafe_allow_html=True)
     
     with st.container(key="slide_0_content"):
-        c_left, c_right = st.columns(2)
+        # Single row with two columns for content alignment
+        c1, c2 = st.columns(2, gap="small")
         
-        with c_left:
-            st.markdown('<div class="rs-panel-centered">', unsafe_allow_html=True)
-            st.markdown('<div class="rs-panel-left-content">', unsafe_allow_html=True)
-            st.markdown('<span class="rs-kicker">Módulo de Ingreso</span>', unsafe_allow_html=True)
-            st.markdown('<h1 class="rs-slide-title">Paso 1: Carga de información del siniestro</h1>', unsafe_allow_html=True)
-            st.markdown('<p class="rs-slide-subtitle">Requerimos el set de datos crudos del incidente. Nuestro motor de IA procesará variables demográficas para generar un scoring de riesgo en tiempo real.</p>', unsafe_allow_html=True)
-            
+        with c1:
             st.markdown("""
-            <div class="rs-glass-card-validation">
-                <div class="rs-glass-icon-circle">
-                    <span class="material-symbols-outlined">verified_user</span>
+            <div class="rs-panel-left-content">
+                <span class="rs-kicker">MÓDULO DE INGRESO</span>
+                <h1 class="rs-slide-title" style="font-size:2.5rem; margin-bottom:1.5rem;">
+                    Paso 1: Carga de información del siniestro
+                </h1>
+                <p class="rs-slide-subtitle" style="margin-bottom:2.5rem; opacity:0.8;">
+                    Requerimos el set de datos crudos del incidente. Nuestro motor de IA procesará variables demográficas
+                    para generar un scoring de riesgo en tiempo real.
+                </p>
+                <div class="rs-glass-card-validation">
+                    <div class="rs-glass-icon-circle">
+                        <span class="material-symbols-outlined">verified_user</span>
+                    </div>
+                    <div>
+                        <div style="font-weight:700; color:var(--rs-on-surface); margin-bottom:0.25rem;">Validación de Estructura</div>
+                        <div style="font-size:0.85rem; color:var(--rs-on-muted); line-height:1.4;">Se valida estructura y se prepara para scoring automático.</div>
+                    </div>
                 </div>
-                <div>
-                    <div style="font-weight:700;color:var(--rs-on-surface);margin-bottom:0.25rem;">Validación de Estructura</div>
-                    <div style="font-size:0.85rem;color:var(--rs-on-muted);">Se valida estructura y se prepara para scoring automático.</div>
-                </div>
-            </div>
             """, unsafe_allow_html=True)
-            st.markdown('</div></div>', unsafe_allow_html=True)
 
-        with c_right:
-            st.markdown('<div class="rs-panel-centered">', unsafe_allow_html=True)
-            st.markdown('<div class="rs-panel-right-content">', unsafe_allow_html=True)
-            
-            st.markdown('<div class="rs-metric-label" style="margin-bottom:0.75rem; text-align:left;">Seleccionar Caso de Prueba</div>', unsafe_allow_html=True)
+        with c2:
+            st.markdown(
+                '<div class="rs-metric-label" style="margin-bottom:0.75rem; text-align:left; color:var(--rs-outline);">SELECCIONAR CASO DE PRUEBA</div>',
+                unsafe_allow_html=True,
+            )
             sorted_claims = df.sort_values("score_final", ascending=False)["id_siniestro"].tolist()
             new_selection = st.selectbox(
                 "Siniestro demo", sorted_claims,
@@ -138,38 +180,24 @@ if CURRENT_SLIDE == 0:
             if new_selection != st.session_state.selected_claim_id:
                 st.session_state.selected_claim_id = new_selection
                 st.rerun()
-                
-            st.markdown('<br>', unsafe_allow_html=True)
             
+            # Custom styled uploader container
             with st.container(key="upload_drop_zone"):
                 st.markdown("""
-                <div style="text-align:center; margin-bottom:1rem;">
-                    <div class="rs-drop-icon" style="margin: 0 auto 1rem; background:var(--rs-surface-highest);">
-                        <span class="material-symbols-outlined" style="font-size:2.5rem; color:var(--rs-primary);">cloud_upload</span>
+                <div style="text-align:center; padding: 2rem 0;">
+                    <div class="rs-drop-icon" style="margin: 0 auto 1.5rem; background:rgba(255,255,255,0.05); width:80px; height:80px; border-radius:100%; display:flex; align-items:center; justify-content:center;">
+                        <span class="material-symbols-outlined" style="font-size:2.5rem; color:var(--rs-secondary);">cloud_upload</span>
                     </div>
-                    <div style="font-weight:700; font-size:1.1rem; color:var(--rs-on-surface);">Subir archivo CSV o Excel</div>
-                    <div style="font-size:0.85rem; color:var(--rs-on-muted); margin-bottom:1rem;">Arrastra y suelta o haz clic para buscar</div>
+                    <div style="font-weight:700; font-size:1.2rem; color:var(--rs-on-surface); margin-bottom:0.5rem;">Subir archivo CSV o Excel</div>
+                    <div style="font-size:0.85rem; color:var(--rs-on-muted); margin-bottom:2rem;">Arrastra y suelta o haz clic para buscar</div>
                 </div>
                 """, unsafe_allow_html=True)
                 uploaded_file = st.file_uploader("Upload", type=["csv", "xlsx"], label_visibility="collapsed", key="claims_upload_file")
 
             if uploaded_file is not None:
-                try:
-                    uploaded_df = read_uploaded_claims_file(uploaded_file)
-                    uploaded_columns = set(uploaded_df.columns.astype(str))
-                    missing_columns = [col for col in REQUIRED_UPLOAD_COLUMNS if col not in uploaded_columns]
-                    st.success(f"Recibido: {uploaded_file.name} · {len(uploaded_df)} filas")
-                    if missing_columns:
-                        st.warning("Faltan columnas mínimas: " + ", ".join(missing_columns))
-                    else:
-                        st.info("Estructura mínima validada.")
-                    with st.expander("Preview de datos", expanded=False):
-                        st.dataframe(uploaded_df.head(5), use_container_width=True)
-                except Exception as exc:
-                    st.error(f"Error al leer: {exc}")
+                st.success(f"Recibido: {uploaded_file.name}")
                 
-            st.markdown('<p style="font-size:0.7rem; color:var(--rs-on-muted); text-align:center; margin-top:2rem; font-style:italic;">Formatos: .csv, .xlsx. Procesamiento: ~4 seg x 1k registros.</p>', unsafe_allow_html=True)
-            st.markdown('</div></div>', unsafe_allow_html=True)
+            st.markdown('<p style="font-size:0.7rem; color:var(--rs-on-muted); text-align:center; margin-top:1rem; font-style:italic; opacity:0.6;">Formatos: .csv, .xlsx. Procesamiento: ~4 seg x 1k registros.</p>', unsafe_allow_html=True)
 
 elif CURRENT_SLIDE == 1:
     # Slide 1: Resumen (Bento Grid)

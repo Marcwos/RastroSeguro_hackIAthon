@@ -1,0 +1,107 @@
+- generic [ref=e2]:
+  - generic [ref=e9]:
+    - generic [ref=e14]:
+      - generic [ref=e16]: security
+      - generic [ref=e17]:
+        - generic [ref=e18]: RastroSeguro
+        - generic [ref=e19]: Expert Intelligence
+    - button "Carga" [ref=e22] [cursor=pointer]:
+      - generic:
+        - generic:
+          - generic:
+            - paragraph: Carga
+    - button "Resumen" [ref=e25] [cursor=pointer]:
+      - generic:
+        - generic:
+          - generic:
+            - paragraph: Resumen
+    - button "Análisis IA" [ref=e28] [cursor=pointer]:
+      - generic:
+        - generic:
+          - generic:
+            - paragraph: Análisis IA
+    - generic [ref=e33]:
+      - generic [ref=e34]:
+        - paragraph: La IA alerta y explica. No acusa ni rechaza reclamos.
+      - generic [ref=e35]:
+        - generic [ref=e36]: help
+        - generic [ref=e37]: Ayuda
+      - generic [ref=e38]:
+        - generic [ref=e39]: logout
+        - generic [ref=e40]: Cerrar Sesión
+  - generic [ref=e43]:
+    - generic [ref=e44]:
+      - generic [ref=e46]: RastroSeguro
+      - generic [ref=e47]: Evaluador Preliminar de Riesgo
+      - generic [ref=e48]:
+        - generic [ref=e49]: notifications
+        - generic [ref=e50]: settings
+        - generic [ref=e53]: person
+    - generic [ref=e178]:
+      - generic [ref=e179]: Predictive Risk Matrix
+      - generic [ref=e180]: Análisis IA y Score de Riesgo
+      - generic [ref=e181]: Análisis neuronal para asignar nivel de riesgo auditable.
+    - generic [ref=e183]:
+      - generic [ref=e336]:
+        - generic [ref=e337]: "87"
+        - generic [ref=e338]: / 100 Riesgo
+      - generic [ref=e290]:
+        - generic [ref=e343]:
+          - generic [ref=e344]: "Nivel: Crítico"
+          - generic [ref=e345]: "Acción sugerida: Escalar a revisión antifraude especializada."
+        - generic [ref=e322]:
+          - generic [ref=e346]: Alta Probabilidad
+          - generic [ref=e348]:
+            - generic [ref=e349]: visibility
+            - text: Auditable
+    - generic [ref=e355]:
+      - generic [ref=e362]:
+        - generic [ref=e363]:
+          - generic [ref=e364]: rule
+          - generic [ref=e365]: +92 pts
+        - generic [ref=e366]: Reglas
+        - generic [ref=e367]: Incumplimiento de reglas.
+      - generic [ref=e376]:
+        - generic [ref=e377]:
+          - generic [ref=e378]: hub
+          - generic [ref=e379]: +88 pts
+        - generic [ref=e380]: Modelo ML
+        - generic [ref=e381]: Comportamiento inusual.
+      - generic [ref=e390]:
+        - generic [ref=e391]:
+          - generic [ref=e392]: warning
+          - generic [ref=e393]: +80 pts
+        - generic [ref=e394]: Anomalías
+        - generic [ref=e395]: Outliers en datos.
+    - generic [ref=e399]:
+      - generic [ref=e406]:
+        - generic [ref=e407]:
+          - generic [ref=e408]: description
+          - generic [ref=e409]: +91 pts
+        - generic [ref=e410]: NLP
+        - generic [ref=e411]: Patrones de texto sospechosos.
+      - generic [ref=e420]:
+        - generic [ref=e421]:
+          - generic [ref=e422]: account_tree
+          - generic [ref=e423]: +75 pts
+        - generic [ref=e424]: Grafo
+        - generic [ref=e425]: Conexión con entidades de riesgo.
+      - generic [ref=e434]:
+        - generic [ref=e435]:
+          - generic [ref=e436]: category
+          - generic [ref=e437]: +70 pts
+        - generic [ref=e438]: Categórico
+        - generic [ref=e439]: Antigüedad del cliente.
+    - generic [ref=e446]: El score no confirma fraude. Prioriza revisión humana.
+    - group [ref=e449]:
+      - generic "keyboard_arrow_right Simular nuevo siniestro (MVP)" [ref=e450] [cursor=pointer]:
+        - generic [ref=e451]:
+          - generic [ref=e453]: keyboard_arrow_right
+          - paragraph [ref=e456]: Simular nuevo siniestro (MVP)
+    - button "✨" [ref=e459] [cursor=pointer]:
+      - paragraph [ref=e463]: ✨
+    - generic [ref=e468]: STEP 03 / 03
+    - button "⬅️ Anterior" [ref=e162] [cursor=pointer]:
+      - paragraph [ref=e166]: ⬅️ Anterior
+    - button "Finalizar ✅" [active] [ref=e469] [cursor=pointer]:
+      - paragraph [ref=e173]: Finalizar ✅

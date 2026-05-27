@@ -38,6 +38,36 @@ def inject_base_styles() -> None:
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
+        /* ─── Global Reset & Clean Scroll ─── */
+        html, body, [data-testid="stAppViewBlockContainer"], [data-testid="stMainBlockContainer"], section.stMain, .main {
+            overflow: hidden !important;
+            height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            max-height: 100vh !important;
+        }
+        
+        /* Collapse Streamlit's empty markdown elements used for style injection */
+        div[data-testid="stElementContainer"]:has(style) {
+            display: none !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Hide default Streamlit elements that take space */
+        [data-testid="stHeader"], [data-testid="stFooter"], [data-testid="stDecoration"] {
+            display: none !important;
+        }
+        
+        /* Force internal block container to fill viewport exactly */
+        .block-container {
+            padding: 0 !important;
+            max-width: 100vw !important;
+            height: 100vh !important;
+        }
+
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
@@ -115,15 +145,14 @@ def inject_base_styles() -> None:
         .rs-topbar {
             position: fixed;
             top: 0; left: 0; right: 0;
-            height: 56px;
+            height: 60px;
             background: var(--rs-background);
-            border-bottom: 1px solid var(--rs-outline);
+            border-bottom: 1px solid var(--rs-outline-variant);
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            z-index: 1100;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+            padding: 0 2rem;
+            z-index: 2000; /* Much higher than backgrounds */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         .rs-topbar-brand {
             font-family: "Montserrat", sans-serif;
@@ -162,6 +191,30 @@ def inject_base_styles() -> None:
         }
         .rs-topbar-avatar img {
             width: 100%; height: 100%; object-fit: cover;
+        }
+        .st-key-sidebar_toggle_btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 2400;
+        }
+        .st-key-sidebar_toggle_btn button {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            border-radius: 12px;
+            padding: 0 !important;
+            background: rgba(31, 31, 33, 0.92) !important;
+            color: var(--rs-on-surface) !important;
+            border: 1px solid var(--rs-outline) !important;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28) !important;
+            font-size: 1.25rem !important;
+            line-height: 1 !important;
+        }
+        .st-key-sidebar_toggle_btn button:hover {
+            background: var(--rs-secondary-container) !important;
+            border-color: rgba(173, 198, 255, 0.45) !important;
+            transform: none !important;
         }
 
         /* ─── Progress Track ─── */
@@ -858,43 +911,62 @@ def inject_base_styles() -> None:
         /* ─── Split Layout Slide 0 ─── */
         .rs-split-bg {
             position: fixed;
-            top: 60px; left: 256px; right: 0; bottom: 64px;
+            top: 60px; left: 0; right: 0; bottom: 64px;
             display: flex;
             z-index: 0;
         }
         .rs-split-bg-left {
             flex: 1;
-            background: #111113; /* Even darker */
+            background: #111113;
             border-right: 1px solid rgba(255,255,255,0.03);
-        }
-        .rs-split-bg-right {
-            flex: 1;
-            background: #19191b; /* Slightly lighter surface-low */
+            /* Handle sidebar gap if present */
+            margin-left: 0; 
         }
         
-        /* Centering panels over backgrounds */
+        /* Centering panels over backgrounds - Optimized for single screen */
         .rs-panel-centered {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: calc(100vh - 124px);
-            padding: 2rem;
-            text-align: center;
+            height: calc(100vh - 124px); /* Combined height of top (60) and bottom (64) bars */
+            width: 100%;
+            overflow: hidden;
+            position: relative;
         }
         .rs-panel-left-content {
-            max-width: 500px;
+            width: 100%;
+            max-width: 520px;
             text-align: left;
+            padding: 0 2rem;
         }
         .rs-panel-right-content {
             width: 100%;
-            max-width: 440px;
+            max-width: 460px;
+            padding: 0 2rem;
+        }
+
+        /* Fix for Streamlit's internal padding */
+        [data-testid="stAppViewBlockContainer"] {
+            padding-top: 0rem !important;
+            padding-bottom: 0rem !important;
+            max-width: 100% !important;
+        }
+        [data-testid="stHeader"] {
+            display: none;
         }
 
         .st-key-slide_0_content {
             position: relative;
             z-index: 10;
-            margin-top: -3.5rem; /* Optical adjustment */
+            padding: 92px 48px 96px 48px;
+            min-height: calc(100vh - 124px);
+            display: flex;
+            align-items: center;
+            margin-top: 0;
+        }
+        .st-key-slide_0_content > div {
+            width: 100%;
         }
         </style>
         """,
