@@ -20,3 +20,7 @@ build/
 
 # Data
 data/raw/
+
+# Playwright & Screenshots
+.playwright-mcp/
+*.png
