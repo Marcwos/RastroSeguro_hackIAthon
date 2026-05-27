@@ -240,7 +240,7 @@ OPENAI_API_KEY=...
 RASTRO_LLM_ENABLED=true
 ```
 
-Por defecto queda deshabilitado para evitar costos accidentales y mantener tests/demo local sin red. El default recomendado es `gpt-4o-mini`; `gpt-4o` también funciona, pero es más costoso y no es necesario para redactar sobre datos ya calculados.
+Por defecto queda deshabilitado para evitar costos accidentales y mantener tests/demo local sin red. El default de demo es `gpt-4o` para priorizar calidad en respuestas del agente. Si luego queremos reducir costo/latencia, basta cambiar `RASTRO_LLM_MODEL` a `gpt-4o-mini` en `.env`.
 
 El agente devuelve metadata `llm` en respuestas exitosas:
 
@@ -248,7 +248,7 @@ El agente devuelve metadata `llm` en respuestas exitosas:
 {
   "enabled": true,
   "provider": "openai",
-  "model": "gpt-4o-mini",
+  "model": "gpt-4o",
   "status": "ok"
 }
 ```

@@ -50,7 +50,7 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(response["source"], "tools")
         self.assertEqual(response["data"], [{"id_proveedor": "PROV-1"}])
         self.assertEqual(response["llm"]["status"], "disabled_by_config")
-        self.assertEqual(response["llm"]["model"], "gpt-4o-mini")
+        self.assertEqual(response["llm"]["model"], "gpt-4o")
 
     def test_agent_uses_llm_message_when_provider_returns_text(self):
         class FakeProvider:

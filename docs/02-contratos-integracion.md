@@ -320,7 +320,7 @@ La respuesta exitosa incluye metadata `llm` para que Justin pueda mostrar o depu
   "llm": {
     "enabled": false,
     "provider": "openai",
-    "model": "gpt-4o-mini",
+    "model": "gpt-4o",
     "status": "disabled_by_config"
   }
 }
