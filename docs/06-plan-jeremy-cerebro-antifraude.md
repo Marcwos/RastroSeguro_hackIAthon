@@ -41,6 +41,10 @@ src/
 │   ├── models.py
 │   ├── base_rules.py
 │   ├── vehicle_rules.py
+│   ├── health_rules.py
+│   ├── home_rules.py
+│   ├── life_rules.py
+│   ├── general_rules.py
 │   └── rule_registry.py
 ├── scoring/
 │   └── final_score.py
@@ -100,6 +104,33 @@ Cada regla debe devolver evidencia trazable, no solo puntos.
 - Conductor recurrente.
 - Zona de alta siniestralidad.
 - Taller/proveedor recurrente.
+
+### Salud
+
+- Procedimiento con monto superior al promedio.
+- Frecuencia atípica de atenciones.
+- Clínica o proveedor médico recurrente.
+- Factura emitida antes de la atención o tardíamente.
+
+### Hogar
+
+- Daño sin inspección realizada.
+- Proveedor de reparación recurrente.
+- Daños repetidos en corto periodo.
+- Evento relevante sin evidencia fotográfica.
+
+### Vida
+
+- Beneficiario recurrente en reclamos.
+- Cambios recientes antes del evento.
+- Notificación tardía.
+- Documento soporte faltante.
+
+### Generales
+
+- Monto atípico para la cobertura.
+- Intermediario recurrente.
+- Inconsistencia entre cobertura y evento.
 
 ## Score final
 

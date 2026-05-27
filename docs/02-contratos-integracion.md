@@ -186,3 +186,18 @@ Si score_reglas >= 75 → score_final mínimo 76
 ```
 
 Este ajuste es trazable y se basa únicamente en reglas auditables.
+
+
+## 7. Campos adicionales por ramo para reglas
+
+Además de las columnas mínimas, Jeremy puede aprovechar estos campos si Carlos los incluye en el dataset:
+
+| Ramo | Campos útiles |
+|---|---|
+| Vehículos | `tipo_evento`, `historial_siniestros_vehiculo`, `ocurrio_noche`, `hay_testigos`, `reporte_policial`, `tercero_identificado`, `conductor_recurrente`, `zona_alta_siniestralidad` |
+| Salud | `monto_promedio_procedimiento`, `frecuencia_atenciones`, `proveedor_medico_recurrente`, `clinica_recurrente`, `fecha_atencion`, `fecha_factura` |
+| Hogar | `inspeccion_realizada`, `proveedor_reparacion_recurrente`, `danios_repetidos_periodo`, `causa_reportada`, `evidencia_fotografica` |
+| Vida | `beneficiario_recurrente`, `cambios_recientes_poliza`, `fecha_evento`, `fecha_notificacion`, `documento_soporte` |
+| Generales | `monto_promedio_cobertura`, `intermediario_recurrente`, `inconsistencia_cobertura` |
+
+Estos campos no bloquean el pipeline si faltan; las reglas se activan solo cuando hay evidencia suficiente.

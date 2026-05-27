@@ -111,3 +111,18 @@ El agente no inventa. Para datos tabulares llama herramientas; para reglas, meto
 4. Herramientas del agente.
 5. Simulador.
 6. RAG documental.
+
+
+## Reglas multi-ramo implementadas
+
+El motor ya contempla paquetes iniciales para:
+
+| Ramo | Archivo | Señales principales |
+|---|---|---|
+| Vehículos | `src/rules/vehicle_rules.py` | robo temprano, vehículo recurrente, noche sin testigos, reporte policial, tercero no identificado |
+| Salud | `src/rules/health_rules.py` | monto médico atípico, frecuencia de atenciones, proveedor médico recurrente, fechas de factura |
+| Hogar | `src/rules/home_rules.py` | falta de inspección, proveedor recurrente, daños repetidos, falta de evidencia |
+| Vida | `src/rules/life_rules.py` | beneficiario recurrente, cambios recientes, notificación tardía, soporte faltante |
+| Generales | `src/rules/general_rules.py` | monto atípico, intermediario recurrente, inconsistencia de cobertura |
+
+Todas las reglas devuelven código, puntos, severidad, mensaje y evidencia para trazabilidad.
