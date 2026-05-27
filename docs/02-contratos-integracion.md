@@ -233,3 +233,17 @@ Jeremy genera estas columnas para análisis de relaciones cuando existen entidad
 | `beneficiario_recurrente` | Flag derivado para reglas base |
 
 Estas columnas alimentan la vista de inteligencia antifraude, `get_graph_connections(id_siniestro)` y el score final.
+
+
+## 10. Columnas generadas por scoring categórico
+
+Jeremy genera estas columnas para convertir variables cualitativas en señales auditables:
+
+| Columna | Descripción |
+|---|---|
+| `score_categorico` | Riesgo 0-100 derivado de variables categóricas configuradas |
+| `alerta_categorica` | Indica si una categoría aportó riesgo adicional |
+| `senales_categoricas` | Lista JSON con campo, valor, puntos, severidad y mensaje |
+| `explicacion_categorica` | Texto explicable de la señal categórica más importante |
+
+Campos actualmente considerados si existen: `canal_venta`, `estado_poliza`, `tipo_impacto`, `zona_inmueble`, `relacion_beneficiario`, `documentos_inconsistentes`, `zona_alta_siniestralidad`, `tercero_identificado`, `hay_testigos`, `reporte_policial`.

@@ -153,3 +153,16 @@ src/graph/scoring.py
 ```
 
 Este módulo calcula recurrencia de entidades críticas y genera `score_grafo`, `entidades_recurrentes`, `conexiones_grafo` y `explicacion_grafo`. Además, deriva `proveedor_recurrente` y `beneficiario_recurrente` para que las reglas base puedan explicar esas señales.
+
+
+## Scoring categórico
+
+El módulo categórico está separado para que las variables cualitativas tengan una explicación propia:
+
+```txt
+src/categorical/normalization.py
+src/categorical/profiles.py
+src/categorical/scoring.py
+```
+
+Genera `score_categorico`, `senales_categoricas` y `explicacion_categorica`. Esto permite defender ante el jurado cómo categorías como canal de venta, estado de póliza, tipo de impacto o ausencia de reporte policial aportan al score sin depender de una caja negra.

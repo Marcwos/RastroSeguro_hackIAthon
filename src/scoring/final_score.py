@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 
+from src.categorical.scoring import enrich_claims_with_categorical
 from src.graph.scoring import enrich_claims_with_graph
 from src.nlp.scoring import enrich_claims_with_nlp
 from src.rules.rule_registry import evaluate_rules, rules_score
@@ -86,11 +87,12 @@ def score_dataframe(df):
     claims = [row.dropna().to_dict() for _, row in df.iterrows()]
     if claims:
         claims = enrich_claims_with_graph(claims)
+        claims = enrich_claims_with_categorical(claims)
     if claims and any(claim.get("descripcion") for claim in claims):
         claims = enrich_claims_with_nlp(claims)
     scored_rows = [score_claim(claim) for claim in claims]
     result = pd.DataFrame(scored_rows)
-    for column in ("alertas_activadas", "siniestros_similares", "entidades_recurrentes", "conexiones_grafo"):
+    for column in ("alertas_activadas", "siniestros_similares", "entidades_recurrentes", "conexiones_grafo", "senales_categoricas"):
         if column in result.columns:
             result[column] = result[column].apply(to_json)
     return result

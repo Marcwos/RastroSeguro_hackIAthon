@@ -277,3 +277,34 @@ beneficiario_recurrente
 ```
 
 El pipeline aplica grafo antes de reglas para que `proveedor_recurrente` y `beneficiario_recurrente` puedan activar reglas auditables.
+
+
+## Scoring categórico interpretable
+
+El scoring categórico convierte variables cualitativas en señales explicables sin usar una caja negra. Se implementa separado del score final para mantener la lógica auditable.
+
+```txt
+src/categorical/
+├── normalization.py
+├── profiles.py
+└── scoring.py
+```
+
+Responsabilidades:
+
+| Archivo | Responsabilidad |
+|---|---|
+| `normalization.py` | Normalizar categorías, tildes, espacios y valores booleanos |
+| `profiles.py` | Definir perfiles de riesgo por campo y valor |
+| `scoring.py` | Generar `score_categorico`, señales y explicación |
+
+Columnas generadas:
+
+```txt
+score_categorico
+alerta_categorica
+senales_categoricas
+explicacion_categorica
+```
+
+Este módulo está inspirado en la idea RIDIT/PRIDIT del planteamiento: transformar variables categóricas en señales cuantificables e interpretables.
