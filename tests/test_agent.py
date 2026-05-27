@@ -51,6 +51,24 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(response["source"], "rag")
         self.assertIsInstance(response["data"], list)
 
+    def test_rag_advanced_relevance_and_chunking(self):
+        from src.agent.rag import search_docs
+        
+        # Test query targeting score calculation
+        results = search_docs("score final compuesto")
+        self.assertIsInstance(results, list)
+        self.assertGreater(len(results), 0)
+        
+        # Verify that all returned snippets are controlled in size and have source path
+        for match in results:
+            self.assertIn("source", match)
+            self.assertIn("snippet", match)
+            self.assertLess(len(match["snippet"]), 1000)
+            
+        # Verify that targeted terms match a high ranking section
+        top_snippet = results[0]["snippet"].lower()
+        self.assertTrue(any(word in top_snippet for word in ["score", "final", "compuesto"]))
+
     def test_quick_questions_are_available_for_ui(self):
         questions = get_quick_questions()
 

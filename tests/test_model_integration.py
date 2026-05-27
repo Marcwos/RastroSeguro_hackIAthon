@@ -8,12 +8,14 @@ from src.scoring.final_score import score_dataframe
 
 class FakeClassifier:
     def predict_proba(self, records):
-        return [[0.15, 0.85] if record.get("monto_reclamado", 0) > 5000 else [0.80, 0.20] for record in records]
+        records_list = records.to_dict(orient="records") if hasattr(records, "to_dict") else records
+        return [[0.15, 0.85] if record.get("monto_reclamado", 0) > 5000 else [0.80, 0.20] for record in records_list]
 
 
 class FakeAnomaly:
     def predict(self, records):
-        return [-1 if record.get("monto_reclamado", 0) > 5000 else 1 for record in records]
+        records_list = records.to_dict(orient="records") if hasattr(records, "to_dict") else records
+        return [-1 if record.get("monto_reclamado", 0) > 5000 else 1 for record in records_list]
 
 
 class ModelIntegrationTest(unittest.TestCase):
