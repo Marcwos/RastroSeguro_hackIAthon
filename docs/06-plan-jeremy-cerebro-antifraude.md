@@ -40,6 +40,12 @@ src/
 ├── rules/
 │   ├── models.py
 │   ├── base_rules.py
+│   ├── common/
+│   │   ├── coercion.py
+│   │   ├── temporal_rules.py
+│   │   ├── amount_rules.py
+│   │   ├── document_rules.py
+│   │   └── recurrence_rules.py
 │   ├── vehicle_rules.py
 │   ├── health_rules.py
 │   ├── home_rules.py
@@ -308,3 +314,19 @@ explicacion_categorica
 ```
 
 Este módulo está inspirado en la idea RIDIT/PRIDIT del planteamiento: transformar variables categóricas en señales cuantificables e interpretables.
+
+
+## Estructura de reglas base
+
+Las reglas comunes se separan por responsabilidad para evitar que `base_rules.py` crezca como archivo gigante:
+
+```txt
+src/rules/common/
+├── coercion.py
+├── temporal_rules.py
+├── amount_rules.py
+├── document_rules.py
+└── recurrence_rules.py
+```
+
+`base_rules.py` queda como orquestador pequeño que ejecuta los evaluadores comunes. Esta estructura facilita agregar reglas sin mezclar lógica temporal, monetaria, documental y de recurrencia.

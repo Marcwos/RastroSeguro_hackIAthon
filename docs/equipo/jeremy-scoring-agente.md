@@ -166,3 +166,17 @@ src/categorical/scoring.py
 ```
 
 Genera `score_categorico`, `senales_categoricas` y `explicacion_categorica`. Esto permite defender ante el jurado cómo categorías como canal de venta, estado de póliza, tipo de impacto o ausencia de reporte policial aportan al score sin depender de una caja negra.
+
+
+## Estructura de reglas comunes
+
+Para mantener el núcleo limpio, `src/rules/base_rules.py` es solo un orquestador. Las reglas comunes viven en:
+
+```txt
+src/rules/common/temporal_rules.py
+src/rules/common/amount_rules.py
+src/rules/common/document_rules.py
+src/rules/common/recurrence_rules.py
+```
+
+Así se evita que un solo archivo concentre todas las reglas y se facilita extender el motor sin perder trazabilidad.
