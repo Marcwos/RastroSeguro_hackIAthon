@@ -9,10 +9,13 @@ import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MOCK_CSV = PROJECT_ROOT / "data" / "synthetic" / "mock_siniestros_scored.csv"
+PROCESSED_CSV = PROJECT_ROOT / "data" / "processed" / "siniestros_scored.csv"
 
 
 @st.cache_data
 def load_claims() -> pd.DataFrame:
+    if PROCESSED_CSV.exists():
+        return pd.read_csv(PROCESSED_CSV)
     if MOCK_CSV.exists():
         return pd.read_csv(MOCK_CSV)
     return _build_mock_dataframe()
@@ -142,6 +145,15 @@ def _build_mock_dataframe() -> pd.DataFrame:
         },
     ]
     return pd.DataFrame(rows)
+
+
+def read_uploaded_claims_file(uploaded_file) -> pd.DataFrame:
+    filename = uploaded_file.name.lower()
+    if filename.endswith(".csv"):
+        return pd.read_csv(uploaded_file)
+    if filename.endswith(".xlsx"):
+        return pd.read_excel(uploaded_file, engine="openpyxl")
+    raise ValueError("Formato no soportado. Usa CSV o Excel (.xlsx).")
 
 
 def ensure_mock_csv() -> None:

@@ -1,435 +1,288 @@
-"""Evaluación de riesgo del siniestro — presentación concisa."""
+"""RastroSeguro: Evaluación de riesgo neuronal del siniestro."""
 
-import html
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import bootstrap  # noqa: F401
+# Add project root to sys.path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import streamlit as st
+import folium
+from streamlit_folium import st_folium
 
-from app.components.data import ensure_mock_csv, load_claims
-from app.components.layout import page_header, risk_badge, sidebar_branding, wireframe_box
+from app.components.data import ensure_mock_csv, load_claims, read_uploaded_claims_file
+from app.components.layout import (
+    inject_base_styles,
+    top_app_bar,
+    bottom_nav_bar,
+    ai_fab,
+    slide_header,
+    expediente_header,
+    metric_field,
+    narrative_card,
+    document_list,
+    drop_zone_placeholder,
+    score_component_card,
+    risk_alert,
+    risk_pills,
+    disclaimer,
+    sidebar_branding,
+    prep_card
+)
+from src.agent.antifraud_agent import answer_question
+from src.agent.quick_questions import get_quick_questions
+from src.simulator.simulate_claim import simulate_new_claim
 
+# --- App Config ---
 st.set_page_config(
-    page_title="RastroSeguro",
+    page_title="RastroSeguro | Expert Intelligence",
     page_icon="🛡️",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
+# Initialize Data
 ensure_mock_csv()
-
 df = load_claims()
 
+# Session State
 if "slide" not in st.session_state:
     st.session_state.slide = 0
 if "selected_claim_id" not in st.session_state:
-    st.session_state.selected_claim_id = df.sort_values("score_final", ascending=False)[
-        "id_siniestro"
-    ].iloc[0]
+    st.session_state.selected_claim_id = df.sort_values("score_final", ascending=False)["id_siniestro"].iloc[0]
 if "chat_messages" not in st.session_state:
     st.session_state.chat_messages = []
 if "show_chat" not in st.session_state:
     st.session_state.show_chat = False
 
-slides = [
-    "Carga de información",
-    "Resumen del caso",
-    "Análisis IA",
+# Constants
+SLIDES = ["Carga de información", "Resumen del caso", "Análisis IA"]
+CURRENT_SLIDE = st.session_state.slide
+REQUIRED_UPLOAD_COLUMNS = [
+    "id_siniestro", "ramo", "cobertura", "ciudad", "id_proveedor",
+    "monto_reclamado", "suma_asegurada", "descripcion",
 ]
-current_slide = st.session_state.slide
-progress_percent = int(((current_slide + 1) / len(slides)) * 100)
 
-sidebar_branding(active_step=current_slide)
+# --- Helpers ---
 
-page_header(
-    "Analytical Trust",
-    "RastroSeguro",
-    "Un flujo de presentación para cargar un siniestro, resumir su evidencia y explicar el score IA antes de cualquier decisión humana.",
-)
+def render_agent_response(response: dict) -> str:
+    """Render the tool-backed agent envelope into readable chat content."""
+    base = response.get("message", "No pude procesar la consulta en este momento.")
+    if not response.get("ok", False):
+        hint = response.get("hint")
+        return f"{base}\n\nSiguiente paso sugerido: {hint}" if hint else base
+    data = response.get("data")
+    source = response.get("source", "agent")
+    if isinstance(data, list):
+        return f"{base}\n\nFuente: {source}. Registros relevantes: {len(data)}."
+    if isinstance(data, dict):
+        preview = ", ".join(str(k) for k in list(data.keys())[:6])
+        return f"{base}\n\nFuente: {source}. Campos disponibles: {preview}."
+    if isinstance(data, str):
+        return f"{base}\n\n{data}"
+    return base
 
-st.markdown(
-    f"""
-    <div class="rs-top-track">
-        <div class="rs-top-track-fill" style="width:{progress_percent}%;">
-            <div class="rs-top-track-dot"></div>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+# --- Layout Rendering ---
+inject_base_styles()
+sidebar_branding(active_step=CURRENT_SLIDE)
+top_app_bar(current_step=CURRENT_SLIDE)
 
-st.markdown(
-    """
-    <div class="rs-ethic-note">
-        La IA alerta y explica patrones de riesgo. No confirma fraude, no acusa y no rechaza reclamos:
-        prioriza casos para revisión humana trazable.
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-step_labels = []
-for index, label in enumerate(slides):
-    state = "Activo" if index == current_slide else "Validado" if index < current_slide else "Pendiente"
-    state_class = "is-active" if index == current_slide else "is-complete" if index < current_slide else ""
-    step_labels.append(
-        f"<span class='rs-step-pill {state_class}'>Paso {index + 1}: {html.escape(label)} · {state}</span>"
-    )
-
-st.markdown(
-    f"""
-    <div>
-        {''.join(step_labels)}
-        <div class="rs-progress-track">
-            <div class="rs-progress-fill" style="width:{progress_percent}%"></div>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
+# Get current claim data
 claim = df[df["id_siniestro"] == st.session_state.selected_claim_id].iloc[0]
-alertas = [item for item in str(claim["alertas_activadas"]).split("|") if item]
 
+# --- Main Content ---
 
-def money(value: float) -> str:
-    return f"${int(value):,}"
-
-
-def tile(title: str, value: str, hint: str = "") -> None:
-    st.markdown(
-        f"""
-        <div class="rs-grid-card">
-            <div class="rs-card-copy">{html.escape(title)}</div>
-            <div class="rs-card-title">{html.escape(value)}</div>
-            {f'<div class="rs-card-copy">{html.escape(hint)}</div>' if hint else ''}
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def factor_row(label: str, value: float) -> None:
-    safe_value = max(0, min(100, int(value)))
-    st.markdown(
-        f"""
-        <div class="rs-factor-row">
-            <div class="rs-factor-top">
-                <span>{html.escape(label)}</span>
-                <span>{safe_value}/100</span>
+if CURRENT_SLIDE == 0:
+    # Slide 0: Carga (Calibrated Split View)
+    st.markdown("""
+    <div class="rs-split-bg">
+        <div class="rs-split-bg-left"></div>
+        <div class="rs-split-bg-right"></div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    with st.container(key="slide_0_content"):
+        c_left, c_right = st.columns(2)
+        
+        with c_left:
+            st.markdown('<div class="rs-panel-centered">', unsafe_allow_html=True)
+            st.markdown('<div class="rs-panel-left-content">', unsafe_allow_html=True)
+            st.markdown('<span class="rs-kicker">Módulo de Ingreso</span>', unsafe_allow_html=True)
+            st.markdown('<h1 class="rs-slide-title">Paso 1: Carga de información del siniestro</h1>', unsafe_allow_html=True)
+            st.markdown('<p class="rs-slide-subtitle">Requerimos el set de datos crudos del incidente. Nuestro motor de IA procesará variables demográficas para generar un scoring de riesgo en tiempo real.</p>', unsafe_allow_html=True)
+            
+            st.markdown("""
+            <div class="rs-glass-card-validation">
+                <div class="rs-glass-icon-circle">
+                    <span class="material-symbols-outlined">verified_user</span>
+                </div>
+                <div>
+                    <div style="font-weight:700;color:var(--rs-on-surface);margin-bottom:0.25rem;">Validación de Estructura</div>
+                    <div style="font-size:0.85rem;color:var(--rs-on-muted);">Se valida estructura y se prepara para scoring automático.</div>
+                </div>
             </div>
-            <div class="rs-factor-track">
-                <div class="rs-factor-fill" style="width:{safe_value}%"></div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+            """, unsafe_allow_html=True)
+            st.markdown('</div></div>', unsafe_allow_html=True)
 
-
-def answer_chat_question(question: str) -> str:
-    if "alerta" in question.lower():
-        return (
-            f"La alerta más visible es: {alertas[0] if alertas else 'sin alerta crítica'}. "
-            f"Debe revisarse junto con el score final de {int(claim['score_final'])}/100."
-        )
-    if "revis" in question.lower() or "analista" in question.lower():
-        return (
-            f"El analista debería validar documentos, proveedor {claim['id_proveedor']} "
-            f"y consistencia del monto reclamado (${int(claim['monto_reclamado']):,})."
-        )
-    return (
-        f"El caso {claim['id_siniestro']} obtuvo {int(claim['score_final'])}/100 "
-        f"por sus señales activadas: {', '.join(alertas) if alertas else 'sin alertas fuertes'}. "
-        "Esto prioriza revisión humana, no confirma fraude."
-    )
-
-if current_slide == 0:
-    with st.container(border=True):
-        st.markdown(
-            """
-            <div class="rs-slide-kicker">Paso 1 de 3 · Intake</div>
-            <div class="rs-slide-title">Carga de información</div>
-            <div class="rs-slide-subtitle">
-            El siniestro entra al sistema como evidencia preliminar. La interfaz separa carga,
-            validación y preparación del pipeline para que el jurado entienda el inicio del flujo.
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        left, right = st.columns([1.12, 0.88], gap="large")
-        with left:
-            st.markdown(
-                """
-                <div class="rs-upload-visual">
-                    <div class="rs-upload-icon">+</div>
-                    <div class="rs-card-title">Dataset o caso individual</div>
-                    <div class="rs-card-copy">
-                        Carga CSV de siniestros o usa un caso demo para activar la narrativa de presentación.
+        with c_right:
+            st.markdown('<div class="rs-panel-centered">', unsafe_allow_html=True)
+            st.markdown('<div class="rs-panel-right-content">', unsafe_allow_html=True)
+            
+            st.markdown('<div class="rs-metric-label" style="margin-bottom:0.75rem; text-align:left;">Seleccionar Caso de Prueba</div>', unsafe_allow_html=True)
+            sorted_claims = df.sort_values("score_final", ascending=False)["id_siniestro"].tolist()
+            new_selection = st.selectbox(
+                "Siniestro demo", sorted_claims,
+                index=sorted_claims.index(st.session_state.selected_claim_id),
+                label_visibility="collapsed"
+            )
+            if new_selection != st.session_state.selected_claim_id:
+                st.session_state.selected_claim_id = new_selection
+                st.rerun()
+                
+            st.markdown('<br>', unsafe_allow_html=True)
+            
+            with st.container(key="upload_drop_zone"):
+                st.markdown("""
+                <div style="text-align:center; margin-bottom:1rem;">
+                    <div class="rs-drop-icon" style="margin: 0 auto 1rem; background:var(--rs-surface-highest);">
+                        <span class="material-symbols-outlined" style="font-size:2.5rem; color:var(--rs-primary);">cloud_upload</span>
                     </div>
+                    <div style="font-weight:700; font-size:1.1rem; color:var(--rs-on-surface);">Subir archivo CSV o Excel</div>
+                    <div style="font-size:0.85rem; color:var(--rs-on-muted); margin-bottom:1rem;">Arrastra y suelta o haz clic para buscar</div>
                 </div>
-                """,
-                unsafe_allow_html=True,
-            )
-            source = st.radio(
-                "Fuente del caso",
-                ["Caso demo", "Subir archivo"],
-                horizontal=True,
-            )
-            if source == "Subir archivo":
-                st.file_uploader("Información del siniestro", type=["csv"])
-                st.caption("Boceto: se validan columnas, tipos y campos mínimos antes de ejecutar el pipeline.")
-            else:
-                sorted_claims = df.sort_values("score_final", ascending=False)[
-                    "id_siniestro"
-                ].tolist()
-                st.session_state.selected_claim_id = st.selectbox(
-                    "Selecciona un siniestro demo",
-                    sorted_claims,
-                    index=sorted_claims.index(st.session_state.selected_claim_id),
-                )
-            st.markdown(
-                """
-                <div class="rs-pill-row">
-                    <span class="rs-mini-pill">Schema validado</span>
-                    <span class="rs-mini-pill">Evidencia normalizada</span>
-                    <span class="rs-mini-pill">Listo para score IA</span>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-        with right:
-            st.markdown(
-                """
-                <div class="rs-glass-card">
-                    <div class="rs-card-title">Pipeline visible para el jurado</div>
-                    <div class="rs-card-copy">
-                        La pantalla muestra que el caso todavía no es fraude: solo queda preparado para análisis.
-                    </div>
-                    <div class="rs-status-row">
-                        <span class="rs-status-label">Entrada</span>
-                        <span class="rs-status-value">Recibida</span>
-                    </div>
-                    <div class="rs-status-row">
-                        <span class="rs-status-label">Validación</span>
-                        <span class="rs-status-value">Sin bloqueo</span>
-                    </div>
-                    <div class="rs-status-row">
-                        <span class="rs-status-label">Siguiente paso</span>
-                        <span class="rs-status-value">Resumen trazable</span>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-            wireframe_box(
-                "Principio de la demo",
-                "El usuario ve una entrada limpia, sin saturación de tablas, y avanza a una ficha clara del caso.",
-            )
+                """, unsafe_allow_html=True)
+                uploaded_file = st.file_uploader("Upload", type=["csv", "xlsx"], label_visibility="collapsed", key="claims_upload_file")
 
-if current_slide == 1:
-    with st.container(border=True):
-        st.markdown(
-            """
-            <div class="rs-slide-kicker">Paso 2 de 3 · Case summary</div>
-            <div class="rs-slide-title">Resumen del caso cargado</div>
-            <div class="rs-slide-subtitle">
-            Antes del score se presenta una ficha ejecutiva: monto, ramo, proveedor, cobertura y señales
-            documentales. Esta pantalla corresponde al resumen visual de Stitch.
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        left, right = st.columns([1.08, 0.92], gap="large")
-        with left:
-            s1, s2 = st.columns(2, gap="medium")
-            with s1:
-                tile("Siniestro", str(claim["id_siniestro"]), "Identificador del caso")
-            with s2:
-                tile("Ramo", str(claim["ramo"]).title(), f"Cobertura: {claim['cobertura']}")
-            s3, s4 = st.columns(2, gap="medium")
-            with s3:
-                tile("Monto reclamado", money(claim["monto_reclamado"]), "Valor reportado")
-            with s4:
-                tile("Suma asegurada", money(claim["suma_asegurada"]), "Límite de referencia")
-            s5, s6 = st.columns(2, gap="medium")
-            with s5:
-                tile("Ciudad", str(claim["ciudad"]), "Origen operativo")
-            with s6:
-                tile("Proveedor", str(claim["id_proveedor"]), "Actor relacionado")
-        with right:
-            docs_status = (
-                "Inconsistentes"
-                if "Documentos" in str(claim["alertas_activadas"])
-                else "Sin alerta crítica"
-            )
-            st.markdown(
-                f"""
-                <div class="rs-glass-card">
-                    <div class="rs-card-title">Lectura preliminar</div>
-                    <div class="rs-card-copy">{html.escape(str(claim["explicacion"]))}</div>
-                    <div class="rs-status-row">
-                        <span class="rs-status-label">Estado documental</span>
-                        <span class="rs-status-value">{html.escape(docs_status)}</span>
-                    </div>
-                    <div class="rs-status-row">
-                        <span class="rs-status-label">Revisión humana</span>
-                        <span class="rs-status-value">Obligatoria</span>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-            if alertas:
-                pills = "".join(
-                    f"<span class='rs-mini-pill'>{html.escape(alerta)}</span>"
-                    for alerta in alertas[:5]
-                )
-                st.markdown(f"<div class='rs-pill-row'>{pills}</div>", unsafe_allow_html=True)
-            else:
-                st.markdown(
-                    "<div class='rs-pill-row'><span class='rs-mini-pill'>Sin alertas fuertes</span></div>",
-                    unsafe_allow_html=True,
-                )
+            if uploaded_file is not None:
+                try:
+                    uploaded_df = read_uploaded_claims_file(uploaded_file)
+                    uploaded_columns = set(uploaded_df.columns.astype(str))
+                    missing_columns = [col for col in REQUIRED_UPLOAD_COLUMNS if col not in uploaded_columns]
+                    st.success(f"Recibido: {uploaded_file.name} · {len(uploaded_df)} filas")
+                    if missing_columns:
+                        st.warning("Faltan columnas mínimas: " + ", ".join(missing_columns))
+                    else:
+                        st.info("Estructura mínima validada.")
+                    with st.expander("Preview de datos", expanded=False):
+                        st.dataframe(uploaded_df.head(5), use_container_width=True)
+                except Exception as exc:
+                    st.error(f"Error al leer: {exc}")
+                
+            st.markdown('<p style="font-size:0.7rem; color:var(--rs-on-muted); text-align:center; margin-top:2rem; font-style:italic;">Formatos: .csv, .xlsx. Procesamiento: ~4 seg x 1k registros.</p>', unsafe_allow_html=True)
+            st.markdown('</div></div>', unsafe_allow_html=True)
 
-if current_slide == 2:
-    with st.container(border=True):
-        st.markdown(
-            """
-            <div class="rs-slide-kicker">Paso 3 de 3 · AI recommendation</div>
-            <div class="rs-slide-title">Análisis IA y score de riesgo</div>
-            <div class="rs-slide-subtitle">
-            El sistema estima un score 1-100, muestra sus componentes y ofrece una explicación accionable.
-            El resultado se presenta como recomendación, no como veredicto.
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        score_col, reasons_col = st.columns([0.9, 1.1], gap="large")
-        with score_col:
-            score = int(claim["score_final"])
-            risk_color = "#f43f5e" if claim["nivel_riesgo"] == "Rojo" else "#f59e0b" if claim["nivel_riesgo"] == "Amarillo" else "#10b981"
-            st.markdown(
-                f"""
-                <div class="rs-risk-gauge" style="--score-deg:{score * 3.6}deg;--risk-color:{risk_color};">
-                    <div class="rs-risk-gauge-inner">
-                        <div>
-                            <div class="rs-score">{score}</div>
-                            <div class="rs-score-label">/100</div>
-                        </div>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-            st.markdown(risk_badge(claim["nivel_riesgo"]), unsafe_allow_html=True)
-            st.markdown("**Acción sugerida**")
-            wireframe_box("Recomendación IA", claim["accion_sugerida"])
-            st.markdown("<div class='rs-score-label'>Score preliminar de posible fraude.</div>", unsafe_allow_html=True)
-        with reasons_col:
-            st.markdown("<div class='rs-card-title'>Razones principales</div>", unsafe_allow_html=True)
-            if alertas:
-                for alerta in alertas[:5]:
-                    st.markdown(
-                        f"""
-                        <div class="rs-status-row">
-                            <span class="rs-status-label">{html.escape(alerta)}</span>
-                            <span class="rs-status-value">Señal activa</span>
-                        </div>
-                        """,
-                        unsafe_allow_html=True,
-                    )
-            else:
-                wireframe_box("Señales", "No se detectaron señales relevantes en el caso demo.")
-            wireframe_box("Explicación", claim["explicacion"])
+elif CURRENT_SLIDE == 1:
+    # Slide 1: Resumen (Bento Grid)
+    st.markdown('<div class="rs-slide-enter">', unsafe_allow_html=True)
+    slide_header("Case Analysis Summary", "Resumen del caso cargado", "Confirme los datos extraídos y las evidencias detectadas.")
+    
+    col_main, col_side = st.columns([8, 4], gap="medium")
+    with col_main:
+        with st.container(key="main_data_card"):
+            st.markdown('<div class="rs-bento-card">', unsafe_allow_html=True)
+            expediente_header(st.session_state.selected_claim_id)
+            m1, m2, m3, m4 = st.columns(4)
+            with m1: metric_field("Ramo", str(claim["ramo"]).title())
+            with m2: metric_field("Monto", f"${int(claim['monto_reclamado']):,} USD", highlight=True)
+            with m3: metric_field("Cobertura", claim["cobertura"])
+            with m4: metric_field("Ciudad", claim["ciudad"])
+            st.markdown("<br>", unsafe_allow_html=True)
+            narrative_card(claim["explicacion"] if "explicacion" in claim else "Narrativa pendiente de procesamiento.")
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+        st.markdown("<br>", unsafe_allow_html=True)
+        s_left, s_right = st.columns(2, gap="medium")
+        with s_left:
+            m = folium.Map(location=[6.2442, -75.5812], zoom_start=13, tiles="cartodb dark_matter")
+            folium.Marker([6.2442, -75.5812], popup="Ubicación").add_to(m)
+            st.markdown('<div class="rs-location-card">', unsafe_allow_html=True)
+            st_folium(m, height=200, use_container_width=True, key="map_container")
+            st.markdown(f'<div class="rs-location-overlay"><div class="rs-location-label"><span class="material-symbols-outlined">location_on</span><span>Ubicación Confirmada</span></div><div class="rs-location-value">{claim["ciudad"]}, Antioquia</div></div></div>', unsafe_allow_html=True)
+        with s_right:
+            prep_card(variables_count=int(claim['score_reglas']) // 5 + 10)
+            st.markdown("<br><div class=\"rs-bento-card-dark\" style=\"opacity:0.8; height:100px; display:flex; flex-direction:column; justify-content:center;\"><div style=\"font-size:0.7rem;font-weight:700;color:var(--rs-secondary);text-transform:uppercase;margin-bottom:0.25rem;\">Meta-data Audit</div><div style=\"font-size:0.85rem;color:var(--rs-on-muted);\">Consistencia detectada entre narrativa y telemetría.</div></div>", unsafe_allow_html=True)
+            
+    with col_side:
+        with st.container(key="doc_card"):
+            st.markdown('<div class="rs-bento-card-high">', unsafe_allow_html=True)
+            document_list([{"name": "Declaración.pdf", "icon": "picture_as_pdf"}, {"name": "Evidencia_Daños.jpg", "icon": "image"}, {"name": "Telemetría_GPS.log", "icon": "location_on"}])
+            st.markdown('</div>', unsafe_allow_html=True)
+        drop_zone_placeholder()
+    st.markdown('</div>', unsafe_allow_html=True)
 
-        st.divider()
-        components_col, summary_col = st.columns([1, 1], gap="large")
-        with components_col:
-            st.markdown("<div class='rs-card-title'>Cómo se forma el score</div>", unsafe_allow_html=True)
-            for label, value in [
-                ("Reglas", claim["score_reglas"]),
-                ("Modelo ML", claim["score_modelo"]),
-                ("Anomalías", claim["score_anomalia"]),
-                ("NLP", claim["score_nlp"]),
-                ("Grafo", claim["score_grafo"]),
-                ("Categórico", claim["score_categorico"]),
-            ]:
-                factor_row(label, value)
-        with summary_col:
-            st.markdown(
-                f"""
-                <div class="rs-glass-card">
-                    <div class="rs-card-title">Resumen para presentación</div>
-                    <div class="rs-status-row">
-                        <span class="rs-status-label">Caso evaluado</span>
-                        <span class="rs-status-value">{html.escape(str(claim['id_siniestro']))}</span>
-                    </div>
-                    <div class="rs-status-row">
-                        <span class="rs-status-label">Resultado</span>
-                        <span class="rs-status-value">{score}/100 · {html.escape(str(claim['nivel_riesgo']))}</span>
-                    </div>
-                    <div class="rs-card-copy" style="margin-top:1rem;">
-                        El caso debe pasar a {html.escape(str(claim['accion_sugerida']).lower())}
-                        Este resultado es una alerta explicable, no una acusación formal.
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+elif CURRENT_SLIDE == 2:
+    # Slide 2: Análisis IA (Hero + Grid)
+    st.markdown('<div class="rs-slide-enter">', unsafe_allow_html=True)
+    slide_header("Predictive Risk Matrix", "Análisis IA y Score de Riesgo", "Análisis neuronal para asignar nivel de riesgo auditable.")
+    
+    score = int(claim["score_final"])
+    risk_color = "#ef4444" if claim["nivel_riesgo"] == "Rojo" else "#f59e0b" if claim["nivel_riesgo"] == "Amarillo" else "#10b981"
+    
+    col_hero_map, col_hero_txt = st.columns([5, 7], gap="large")
+    with col_hero_map:
+        st.markdown(f'<div class="rs-risk-gauge" style="--score-deg:{score * 3.6}deg;--risk-color:{risk_color};"><div class="rs-risk-gauge-inner"><div style="text-align:center;"><div class="rs-score-big" style="color:{risk_color};">{score}</div><div class="rs-score-sublabel">/ 100 Riesgo</div></div></div></div>', unsafe_allow_html=True)
+    with col_hero_txt:
+        risk_alert(claim["nivel_riesgo"], claim["accion_sugerida"])
+        risk_pills(claim["nivel_riesgo"])
+        
+    st.markdown("<br>", unsafe_allow_html=True)
+    g1, g2, g3 = st.columns(3); g4, g5, g6 = st.columns(3)
+    with g1: score_component_card("rule", "Reglas", int(claim["score_reglas"]), "Incumplimiento de reglas.", int(claim["score_reglas"]), severity="critical" if claim["score_reglas"] > 15 else "moderate")
+    with g2: score_component_card("hub", "Modelo ML", int(claim["score_modelo"]), "Comportamiento inusual.", int(claim["score_modelo"]), severity="critical" if claim["score_modelo"] > 15 else "moderate")
+    with g3: score_component_card("warning", "Anomalías", int(claim["score_anomalia"]), "Outliers en datos.", int(claim["score_anomalia"]), severity="moderate")
+    with g4: score_component_card("description", "NLP", int(claim["score_nlp"]), "Patrones de texto sospechosos.", int(claim["score_nlp"]), severity="moderate")
+    with g5: score_component_card("account_tree", "Grafo", int(claim["score_grafo"]), "Conexión con entidades de riesgo.", int(claim["score_grafo"]), severity="critical" if claim["score_grafo"] > 10 else "moderate")
+    with g6: score_component_card("category", "Categórico", int(claim["score_categorico"]), "Antigüedad del cliente.", int(claim["score_categorico"]), severity="low")
+    disclaimer()
 
-            with st.container(key="always_chat_panel"):
-                st.markdown(
-                    """
-                    <div class="rs-chat-title">Pregúntale al analisis</div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-                for message in st.session_state.chat_messages[-4:]:
-                    with st.chat_message(message["role"]):
-                        st.write(message["content"])
+    with st.expander("Simular nuevo siniestro (MVP)", expanded=False):
+        st.caption("Ejecuta el simulador sin persistir datos.")
+        s1, s2 = st.columns(2)
+        with s1: 
+            s_ramo = st.text_input("Ramo", value=str(claim.get("ramo", "")))
+            s_cob = st.text_input("Cobertura", value=str(claim.get("cobertura", "")))
+        with s2:
+            s_monto = st.number_input("Monto", value=float(claim.get("monto_reclamado", 0)))
+            s_suma = st.number_input("Suma", value=float(claim.get("suma_asegurada", 0)))
+        s_desc = st.text_area("Descripción", value=str(claim.get("explicacion", "")))
+        if st.button("Simular score en tiempo real", key="sim_btn"):
+            try:
+                sim_data = claim.to_dict(); sim_data.update({"id_siniestro":"SIM","ramo":s_ramo,"cobertura":s_cob,"monto_reclamado":s_monto,"suma_asegurada":s_suma,"descripcion":s_desc})
+                res = simulate_new_claim(sim_data)
+                st.success(f"Resultado: {res['score_final']}/100 · {res['nivel_riesgo']}")
+            except Exception as e: st.error(f"Error: {e}")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-                chat_prompt = st.text_area(
-                    "Pregunta",
-                    placeholder="Pregunta por qué el caso obtuvo ese score, qué alertas activó o qué acción se recomienda...",
-                    height=76,
-                    label_visibility="collapsed",
-                )
-                quick_col, send_col = st.columns([1, 0.25])
-                with quick_col:
-                    quick_question = st.selectbox(
-                        "Pregunta rápida",
-                        [
-                            "¿Por qué este caso tiene ese score?",
-                            "¿Qué alerta pesa más?",
-                            "¿Qué debería revisar el analista?",
-                            "¿Why this is flagged?",
-                        ],
-                        label_visibility="collapsed",
-                    )
-                with send_col:
-                    send_clicked = st.button("↑", width="stretch")
+# --- Navigation & AI ---
+st.markdown('<div class="rs-fab-container">', unsafe_allow_html=True)
+if st.button("✨", key="ai_fab_btn"):
+    st.session_state.show_chat = not st.session_state.show_chat
+    st.rerun()
+st.markdown('</div>', unsafe_allow_html=True)
 
-                if send_clicked:
-                    question = chat_prompt.strip() or quick_question
-                    st.session_state.chat_messages.append({"role": "user", "content": question})
-                    st.session_state.chat_messages.append(
-                        {"role": "assistant", "content": answer_chat_question(question)}
-                    )
-                    st.rerun()
+if st.session_state.show_chat:
+    with st.container(key="ai_chat_panel"):
+        st.markdown('<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;border-bottom:1px solid var(--rs-outline);padding-bottom:0.5rem;"><div style="background:rgba(5, 102, 217, 0.15);padding:4px;border-radius:6px;display:flex;align-items:center;"><span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--rs-secondary);">spark</span></div><div class="rs-chat-title">RastroSeguro AI</div></div>', unsafe_allow_html=True)
+        for msg in st.session_state.chat_messages:
+            with st.chat_message(msg["role"]): st.write(msg["content"])
+        
+        q_questions = get_quick_questions()
+        s_q = st.selectbox("Pregunta rápida", q_questions, key="qq")
+        if st.button("Enviar rápida", key="seq"):
+            st.session_state.chat_messages.append({"role": "user", "content": s_q})
+            r = answer_question(f"{s_q} ({st.session_state.selected_claim_id})")
+            st.session_state.chat_messages.append({"role": "assistant", "content": render_agent_response(r)})
+            st.rerun()
 
-st.divider()
-nav_left, nav_middle, nav_right = st.columns([1, 2, 1])
-with nav_left:
-    if st.button("Anterior", disabled=current_slide == 0, width="stretch"):
-        st.session_state.slide = max(0, current_slide - 1)
-        st.rerun()
-with nav_middle:
-    st.caption(f"Diapositiva {current_slide + 1} de {len(slides)}: {slides[current_slide]}")
-with nav_right:
-    if st.button("Siguiente", disabled=current_slide == len(slides) - 1, width="stretch"):
-        st.session_state.slide = min(len(slides) - 1, current_slide + 1)
-        st.rerun()
+        if prompt := st.chat_input("Escriba su duda..."):
+            st.session_state.chat_messages.append({"role": "user", "content": prompt})
+            r = answer_question(f"{prompt} ({st.session_state.selected_claim_id})")
+            st.session_state.chat_messages.append({"role": "assistant", "content": render_agent_response(r)})
+            st.rerun()
+
+bottom_nav_bar(current_step=CURRENT_SLIDE)
+if st.button("⬅️ Anterior", disabled=CURRENT_SLIDE == 0, key="nav_prev"):
+    st.session_state.slide = max(0, CURRENT_SLIDE - 1); st.rerun()
+if st.button("Siguiente ➡️" if CURRENT_SLIDE < 2 else "Finalizar ✅", key="nav_next"):
+    if CURRENT_SLIDE < 2: st.session_state.slide += 1; st.rerun()
+    else: st.success("Completado.")
