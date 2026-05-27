@@ -85,7 +85,7 @@ Funciones de Jeremy:
 
 ```python
 explain_claim(id_siniestro)
-simulate_new_claim(claim_data)
+simulate_new_claim(claim_data)  # devuelve risk/signals/ui/context listos para pintar
 get_provider_risk_ranking()
 generate_executive_summary()
 ```

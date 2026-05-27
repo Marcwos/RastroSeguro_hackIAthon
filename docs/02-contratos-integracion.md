@@ -128,33 +128,59 @@ Función:
 simulate_new_claim(claim_data: dict) -> dict
 ```
 
-Entrada mínima:
+Entrada mínima desde el formulario de Justin:
 
 ```json
 {
-  "ramo": "vehiculos",
+  "ramo": "vehiculo",
+  "tipo_evento": "choque",
   "fecha_inicio_poliza": "2026-01-01",
-  "fecha_fin_poliza": "2026-12-31",
   "fecha_ocurrencia": "2026-01-03",
   "fecha_reporte": "2026-01-10",
   "monto_reclamado": 18000,
   "suma_asegurada": 20000,
-  "id_proveedor": "PROV-001",
-  "descripcion": "Vehículo impactado por tercero no identificado.",
-  "documentos_completos": false,
-  "documentos_inconsistentes": true
+  "proveedor": "PROV-001",
+  "narrativa": "Vehículo impactado por tercero no identificado.",
+  "documentos_presentes": false
 }
 ```
 
-Salida esperada:
+El simulador acepta aliases de UI como `vehiculo`, `proveedor`, `narrativa` y `documentos_presentes`, los normaliza al contrato interno y evalúa el caso sin persistirlo.
+
+Salida compatible y enriquecida:
 
 ```json
 {
+  "ok": true,
+  "simulated": true,
+  "source": "simulator",
+  "id_siniestro": "SIMULADO",
   "score_final": 84,
   "nivel_riesgo": "Rojo",
-  "alertas_activadas": [],
-  "explicacion": "",
-  "accion_sugerida": ""
+  "alertas": [],
+  "explicacion": "...",
+  "accion_sugerida": "Revisión especializada",
+  "risk": {
+    "score_final": 84,
+    "nivel_riesgo": "Rojo",
+    "accion_sugerida": "Revisión especializada"
+  },
+  "signals": {
+    "rules": [],
+    "nlp": {},
+    "graph": {},
+    "categorical": {},
+    "model": {}
+  },
+  "ui": {
+    "priority_badge": "Rojo",
+    "summary_cards": [],
+    "recommended_next_steps": []
+  },
+  "context": {
+    "historical_claims_loaded": false,
+    "historical_claims_count": 0
+  }
 }
 ```
 

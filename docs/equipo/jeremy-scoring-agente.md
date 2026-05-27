@@ -220,6 +220,27 @@ También expone preguntas rápidas con `get_quick_questions()` para la vista de 
 
 
 
+
+
+## Simulador de nuevo siniestro
+
+`simulate_new_claim(claim_data)` permite que Justin reciba datos desde un formulario y evalúe el caso sin guardarlo en el dataset. El simulador:
+
+1. Normaliza aliases de UI (`vehiculo`, `proveedor`, `narrativa`, `documentos_presentes`).
+2. Carga contexto histórico si existe `data/processed/siniestros_scored.csv`.
+3. Ejecuta grafo, categórico, modelos de Carlos, NLP y reglas.
+4. Devuelve la explicación tradicional y secciones listas para UI: `risk`, `signals`, `ui` y `context`.
+
+Campos clave para Justin:
+
+```txt
+ok, simulated, source
+risk.score_final, risk.nivel_riesgo, risk.accion_sugerida
+signals.rules, signals.nlp, signals.graph, signals.categorical, signals.model
+ui.priority_badge, ui.summary_cards, ui.recommended_next_steps
+context.historical_claims_loaded, context.historical_claims_count
+```
+
 ## Capa LLM opcional con OpenAI
 
 El paquete `src/agent/llm/` separa la síntesis conversacional del router principal:

@@ -60,10 +60,43 @@ class JeremyCoreTest(unittest.TestCase):
     def test_simulator_reuses_scoring_engine(self):
         result = simulate_new_claim(risky_vehicle_claim())
 
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["simulated"])
+        self.assertEqual(result["source"], "simulator")
         self.assertEqual(result["id_siniestro"], "SIN-TEST-001")
         self.assertEqual(result["nivel_riesgo"], "Rojo")
+        self.assertEqual(result["risk"]["nivel_riesgo"], "Rojo")
         self.assertTrue(result["alertas"])
+        self.assertTrue(result["signals"]["rules"])
         self.assertGreater(result["componentes_score"]["reglas"], 70)
+        self.assertEqual(result["ui"]["priority_badge"], "Rojo")
+        self.assertIn("historical_claims_loaded", result["context"])
+
+    def test_simulator_normalizes_ui_friendly_aliases(self):
+        result = simulate_new_claim({
+            "id_siniestro": "SIM-UI-001",
+            "ramo": "vehiculo",
+            "tipo_evento": "choque",
+            "fecha_inicio_poliza": "2026-01-01",
+            "fecha_ocurrencia": "2026-01-04",
+            "fecha_reporte": "2026-01-12",
+            "monto_reclamado": "8500",
+            "suma_asegurada": "10000",
+            "documentos_presentes": False,
+            "proveedor": "PROV-DEMO",
+            "narrativa": "Choque al salir del parqueadero sin testigos",
+            "ocurrio_noche": "si",
+            "hay_testigos": "no",
+            "reporte_policial": False,
+            "tercero_identificado": False,
+        })
+
+        self.assertEqual(result["input_normalizado"]["ramo"], "vehiculos")
+        self.assertEqual(result["input_normalizado"]["documentos_completos"], False)
+        self.assertEqual(result["input_normalizado"]["id_proveedor"], "PROV-DEMO")
+        self.assertEqual(result["input_normalizado"]["descripcion"], "Choque al salir del parqueadero sin testigos")
+        self.assertIn(result["risk"]["nivel_riesgo"], {"Verde", "Amarillo", "Rojo"})
+        self.assertGreaterEqual(len(result["ui"]["summary_cards"]), 3)
 
 
 if __name__ == "__main__":
