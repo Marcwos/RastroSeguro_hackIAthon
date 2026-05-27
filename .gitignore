@@ -20,6 +20,8 @@ build/
 
 # Data
 data/raw/
+data/curated/
+data/processed/
 
 # Playwright & Screenshots
 .playwright-mcp/

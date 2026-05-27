@@ -19,6 +19,14 @@ python -m src.ingestion.scrape_ecuador --year-start 2021 --year-end 2026
 Salidas: `data/ecuador/inventario_manifest.json`, `data/ecuador/inventario_links.tsv`.  
 Ver [inventario-fuentes-ecuador.md](./inventario-fuentes-ecuador.md).
 
+### 0.1 Modelar dataset curado para base de datos (opcional)
+
+```bash
+py -3 -m src.ingestion.model_curated_dataset --skip-ecu911-agg
+```
+
+Ver guía de despliegue: [06-modelado-dataset-supabase.md](./06-modelado-dataset-supabase.md).
+
 ### 1. Generar dataset sintético
 
 ```bash

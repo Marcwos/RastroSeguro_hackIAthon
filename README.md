@@ -19,6 +19,7 @@ Lectura recomendada para el equipo:
 3. [Arquitectura y pipeline](./docs/03-arquitectura-pipeline.md)
 4. [Demo y vistas](./docs/04-demo-y-vistas.md)
 5. [Instrucciones de ejecución](./docs/05-instrucciones-ejecucion.md)
+6. [Modelado dataset para Supabase](./docs/06-modelado-dataset-supabase.md)
 
 Documentos por integrante:
 
