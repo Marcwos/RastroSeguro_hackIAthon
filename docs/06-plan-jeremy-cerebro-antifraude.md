@@ -243,3 +243,37 @@ nivel_alerta_nlp
 siniestros_similares
 explicacion_nlp
 ```
+
+
+## Grafo y relaciones
+
+El análisis de relaciones se implementa como módulo separado para detectar recurrencias entre siniestros sin mezclar lógica de UI, scoring y extracción de entidades.
+
+```txt
+src/graph/
+├── entity_extraction.py
+├── relationship_metrics.py
+└── scoring.py
+```
+
+Responsabilidades:
+
+| Archivo | Responsabilidad |
+|---|---|
+| `entity_extraction.py` | Extraer entidades tipadas: asegurado, proveedor, beneficiario, vehículo, taller, conductor, ciudad, ramo, cobertura e intermediario |
+| `relationship_metrics.py` | Calcular recurrencia de entidades y siniestros relacionados |
+| `scoring.py` | Generar `score_grafo`, alertas de red, conexiones y flags para reglas recurrentes |
+
+Columnas generadas:
+
+```txt
+score_grafo
+alerta_red
+entidades_recurrentes
+conexiones_grafo
+explicacion_grafo
+proveedor_recurrente
+beneficiario_recurrente
+```
+
+El pipeline aplica grafo antes de reglas para que `proveedor_recurrente` y `beneficiario_recurrente` puedan activar reglas auditables.

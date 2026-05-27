@@ -216,3 +216,20 @@ Jeremy genera estas columnas cuando el dataset incluye `descripcion`:
 | `explicacion_nlp` | Texto explicable para Justin/agente/reporte |
 
 Estas columnas son consumidas por la vista de inteligencia antifraude y por `get_similar_narratives(id_siniestro)`.
+
+
+## 9. Columnas generadas por grafo/relaciones
+
+Jeremy genera estas columnas para análisis de relaciones cuando existen entidades suficientes en el dataset:
+
+| Columna | Descripción |
+|---|---|
+| `score_grafo` | Riesgo 0-100 derivado de recurrencia de entidades críticas |
+| `alerta_red` | Indica si el caso tiene entidades recurrentes relevantes |
+| `entidades_recurrentes` | Lista JSON con entidades, conteos y siniestros relacionados |
+| `conexiones_grafo` | Lista JSON de conexiones del siniestro para visualización |
+| `explicacion_grafo` | Texto explicable del hallazgo de red |
+| `proveedor_recurrente` | Flag derivado para reglas base |
+| `beneficiario_recurrente` | Flag derivado para reglas base |
+
+Estas columnas alimentan la vista de inteligencia antifraude, `get_graph_connections(id_siniestro)` y el score final.

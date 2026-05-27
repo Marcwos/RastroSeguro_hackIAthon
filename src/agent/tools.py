@@ -108,13 +108,16 @@ def get_graph_connections(id_siniestro: str, data_path: Path = OUTPUT_PATH) -> d
     df = _load_scored(data_path)
     row = df[df["id_siniestro"].astype(str) == str(id_siniestro)]
     if row.empty:
-        return {"id_siniestro": id_siniestro, "connections": []}
+        return {"id_siniestro": id_siniestro, "connections": [], "recurring_entities": []}
     record = row.iloc[0].to_dict()
-    connections = []
-    for field in ["id_asegurado", "id_proveedor", "beneficiario", "id_vehiculo", "ciudad", "ramo", "cobertura"]:
-        if field in record and pd.notna(record[field]):
-            connections.append({"type": field, "value": record[field]})
-    return {"id_siniestro": id_siniestro, "connections": connections}
+    return {
+        "id_siniestro": id_siniestro,
+        "score_grafo": record.get("score_grafo", 0),
+        "alerta_red": record.get("alerta_red", False),
+        "connections": from_json_list(record.get("conexiones_grafo")),
+        "recurring_entities": from_json_list(record.get("entidades_recurrentes")),
+        "explanation": record.get("explicacion_grafo", ""),
+    }
 
 
 def compare_branches(data_path: Path = OUTPUT_PATH) -> list[dict[str, Any]]:

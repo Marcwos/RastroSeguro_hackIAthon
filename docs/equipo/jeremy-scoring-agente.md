@@ -140,3 +140,16 @@ src/nlp/scoring.py
 ```
 
 La primera versión usa TF-IDF cuando `scikit-learn` está disponible y fallback por tokens cuando no. Esto permite avanzar sin romper el pipeline y deja lista la estructura para reemplazar o ampliar con embeddings después.
+
+
+## Grafo de relaciones
+
+El módulo de relaciones está separado para mantener la arquitectura limpia:
+
+```txt
+src/graph/entity_extraction.py
+src/graph/relationship_metrics.py
+src/graph/scoring.py
+```
+
+Este módulo calcula recurrencia de entidades críticas y genera `score_grafo`, `entidades_recurrentes`, `conexiones_grafo` y `explicacion_grafo`. Además, deriva `proveedor_recurrente` y `beneficiario_recurrente` para que las reglas base puedan explicar esas señales.
