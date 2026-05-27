@@ -40,6 +40,21 @@ def explain_claim(id_siniestro: str, data_path: Path = OUTPUT_PATH) -> dict[str,
             "grafo": row.get("score_grafo"),
             "categorico": row.get("score_categorico"),
         },
+        "detalles_avanzados": {
+            "nlp": {
+                "explicacion": row.get("explicacion_nlp", ""),
+                "similares": from_json_list(row.get("siniestros_similares")),
+            },
+            "grafo": {
+                "explicacion": row.get("explicacion_grafo", ""),
+                "conexiones": from_json_list(row.get("conexiones_grafo")),
+                "entidades_recurrentes": from_json_list(row.get("entidades_recurrentes")),
+            },
+            "categorico": {
+                "explicacion": row.get("explicacion_categorica", ""),
+                "senales": from_json_list(row.get("senales_categoricas")),
+            }
+        }
     }
 
 
@@ -60,4 +75,19 @@ def explain_unsaved_claim(claim: dict[str, Any]) -> dict[str, Any]:
             "grafo": scored["score_grafo"],
             "categorico": scored["score_categorico"],
         },
+        "detalles_avanzados": {
+            "nlp": {
+                "explicacion": scored.get("explicacion_nlp", ""),
+                "similares": scored.get("siniestros_similares", []),
+            },
+            "grafo": {
+                "explicacion": scored.get("explicacion_grafo", ""),
+                "conexiones": scored.get("conexiones_grafo", []),
+                "entidades_recurrentes": scored.get("entidades_recurrentes", []),
+            },
+            "categorico": {
+                "explicacion": scored.get("explicacion_categorica", ""),
+                "senales": scored.get("senales_categoricas", []),
+            }
+        }
     }
