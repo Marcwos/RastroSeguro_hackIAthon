@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Any
 
 from src.explainability.explain_claim import explain_claim
+from src.reports.executive_summary import build_executive_report
+from src.reports.markdown_report import render_markdown_report
 from src.scoring.final_score import OUTPUT_PATH
 from src.simulator.simulate_claim import simulate_new_claim
 from src.utils.serialization import from_json_list
@@ -77,21 +79,11 @@ def recommend_review_order(limit: int = 20, data_path: Path = OUTPUT_PATH) -> li
 
 def generate_executive_summary(data_path: Path = OUTPUT_PATH) -> dict[str, Any]:
     df = _load_scored(data_path)
-    total = len(df)
-    red = int((df["nivel_riesgo"] == "Rojo").sum())
-    yellow = int((df["nivel_riesgo"] == "Amarillo").sum())
-    green = int((df["nivel_riesgo"] == "Verde").sum())
-    amount_red = float(df.loc[df["nivel_riesgo"] == "Rojo", "monto_reclamado"].sum()) if "monto_reclamado" in df.columns else 0.0
-    return {
-        "total_siniestros": total,
-        "casos_rojos": red,
-        "casos_amarillos": yellow,
-        "casos_verdes": green,
-        "porcentaje_rojo": round((red / total) * 100, 2) if total else 0,
-        "monto_reclamado_casos_rojos": round(amount_red, 2),
-        "top_casos": get_top_risky_claims(limit=5, data_path=data_path),
-        "top_proveedores": get_provider_risk_ranking(limit=5, data_path=data_path),
-    }
+    return build_executive_report(df.to_dict("records"), top_limit=5)
+
+
+def generate_executive_report_markdown(data_path: Path = OUTPUT_PATH) -> str:
+    return render_markdown_report(generate_executive_summary(data_path=data_path))
 
 
 def get_similar_narratives(id_siniestro: str, data_path: Path = OUTPUT_PATH) -> list[dict[str, Any]]:

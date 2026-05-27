@@ -99,3 +99,14 @@ Métricas de Carlos cuando estén disponibles.
 3. Inteligencia antifraude.
 4. Agente/simulador.
 5. Reporte/demo.
+
+
+## Consumo de reporte ejecutivo
+
+Jeremy entrega funciones de reporte para la vista `Reporte / demo`:
+
+```python
+from src.reports.generate_report import generate_report_dict, generate_report_markdown
+```
+
+Usa `generate_report_dict()` si quieres construir tarjetas/tablas en Streamlit. Usa `generate_report_markdown()` si quieres mostrar o exportar un reporte rápido con resumen, top casos, riesgo por ramo, proveedores, ciudades y nota ética.

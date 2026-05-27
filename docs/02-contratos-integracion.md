@@ -312,3 +312,27 @@ Si hay error:
 ```
 
 Justin puede usar `get_quick_questions()` para mostrar botones de preguntas rápidas en la UI.
+
+
+## 13. Contrato de reporte ejecutivo
+
+Jeremy expone dos formas de reporte:
+
+```python
+generate_report_dict()
+generate_report_markdown()
+```
+
+El dict contiene:
+
+```txt
+generated_at
+summary
+top_casos
+riesgo_por_ramo
+top_proveedores
+top_ciudades
+ethics_note
+```
+
+Justin puede usar el dict para componentes visuales o el Markdown para una vista/exportación rápida.

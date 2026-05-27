@@ -421,3 +421,29 @@ documentacion
 ```
 
 Si falta `data/processed/siniestros_scored.csv`, el agente devuelve un error accionable para ejecutar el scoring.
+
+
+## Reporte ejecutivo
+
+El reporte ejecutivo se genera desde datos procesados y puede consumirse como dict o Markdown. Sirve para Justin, pitch y auditoría.
+
+```txt
+src/reports/
+├── sections.py
+├── executive_summary.py
+├── markdown_report.py
+├── io.py
+└── generate_report.py
+```
+
+Responsabilidades:
+
+| Archivo | Responsabilidad |
+|---|---|
+| `sections.py` | Métricas y agregaciones reutilizables |
+| `executive_summary.py` | Contrato de reporte estructurado |
+| `markdown_report.py` | Render Markdown para demo o exportación |
+| `io.py` | Carga segura de `siniestros_scored.csv` |
+| `generate_report.py` | Entrypoints públicos |
+
+El reporte incluye resumen, top casos críticos, riesgo por ramo, top proveedores, top ciudades y nota ética.

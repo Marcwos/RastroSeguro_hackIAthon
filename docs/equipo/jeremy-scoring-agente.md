@@ -209,3 +209,17 @@ El agente ahora devuelve respuestas consistentes para Justin:
 ```
 
 También expone preguntas rápidas con `get_quick_questions()` para la vista de agente/simulador. Si falta el CSV procesado, responde con un mensaje accionable en lugar de romper la UI.
+
+
+## Reporte ejecutivo
+
+El módulo `src/reports/` genera reportes desde `data/processed/siniestros_scored.csv`.
+
+Funciones principales:
+
+```python
+generate_report_dict()
+generate_report_markdown()
+```
+
+También `tools.generate_executive_summary()` usa el mismo contrato de reporte estructurado para que el agente y la UI respondan de forma consistente.
