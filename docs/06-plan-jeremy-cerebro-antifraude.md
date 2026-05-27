@@ -209,3 +209,37 @@ explicacion, accion_sugerida
 - Las explicaciones deben ser entendibles por un analista.
 - El pipeline debe funcionar aunque falten componentes avanzados.
 - Las pruebas no deben depender de archivos temporales en `data/`.
+
+
+## NLP de narrativas similares
+
+El análisis de narrativas se implementa como un módulo separado para evitar mezclar limpieza, similitud y scoring en un solo archivo.
+
+```txt
+src/nlp/
+├── text_normalization.py
+├── similarity_engine.py
+├── narrative_signals.py
+└── scoring.py
+```
+
+Responsabilidades:
+
+| Archivo | Responsabilidad |
+|---|---|
+| `text_normalization.py` | Normalizar texto, quitar ruido y mapear sinónimos del dominio asegurador |
+| `similarity_engine.py` | Calcular similitud con TF-IDF si está disponible y fallback por tokens si no |
+| `narrative_signals.py` | Convertir similitudes en señales explicables y `score_nlp` |
+| `scoring.py` | Enriquecer siniestros con `score_nlp`, `alerta_narrativa` y `siniestros_similares` |
+
+El pipeline de scoring enriquece los reclamos con NLP cuando existe `descripcion`. Si `scikit-learn` no está instalado, el motor usa fallback determinístico basado en tokens para no romper la ejecución.
+
+Columnas generadas:
+
+```txt
+score_nlp
+alerta_narrativa
+nivel_alerta_nlp
+siniestros_similares
+explicacion_nlp
+```

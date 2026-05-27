@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 
+from src.nlp.scoring import enrich_claims_with_nlp
 from src.rules.rule_registry import evaluate_rules, rules_score
 from src.utils.risk_levels import clamp_score, risk_level, suggested_action
 from src.utils.serialization import to_json
@@ -81,10 +82,14 @@ def score_claim(claim: dict[str, Any]) -> dict[str, Any]:
 def score_dataframe(df):
     import pandas as pd
 
-    scored_rows = [score_claim(row.dropna().to_dict()) for _, row in df.iterrows()]
+    claims = [row.dropna().to_dict() for _, row in df.iterrows()]
+    if claims and any(claim.get("descripcion") for claim in claims):
+        claims = enrich_claims_with_nlp(claims)
+    scored_rows = [score_claim(claim) for claim in claims]
     result = pd.DataFrame(scored_rows)
-    if "alertas_activadas" in result.columns:
-        result["alertas_activadas"] = result["alertas_activadas"].apply(to_json)
+    for column in ("alertas_activadas", "siniestros_similares"):
+        if column in result.columns:
+            result[column] = result[column].apply(to_json)
     return result
 
 

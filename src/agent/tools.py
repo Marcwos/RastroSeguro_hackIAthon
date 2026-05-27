@@ -95,7 +95,6 @@ def generate_executive_summary(data_path: Path = OUTPUT_PATH) -> dict[str, Any]:
 
 
 def get_similar_narratives(id_siniestro: str, data_path: Path = OUTPUT_PATH) -> list[dict[str, Any]]:
-    # Placeholder deterministic shape until NLP module is implemented.
     df = _load_scored(data_path)
     if "siniestros_similares" not in df.columns:
         return []

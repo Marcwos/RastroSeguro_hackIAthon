@@ -201,3 +201,18 @@ Además de las columnas mínimas, Jeremy puede aprovechar estos campos si Carlos
 | Generales | `monto_promedio_cobertura`, `intermediario_recurrente`, `inconsistencia_cobertura` |
 
 Estos campos no bloquean el pipeline si faltan; las reglas se activan solo cuando hay evidencia suficiente.
+
+
+## 8. Columnas generadas por NLP
+
+Jeremy genera estas columnas cuando el dataset incluye `descripcion`:
+
+| Columna | Descripción |
+|---|---|
+| `score_nlp` | Riesgo 0-100 derivado de similitud narrativa |
+| `alerta_narrativa` | Indica si se detectó narrativa similar por encima del umbral |
+| `nivel_alerta_nlp` | Baja, media o alta según similitud |
+| `siniestros_similares` | Lista JSON con ids y porcentajes de similitud |
+| `explicacion_nlp` | Texto explicable para Justin/agente/reporte |
+
+Estas columnas son consumidas por la vista de inteligencia antifraude y por `get_similar_narratives(id_siniestro)`.

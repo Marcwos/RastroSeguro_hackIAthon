@@ -126,3 +126,17 @@ El motor ya contempla paquetes iniciales para:
 | Generales | `src/rules/general_rules.py` | monto atípico, intermediario recurrente, inconsistencia de cobertura |
 
 Todas las reglas devuelven código, puntos, severidad, mensaje y evidencia para trazabilidad.
+
+
+## NLP de narrativas
+
+El módulo NLP está separado del scoring para mantener el código pequeño y extensible:
+
+```txt
+src/nlp/text_normalization.py
+src/nlp/similarity_engine.py
+src/nlp/narrative_signals.py
+src/nlp/scoring.py
+```
+
+La primera versión usa TF-IDF cuando `scikit-learn` está disponible y fallback por tokens cuando no. Esto permite avanzar sin romper el pipeline y deja lista la estructura para reemplazar o ampliar con embeddings después.
