@@ -282,3 +282,33 @@ Columnas generadas por integración ML:
 | `anomalia_features` | Lista JSON de features usadas por anomalías |
 
 Si los modelos no existen, Jeremy usa `50` como valor neutro para no romper el pipeline.
+
+
+## 12. Contrato de respuesta del agente
+
+La función `answer_question(question)` devuelve una respuesta consistente:
+
+```json
+{
+  "ok": true,
+  "intent": "top_riesgo",
+  "message": "Casos priorizados por mayor score de riesgo.",
+  "data": [],
+  "source": "tools"
+}
+```
+
+Si hay error:
+
+```json
+{
+  "ok": false,
+  "intent": "explicar_siniestro",
+  "message": "Necesito el id del siniestro para responder esa pregunta.",
+  "data": null,
+  "source": "agent",
+  "hint": "Ejemplo: Explícame el siniestro SIN-0045."
+}
+```
+
+Justin puede usar `get_quick_questions()` para mostrar botones de preguntas rápidas en la UI.

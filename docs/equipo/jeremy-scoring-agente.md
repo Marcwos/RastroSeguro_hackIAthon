@@ -192,3 +192,20 @@ models/anomaly_detector.joblib
 ```
 
 Si no existen, usa `score_modelo = 50` y `score_anomalia = 50`, marcando `modelo_disponible = False` y `anomalia_disponible = False`. Esto evita bloquear el dashboard y mantiene trazabilidad.
+
+
+## Agente antifraude robusto
+
+El agente ahora devuelve respuestas consistentes para Justin:
+
+```json
+{
+  "ok": true,
+  "intent": "ranking_proveedores",
+  "message": "Ranking de proveedores por concentración de riesgo.",
+  "data": [],
+  "source": "tools"
+}
+```
+
+También expone preguntas rápidas con `get_quick_questions()` para la vista de agente/simulador. Si falta el CSV procesado, responde con un mensaje accionable en lugar de romper la UI.

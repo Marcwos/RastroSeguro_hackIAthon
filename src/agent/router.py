@@ -1,22 +1,36 @@
-"""Simple intent router for the antifraud agent."""
+"""Intent router for the antifraud agent."""
 
 from __future__ import annotations
 
+import unicodedata
+
+from src.agent.intents import CLAIM_REQUIRED_INTENTS, DOC_INTENTS, INTENT_ALIASES, IntentMatch
+
+
+def normalize_question(question: str) -> str:
+    text = unicodedata.normalize("NFD", question.lower())
+    text = "".join(char for char in text if unicodedata.category(char) != "Mn")
+    return " ".join(text.replace("_", " ").replace("-", " ").split())
+
 
 def route_intent(question: str) -> str:
-    text = question.lower()
-    if "proveedor" in text:
-        return "ranking_proveedores"
-    if "ciudad" in text:
-        return "ranking_ciudades"
-    if "ramo" in text or "ramos" in text:
-        return "riesgo_por_ramo"
-    if "document" in text:
-        return "documentos_faltantes"
-    if "resumen" in text or "ejecutivo" in text:
-        return "resumen_ejecutivo"
-    if "simula" in text:
-        return "simular_siniestro"
-    if "explica" in text or "por qué" in text or "porque" in text:
-        return "explicar_siniestro"
-    return "top_riesgo"
+    return route(question).name
+
+
+def route(question: str) -> IntentMatch:
+    text = normalize_question(question)
+    best_name = "top_riesgo"
+    best_score = 0
+
+    for intent, aliases in INTENT_ALIASES.items():
+        score = sum(1 for alias in aliases if normalize_question(alias) in text)
+        if score > best_score:
+            best_name, best_score = intent, score
+
+    confidence = min(1.0, 0.35 + (best_score * 0.25)) if best_score else 0.35
+    return IntentMatch(
+        name=best_name,
+        confidence=round(confidence, 2),
+        requires_claim_id=best_name in CLAIM_REQUIRED_INTENTS,
+        uses_documentation=best_name in DOC_INTENTS,
+    )

@@ -5,17 +5,17 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import pandas as pd
-
 from src.explainability.explain_claim import explain_claim
 from src.scoring.final_score import OUTPUT_PATH
 from src.simulator.simulate_claim import simulate_new_claim
 from src.utils.serialization import from_json_list
 
 
-def _load_scored(data_path: Path = OUTPUT_PATH) -> pd.DataFrame:
+def _load_scored(data_path: Path = OUTPUT_PATH):
     if not data_path.exists():
         raise FileNotFoundError(f"No se encontró {data_path}. Ejecuta python -m src.scoring.final_score")
+    import pandas as pd
+
     return pd.read_csv(data_path)
 
 

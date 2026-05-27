@@ -373,3 +373,51 @@ anomalia_disponible = False
 ```
 
 Esto permite que Justin y Jeremy sigan trabajando aunque Carlos todavía esté entrenando modelos.
+
+
+## Agente antifraude con herramientas
+
+El agente se mantiene como una capa consultiva y verificable. No calcula por prompts ni inventa datos: enruta la intención y llama herramientas reales.
+
+```txt
+src/agent/
+├── intents.py
+├── entities.py
+├── responses.py
+├── quick_questions.py
+├── router.py
+├── tools.py
+├── rag.py
+└── antifraud_agent.py
+```
+
+Responsabilidades:
+
+| Archivo | Responsabilidad |
+|---|---|
+| `intents.py` | Catálogo de intenciones y aliases |
+| `entities.py` | Extracción de `id_siniestro` y límites tipo top N |
+| `responses.py` | Respuestas consistentes `{ok, intent, message, data, source}` |
+| `quick_questions.py` | Preguntas rápidas para la UI de Justin |
+| `router.py` | Clasificación ligera de intención |
+| `tools.py` | Herramientas determinísticas sobre `siniestros_scored.csv` |
+| `rag.py` | Búsqueda liviana sobre documentación |
+| `antifraud_agent.py` | Fachada que enruta, valida y despacha |
+
+Intenciones soportadas:
+
+```txt
+top_riesgo
+explicar_siniestro
+ranking_proveedores
+ranking_ciudades
+riesgo_por_ramo
+documentos_faltantes
+narrativas_similares
+conexiones_grafo
+resumen_ejecutivo
+simular_siniestro
+documentacion
+```
+
+Si falta `data/processed/siniestros_scored.csv`, el agente devuelve un error accionable para ejecutar el scoring.
