@@ -31,6 +31,7 @@ Documentos base:
 - [Especificación completa del reto](./docs/reto-aseguradora-del-sur.md)
 - [Planteamiento técnico RastroSeguro](./docs/planteamiento-tecnico-rastoseguro.md)
 - [Organización original del equipo](./docs/organizacion-equipo.md)
+- [Inventario fuentes Ecuador (scraping/API)](./docs/inventario-fuentes-ecuador.md)
 
 ---
 

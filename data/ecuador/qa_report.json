@@ -1,0 +1,55 @@
+{
+  "generated_at": "2026-05-27T05:36:25.431820+00:00",
+  "period": {
+    "start": 2021,
+    "end": 2026
+  },
+  "files": {
+    "data\\raw\\ecuador\\ecu911_2021_2026.csv": {
+      "exists": true,
+      "size_bytes": 1875323088
+    },
+    "data\\raw\\ecuador\\inec_siniestros_2021_2026.csv": {
+      "exists": true,
+      "size_bytes": 18161
+    },
+    "data\\raw\\ecuador\\sercop_sanciones_2021_2026.csv": {
+      "exists": true,
+      "size_bytes": 143272
+    },
+    "data\\raw\\ecuador\\ocds_proveedores_2021_2026.csv": {
+      "exists": true,
+      "size_bytes": 23423
+    }
+  },
+  "checks": {
+    "sercop_ruc_valid_ratio": 1.0,
+    "fechas_parseables_ratio": 1.0,
+    "coverage_summary": {
+      "ecu911_rows_by_year": {
+        "2021": 1903049,
+        "2022": 2711530,
+        "2024": 3292643,
+        "2025": 3237999,
+        "2026": 799972,
+        "2023": 3162724
+      },
+      "sercop_years": [
+        "2021",
+        "2022",
+        "2023",
+        "2024",
+        "2025",
+        "2026"
+      ],
+      "ocds_years": [
+        "2021",
+        "2022",
+        "2023",
+        "2024",
+        "2025",
+        "2026"
+      ]
+    }
+  }
+}

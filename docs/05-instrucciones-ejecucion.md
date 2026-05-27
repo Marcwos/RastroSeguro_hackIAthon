@@ -10,6 +10,15 @@ pip install -r requirements.txt
 
 ## Flujo completo esperado
 
+### 0. Inventariar fuentes públicas Ecuador (opcional)
+
+```bash
+python -m src.ingestion.scrape_ecuador --year-start 2021 --year-end 2026
+```
+
+Salidas: `data/ecuador/inventario_manifest.json`, `data/ecuador/inventario_links.tsv`.  
+Ver [inventario-fuentes-ecuador.md](./inventario-fuentes-ecuador.md).
+
 ### 1. Generar dataset sintético
 
 ```bash

@@ -6,12 +6,6 @@ __pycache__/
 venv/
 .env
 
-# Data & artifacts
-data/raw/
-data/processed/
-*.csv
-*.parquet
-
 # Notebooks
 .ipynb_checkpoints/
 
@@ -23,3 +17,6 @@ data/processed/
 # Build
 dist/
 build/
+
+# Data
+data/

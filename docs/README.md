@@ -40,6 +40,7 @@ Estos documentos mantienen el contexto original y estratégico:
 | [reto-aseguradora-del-sur.md](./reto-aseguradora-del-sur.md) | Especificación del reto, entregables y criterios de evaluación |
 | [planteamiento-tecnico-rastoseguro.md](./planteamiento-tecnico-rastoseguro.md) | Concepto técnico y diferenciadores de RastroSeguro |
 | [organizacion-equipo.md](./organizacion-equipo.md) | Organización original del equipo y plan de trabajo |
+| [inventario-fuentes-ecuador.md](./inventario-fuentes-ecuador.md) | Fuentes públicas EC (CKAN, INEC, SERCOP) y script de inventario |
 
 ## Decisión actual de alcance
 
