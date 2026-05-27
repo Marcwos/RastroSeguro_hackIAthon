@@ -247,3 +247,38 @@ Jeremy genera estas columnas para convertir variables cualitativas en señales a
 | `explicacion_categorica` | Texto explicable de la señal categórica más importante |
 
 Campos actualmente considerados si existen: `canal_venta`, `estado_poliza`, `tipo_impacto`, `zona_inmueble`, `relacion_beneficiario`, `documentos_inconsistentes`, `zona_alta_siniestralidad`, `tercero_identificado`, `hay_testigos`, `reporte_policial`.
+
+
+## 11. Contrato de modelos de Carlos
+
+Carlos puede entregar modelos como archivos joblib:
+
+```txt
+models/fraud_classifier.joblib
+models/anomaly_detector.joblib
+```
+
+Formato recomendado del artefacto:
+
+```python
+{
+    "model": trained_model,
+    "feature_columns": ["monto_reclamado", "suma_asegurada", "score_reglas"],
+    "metrics": {"f1": 0.0, "auc": 0.0}
+}
+```
+
+También se soporta guardar directamente un modelo sklearn. Si el modelo tiene `feature_names_in_`, Jeremy lo usa para alinear columnas.
+
+Columnas generadas por integración ML:
+
+| Columna | Descripción |
+|---|---|
+| `score_modelo` | Score 0-100 del modelo supervisado |
+| `score_anomalia` | Score 0-100 del detector de anomalías |
+| `modelo_disponible` | Indica si se cargó el clasificador |
+| `anomalia_disponible` | Indica si se cargó el detector de anomalías |
+| `modelo_features` | Lista JSON de features usadas por el clasificador |
+| `anomalia_features` | Lista JSON de features usadas por anomalías |
+
+Si los modelos no existen, Jeremy usa `50` como valor neutro para no romper el pipeline.

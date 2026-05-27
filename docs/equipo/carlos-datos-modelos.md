@@ -67,3 +67,35 @@ Justin usa tus datos y métricas para:
 ## Prioridad
 
 Primero entregar un CSV estable. Después mejorar realismo, métricas y modelos.
+
+
+## Formato recomendado para modelos
+
+Para que Jeremy integre tus modelos sin fricción, guarda los artefactos así:
+
+```python
+joblib.dump({
+    "model": trained_model,
+    "feature_columns": feature_columns,
+    "metrics": metrics,
+}, "models/fraud_classifier.joblib")
+```
+
+Y para anomalías:
+
+```python
+joblib.dump({
+    "model": anomaly_model,
+    "feature_columns": feature_columns,
+    "metrics": metrics,
+}, "models/anomaly_detector.joblib")
+```
+
+Rutas esperadas por Jeremy:
+
+```txt
+models/fraud_classifier.joblib
+models/anomaly_detector.joblib
+```
+
+Si todavía no están listos, el pipeline de Jeremy usa score neutro y no se rompe.

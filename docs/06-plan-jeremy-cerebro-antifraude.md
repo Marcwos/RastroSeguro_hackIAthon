@@ -330,3 +330,46 @@ src/rules/common/
 ```
 
 `base_rules.py` queda como orquestador pequeño que ejecuta los evaluadores comunes. Esta estructura facilita agregar reglas sin mezclar lógica temporal, monetaria, documental y de recurrencia.
+
+
+## Integración con modelos de Carlos
+
+La integración ML se implementa con adapters seguros para no bloquear el pipeline si Carlos aún no entrega los modelos.
+
+```txt
+src/model_integration/
+├── paths.py
+├── artifacts.py
+├── features.py
+├── predictors.py
+└── scoring.py
+```
+
+Responsabilidades:
+
+| Archivo | Responsabilidad |
+|---|---|
+| `paths.py` | Rutas oficiales de modelos: `models/fraud_classifier.joblib` y `models/anomaly_detector.joblib` |
+| `artifacts.py` | Carga segura con joblib y soporte para artefactos tipo dict con metadata |
+| `features.py` | Selección y alineación de columnas de features |
+| `predictors.py` | Conversión de salidas de modelos a scores 0-100 |
+| `scoring.py` | Enriquecer siniestros con `score_modelo` y `score_anomalia` |
+
+Formato recomendado para Carlos:
+
+```python
+{
+    "model": trained_model,
+    "feature_columns": ["monto_reclamado", "suma_asegurada", ...],
+    "metrics": {...}
+}
+```
+
+Si los modelos no existen, el sistema usa score neutro `50` y marca:
+
+```txt
+modelo_disponible = False
+anomalia_disponible = False
+```
+
+Esto permite que Justin y Jeremy sigan trabajando aunque Carlos todavía esté entrenando modelos.

@@ -180,3 +180,15 @@ src/rules/common/recurrence_rules.py
 ```
 
 Así se evita que un solo archivo concentre todas las reglas y se facilita extender el motor sin perder trazabilidad.
+
+
+## Integración con modelos de Carlos
+
+El módulo `src/model_integration/` carga de forma segura:
+
+```txt
+models/fraud_classifier.joblib
+models/anomaly_detector.joblib
+```
+
+Si no existen, usa `score_modelo = 50` y `score_anomalia = 50`, marcando `modelo_disponible = False` y `anomalia_disponible = False`. Esto evita bloquear el dashboard y mantiene trazabilidad.

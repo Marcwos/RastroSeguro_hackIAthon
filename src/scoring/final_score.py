@@ -8,6 +8,7 @@ from typing import Any
 
 from src.categorical.scoring import enrich_claims_with_categorical
 from src.graph.scoring import enrich_claims_with_graph
+from src.model_integration.scoring import enrich_claims_with_model_scores
 from src.nlp.scoring import enrich_claims_with_nlp
 from src.rules.rule_registry import evaluate_rules, rules_score
 from src.utils.risk_levels import clamp_score, risk_level, suggested_action
@@ -88,11 +89,12 @@ def score_dataframe(df):
     if claims:
         claims = enrich_claims_with_graph(claims)
         claims = enrich_claims_with_categorical(claims)
+        claims = enrich_claims_with_model_scores(claims)
     if claims and any(claim.get("descripcion") for claim in claims):
         claims = enrich_claims_with_nlp(claims)
     scored_rows = [score_claim(claim) for claim in claims]
     result = pd.DataFrame(scored_rows)
-    for column in ("alertas_activadas", "siniestros_similares", "entidades_recurrentes", "conexiones_grafo", "senales_categoricas"):
+    for column in ("alertas_activadas", "siniestros_similares", "entidades_recurrentes", "conexiones_grafo", "senales_categoricas", "modelo_features", "anomalia_features"):
         if column in result.columns:
             result[column] = result[column].apply(to_json)
     return result
