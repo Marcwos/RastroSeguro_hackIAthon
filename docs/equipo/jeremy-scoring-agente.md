@@ -8,6 +8,8 @@ Entregar un pipeline que tome el dataset de Carlos y genere scores, niveles de r
 
 ## Responsabilidades
 
+Consulta también el plan de migración Next.js + puente API: [justin-nextjs-puente-api.md](./justin-nextjs-puente-api.md).
+
 - Motor de reglas base y por ramo.
 - Score final compuesto.
 - Explicación por siniestro.

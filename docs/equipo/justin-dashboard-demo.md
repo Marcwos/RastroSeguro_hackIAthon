@@ -4,6 +4,8 @@ Justin construye la experiencia visual de RastroSeguro en Streamlit.
 
 ## Objetivo
 
+Para la migración a Next.js y consumo del puente API de Jeremy, revisar: [justin-nextjs-puente-api.md](./justin-nextjs-puente-api.md).
+
 Mostrar de forma clara el riesgo, las explicaciones, los patrones y la demo final sin construir demasiadas pantallas independientes.
 
 ## Decisión de interfaz
