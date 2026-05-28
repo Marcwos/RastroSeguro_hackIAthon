@@ -75,6 +75,16 @@ class ApiBridgeTest(unittest.TestCase):
         self.assertTrue(payload["ok"])
         self.assertIn("exposición", payload["data"]["mensaje"])
 
+    def test_fraud_rings_endpoint_calls_tool(self):
+        payload_data = {"total_anillos": 1, "anillos": [{"id_anillo": "RING-001"}], "explicacion_global": "ok"}
+        with patch("api.routes.reports.tools.get_fraud_rings", return_value=payload_data) as tool:
+            response = self.client.get("/api/graph/fraud-rings?limit=5")
+
+        tool.assert_called_once_with(limit=5)
+        payload = response.json()
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["data"]["total_anillos"], 1)
+
     def test_simulator_endpoint_accepts_direct_claim_payload(self):
         simulated = {"ok": True, "simulated": True, "risk": {"nivel_riesgo": "Rojo"}}
         with patch("api.routes.simulator.simulate_new_claim", return_value=simulated) as simulate:

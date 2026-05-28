@@ -47,3 +47,8 @@ def report_audit(format: str = Query(default="dict", pattern="^(dict|markdown)$"
         return payload
 
     return run_endpoint(_build)
+
+
+@router.get("/graph/fraud-rings")
+def fraud_rings(limit: int = Query(default=10, ge=1, le=50)):
+    return run_endpoint(lambda: tools.get_fraud_rings(limit=limit))

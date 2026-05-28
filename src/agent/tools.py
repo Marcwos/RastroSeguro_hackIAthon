@@ -9,6 +9,7 @@ from src.explainability.explain_claim import explain_claim
 from src.reports.executive_summary import build_executive_report
 from src.reports.markdown_report import render_markdown_report
 
+from src.graph.fraud_rings import detect_fraud_rings_from_records
 from src.reports.demo_differentiators import (
     build_business_impact,
     build_claim_dossier,
@@ -268,3 +269,10 @@ def simulate_portfolio_savings(data_path: Path = OUTPUT_PATH) -> dict[str, Any]:
     from src.reports.savings_simulation import simulate_savings
 
     return simulate_savings(df.to_dict("records"))
+
+
+def get_fraud_rings(limit: int = 10, data_path: Path = OUTPUT_PATH) -> dict[str, Any]:
+    """Return connected fraud rings detected across the scored portfolio."""
+    df = _load_scored(data_path)
+    records = df.where(df.notna(), None).to_dict("records")
+    return detect_fraud_rings_from_records(records, limit=limit)

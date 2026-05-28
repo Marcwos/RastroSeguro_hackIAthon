@@ -70,6 +70,8 @@ def _dispatch(intent: str, claim_id: str | None, limit: int, question: str) -> A
         return tools.get_similar_narratives(claim_id or "")
     if intent == "conexiones_grafo":
         return tools.get_graph_connections(claim_id or "")
+    if intent == "redes_fraude":
+        return tools.get_fraud_rings(limit=limit)
     if intent == "simular_siniestro":
         return error(intent, "Para simular necesito recibir los datos del nuevo siniestro desde el formulario de Justin.")
     if intent == "documentacion":
@@ -105,6 +107,7 @@ def _message_for(intent: str) -> str:
         "expediente_siniestro": "Expediente antifraude con evidencias, próximos pasos y guardrail ético.",
         "narrativas_similares": "Narrativas similares detectadas para el siniestro solicitado.",
         "conexiones_grafo": "Conexiones y entidades recurrentes del siniestro solicitado.",
+        "redes_fraude": "Redes o anillos de fraude detectados por entidades de riesgo compartidas.",
         "documentacion": "Respuesta basada en documentación interna del proyecto.",
         "recomendar_revision": "Casos recomendados para revisión prioritaria.",
         "frecuencia_asegurados": "Asegurados con mayor frecuencia de reclamos.",

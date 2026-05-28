@@ -18,6 +18,7 @@ QUICK_QUESTIONS = [
     "Muéstrame los casos estrella para la demo ejecutiva.",
     "¿Cuál es el impacto de negocio del top 10% priorizado?",
     "Recomienda qué casos debería revisar primero el analista.",
+    "¿Hay redes de fraude organizadas en el portafolio?",
 ]
 
 

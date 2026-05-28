@@ -21,6 +21,7 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(route_intent("¿Qué conexiones de grafo tiene SIN-0045?"), "conexiones_grafo")
         self.assertEqual(route_intent("¿Qué proveedores concentran el 80% de las alertas rojas?"), "concentracion_rojos")
         self.assertEqual(route_intent("Estima el ahorro potencial del portafolio"), "ahorro_potencial")
+        self.assertEqual(route_intent("¿Hay redes de fraude organizadas?"), "redes_fraude")
         self.assertTrue(route("Qué reglas usan para el score").uses_documentation)
 
     def test_entity_extraction(self):
@@ -71,6 +72,16 @@ class AgentTest(unittest.TestCase):
             response = answer_question("¿Qué asegurados tienen mayor frecuencia de reclamos?")
         self.assertTrue(response["ok"])
         self.assertEqual(response["intent"], "frecuencia_asegurados")
+
+    def test_agent_routes_fraud_rings_intent(self):
+        rings_payload = {"total_anillos": 1, "anillos": [], "explicacion_global": "ok"}
+        with patch("src.agent.tools.get_fraud_rings", return_value=rings_payload) as tool:
+            response = answer_question("¿Hay redes de fraude organizadas en el portafolio?")
+
+        tool.assert_called_once_with(limit=10)
+        self.assertTrue(response["ok"])
+        self.assertEqual(response["intent"], "redes_fraude")
+        self.assertEqual(response["data"], rings_payload)
 
     def test_agent_wraps_tool_success(self):
         with patch("src.agent.tools.get_provider_risk_ranking", return_value=[{"id_proveedor": "PROV-1"}]) as tool:
