@@ -23,8 +23,22 @@ def _load_scored(data_path: Path = OUTPUT_PATH):
 
 def get_top_risky_claims(limit: int = 10, data_path: Path = OUTPUT_PATH) -> list[dict[str, Any]]:
     df = _load_scored(data_path)
-    columns = [col for col in ["id_siniestro", "ramo", "ciudad", "id_proveedor", "score_final", "nivel_riesgo", "accion_sugerida"] if col in df.columns]
-    return df.sort_values("score_final", ascending=False).head(limit)[columns].to_dict("records")
+    columns = [
+        col for col in [
+            "id_siniestro", "id_poliza", "id_asegurado", "ramo", "cobertura", "ciudad",
+            "id_proveedor", "beneficiario", "monto_reclamado", "monto_estimado",
+            "monto_pagado", "suma_asegurada", "score_reglas", "score_modelo",
+            "score_anomalia", "score_nlp", "score_grafo", "score_categorico",
+            "score_final", "nivel_riesgo", "alertas_activadas", "explicacion",
+            "accion_sugerida", "descripcion", "fecha_ocurrencia", "fecha_reporte",
+            "dias_desde_inicio_poliza", "dias_desde_fin_poliza",
+            "dias_entre_ocurrencia_reporte", "documentos_completos",
+            "documentos_inconsistentes",
+        ] if col in df.columns
+    ]
+    result = df.sort_values("score_final", ascending=False).head(limit)[columns].copy()
+    result = result.where(result.notna(), None)
+    return result.to_dict("records")
 
 
 def get_risk_by_branch(data_path: Path = OUTPUT_PATH) -> list[dict[str, Any]]:

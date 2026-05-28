@@ -13,6 +13,7 @@ def build_executive_report(claims: list[dict[str, Any]], top_limit: int = 10) ->
     counts = risk_counts(claims)
     red = counts["Rojo"]
     total_amount = round(sum(float(claim.get("monto_reclamado", 0) or 0) for claim in claims), 2)
+    score_promedio = round(sum(float(claim.get("score_final", 0) or 0) for claim in claims) / total, 2) if total else 0
     pct_verde = round((counts["Verde"] / total) * 100, 2) if total else 0
     pct_amarillo = round((counts["Amarillo"] / total) * 100, 2) if total else 0
     pct_rojo = round((counts["Rojo"] / total) * 100, 2) if total else 0
@@ -32,6 +33,7 @@ def build_executive_report(claims: list[dict[str, Any]], top_limit: int = 10) ->
             },
             "monto_total_reclamado": total_amount,
             "monto_reclamado_casos_rojos": exposed_amount(claims, "Rojo"),
+            "score_promedio_portafolio": score_promedio,
         },
         "top_casos": top_claims(claims, limit=top_limit),
         "riesgo_por_ramo": aggregate_by_field(claims, "ramo"),

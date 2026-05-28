@@ -1,16 +1,16 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, ArrowRight, BarChart3, Bot, Building2, CircleDollarSign, MapPin, FileSearch, GitBranch, ShieldCheck, Target, UploadCloud, UsersRound } from 'lucide-react'
+import { AlertTriangle, ArrowRight, BarChart3, Bot, Building2, CircleDollarSign, FileText, FlaskConical, MapPin, FileSearch, GitBranch, Loader2, ShieldCheck, Target, UploadCloud, UsersRound } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import { useAppState } from '@/lib/app-context'
-import { ClaimSummary } from '@/lib/api'
+import { ClaimSummary, ExecutiveReport, RiskAggregateRow, SimulationResponse, getBranchRiskDistribution, getCityRiskDistribution, getExecutiveReport, getProviderRiskRanking, simulateClaim } from '@/lib/api'
 import { formatCurrency, getRiskColor, getRiskLabel } from '@/lib/claims-data'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 
 const num = (value: unknown) => Number(value ?? 0)
-const riskOrder = ['critico', 'alto', 'medio', 'bajo']
-
 function normalizeRisk(level?: string | null) {
   const value = String(level || '').toLowerCase()
   if (['critico', 'crítico', 'rojo'].includes(value)) return 'critico'
@@ -27,24 +27,193 @@ function countAlerts(claim: ClaimSummary) {
   return 0
 }
 
-function groupRows(claims: ClaimSummary[], key: keyof ClaimSummary, limit = 6) {
-  const rows = new Map<string, { name: string; total: number; risk: number }>()
-  claims.forEach((claim) => {
-    const name = String(claim[key] || 'No informado')
-    const current = rows.get(name) || { name, total: 0, risk: 0 }
-    current.total += 1
-    current.risk += num(claim.score_final)
-    rows.set(name, current)
+function normalizeBackendRows(rows: RiskAggregateRow[] | null, key: 'id_proveedor' | 'ramo' | 'ciudad') {
+  return (rows || []).map((row) => ({
+    name: String(row.name || row[key] || 'No informado'),
+    total: Number(row.total_siniestros || 0),
+    risk: Number(row.score_promedio || 0) * Number(row.total_siniestros || 0),
+    avgRisk: Math.round(Number(row.score_promedio || 0)),
+    casosRojos: Number(row.casos_rojos || 0),
+  }))
+}
+
+function ReportDialog({ report, loading, onLoad }: { report: ExecutiveReport | null; loading: boolean; onLoad: () => void }) {
+  const summary = report?.summary
+  return (
+    <Dialog onOpenChange={(open) => { if (open && !report && !loading) onLoad() }}>
+      <DialogTrigger asChild>
+        <button className="inline-flex items-center justify-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-white hover:bg-white/10">
+          <FileText className="h-4 w-4" /> Reporte ejecutivo
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[86vh] overflow-y-auto sm:max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>Reporte ejecutivo RastroSeguro</DialogTitle>
+          <DialogDescription>Resumen generado desde el backend `/api/report` para sustentar la demo y auditoría.</DialogDescription>
+        </DialogHeader>
+        {loading ? (
+          <div className="flex items-center gap-2 p-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Generando reporte...</div>
+        ) : report && summary ? (
+          <div className="space-y-5">
+            <div className="grid gap-3 md:grid-cols-4">
+              {[
+                ['Total', summary.total_siniestros],
+                ['Rojos', summary.casos_rojos],
+                ['% rojo', `${summary.porcentaje_rojo}%`],
+                ['Monto rojo', formatCurrency(summary.monto_reclamado_casos_rojos)],
+              ].map(([label, value]) => (
+                <div key={label} className="border border-border bg-[var(--surface-low)] p-3">
+                  <p className="label-mono text-muted-foreground">{label}</p>
+                  <p className="font-display text-2xl font-semibold">{value}</p>
+                </div>
+              ))}
+            </div>
+            <p className="border-l-4 border-primary pl-3 text-sm italic text-muted-foreground">{report.ethics_note}</p>
+            <div className="grid gap-4 lg:grid-cols-2">
+              <ReportTable title="Top casos" rows={report.top_casos || []} primary="id_siniestro" secondary="score_final" />
+              <ReportTable title="Top proveedores" rows={report.top_proveedores || []} primary="id_proveedor" secondary="score_promedio" />
+              <ReportTable title="Riesgo por ramo" rows={report.riesgo_por_ramo || []} primary="ramo" secondary="score_promedio" />
+              <ReportTable title="Top ciudades" rows={report.top_ciudades || []} primary="ciudad" secondary="score_promedio" />
+            </div>
+          </div>
+        ) : (
+          <div className="p-6 text-sm text-muted-foreground">No se pudo cargar el reporte. Verifica que el API esté activo.</div>
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function ReportTable({ title, rows, primary, secondary }: { title: string; rows: unknown[]; primary: string; secondary: string }) {
+  return (
+    <div className="border border-border">
+      <div className="section-header">{title}</div>
+      <div className="divide-y divide-border">
+        {rows.slice(0, 5).map((raw, index) => {
+          const row = (raw || {}) as Record<string, unknown>
+          return (
+            <div key={`${title}-${index}`} className="flex items-center justify-between gap-3 p-3 text-sm">
+              <span className="font-mono font-semibold">{String(row[primary] || 'N/D')}</span>
+              <span className="label-mono-md text-muted-foreground">{String(row[secondary] ?? row.total_siniestros ?? '')}</span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function SimulatorDialog() {
+  const [form, setForm] = useState({
+    ramo: 'vehiculo',
+    ciudad: 'Ambato',
+    monto_reclamado: '18000',
+    suma_asegurada: '20000',
+    proveedor: 'PROV-001',
+    dias_desde_inicio_poliza: '3',
+    documentos_presentes: 'false',
+    narrativa: 'Vehículo impactado por tercero no identificado durante la noche. No existen testigos directos.',
   })
-  return [...rows.values()]
-    .map((row) => ({ ...row, avgRisk: row.total ? Math.round(row.risk / row.total) : 0 }))
-    .sort((a, b) => b.avgRisk - a.avgRisk || b.total - a.total)
-    .slice(0, limit)
+  const [result, setResult] = useState<SimulationResponse | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const update = (key: keyof typeof form, value: string) => setForm((prev) => ({ ...prev, [key]: value }))
+  const run = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await simulateClaim({
+        ...form,
+        monto_reclamado: Number(form.monto_reclamado),
+        suma_asegurada: Number(form.suma_asegurada),
+        dias_desde_inicio_poliza: Number(form.dias_desde_inicio_poliza),
+        documentos_presentes: form.documentos_presentes === 'true',
+      })
+      setResult(response)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo simular el siniestro.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button className="inline-flex items-center justify-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-white hover:bg-white/10">
+          <FlaskConical className="h-4 w-4" /> Simular caso
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-5xl">
+        <DialogHeader>
+          <DialogTitle>Simulador de nuevo siniestro</DialogTitle>
+          <DialogDescription>Prueba de fuego conectada a `POST /api/simulator/claim`; evalúa reglas, modelo, NLP y grafo sin persistir datos.</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-5 lg:grid-cols-[1fr_.9fr]">
+          <div className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Ramo" value={form.ramo} onChange={(v) => update('ramo', v)} />
+              <Field label="Ciudad" value={form.ciudad} onChange={(v) => update('ciudad', v)} />
+              <Field label="Monto reclamado" value={form.monto_reclamado} onChange={(v) => update('monto_reclamado', v)} />
+              <Field label="Suma asegurada" value={form.suma_asegurada} onChange={(v) => update('suma_asegurada', v)} />
+              <Field label="Proveedor" value={form.proveedor} onChange={(v) => update('proveedor', v)} />
+              <Field label="Días desde inicio póliza" value={form.dias_desde_inicio_poliza} onChange={(v) => update('dias_desde_inicio_poliza', v)} />
+            </div>
+            <label className="block">
+              <span className="label-mono-md font-bold uppercase text-muted-foreground">Narrativa</span>
+              <Textarea value={form.narrativa} onChange={(e) => update('narrativa', e.target.value)} className="mt-1 min-h-[110px]" />
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={form.documentos_presentes === 'true'} onChange={(e) => update('documentos_presentes', String(e.target.checked))} />
+              Documentación completa
+            </label>
+            <button onClick={run} disabled={loading} className="flex w-full items-center justify-center gap-2 bg-primary px-4 py-3 label-mono-md font-bold uppercase text-white disabled:opacity-50">
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />} Ejecutar simulación
+            </button>
+            {error && <p className="text-sm text-destructive">{error}</p>}
+          </div>
+          <div className="institutional-card overflow-hidden">
+            <div className="section-header">Resultado simulado</div>
+            {result ? (
+              <div className="space-y-4 p-5">
+                <div className="flex items-end justify-between">
+                  <div>
+                    <p className="label-mono text-muted-foreground">SCORE FINAL</p>
+                    <p className="font-display text-5xl font-semibold">{Math.round(num(result.score_final))}</p>
+                  </div>
+                  <span className="px-3 py-2 label-mono-md font-bold uppercase text-white" style={{ backgroundColor: getRiskColor(normalizeRisk(result.nivel_riesgo)) }}>{getRiskLabel(normalizeRisk(result.nivel_riesgo))}</span>
+                </div>
+                <p className="text-sm leading-relaxed text-muted-foreground">{result.explicacion}</p>
+                <div>
+                  <p className="label-mono-md mb-2 font-bold uppercase">Próximos pasos</p>
+                  <ul className="space-y-2 text-sm">
+                    {(result.ui?.recommended_next_steps || [result.accion_sugerida || 'Revisión humana.']).map((step) => <li key={step} className="border border-border bg-[var(--surface-low)] p-2">{step}</li>)}
+                  </ul>
+                </div>
+              </div>
+            ) : (
+              <div className="flex min-h-[320px] items-center justify-center p-8 text-center text-sm text-muted-foreground">Complete el formulario y ejecute una simulación para ver score, alertas y recomendación.</div>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function Field({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return (
+    <label className="block">
+      <span className="label-mono-md font-bold uppercase text-muted-foreground">{label}</span>
+      <input value={value} onChange={(e) => onChange(e.target.value)} className="mt-1 w-full border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+    </label>
+  )
 }
 
 function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; onAnalyze: (claim: ClaimSummary) => void }) {
   const [hoveredClaim, setHoveredClaim] = useState<ClaimSummary | null>(null)
-  const topClaims = [...claims].sort((a, b) => num(b.score_final) - num(a.score_final)).slice(0, 9)
+  const topClaims = claims.slice(0, 9)
   const center = { x: 260, y: 150 }
   const satellites = topClaims.map((claim, index) => {
     const angle = (Math.PI * 2 * index) / Math.max(topClaims.length, 1) - Math.PI / 2
@@ -128,31 +297,65 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
 
 export function StepCommandCenter() {
   const { claims, loadClaims, isLoadingClaims, apiError, apiHint, setCurrentStep, setSelectedClaimId, setIsDataLoaded } = useAppState()
+  const [providerRanking, setProviderRanking] = useState<RiskAggregateRow[] | null>(null)
+  const [cityRanking, setCityRanking] = useState<RiskAggregateRow[] | null>(null)
+  const [branchRanking, setBranchRanking] = useState<RiskAggregateRow[] | null>(null)
+  const [report, setReport] = useState<ExecutiveReport | null>(null)
+  const [reportLoading, setReportLoading] = useState(false)
 
   useEffect(() => {
     if (!claims.length) void loadClaims()
   }, [claims.length, loadClaims])
 
+  const loadCommandCenterData = async () => {
+    setReportLoading(true)
+    try {
+      const [providers, cities, branches, executiveReport] = await Promise.all([
+        getProviderRiskRanking(10).catch(() => null),
+        getCityRiskDistribution().catch(() => null),
+        getBranchRiskDistribution().catch(() => null),
+        getExecutiveReport(10).catch(() => null),
+      ])
+      setProviderRanking(providers)
+      setCityRanking(cities)
+      setBranchRanking(branches)
+      setReport(executiveReport)
+    } finally {
+      setReportLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void loadCommandCenterData()
+  }, [])
+
   const analytics = useMemo(() => {
-    const total = claims.length
-    const totalAmount = claims.reduce((acc, claim) => acc + num(claim.monto_reclamado), 0)
-    const averageScore = total ? Math.round(claims.reduce((acc, claim) => acc + num(claim.score_final), 0) / total) : 0
-    const counts = claims.reduce<Record<string, number>>((acc, claim) => {
-      const risk = normalizeRisk(claim.nivel_riesgo)
-      acc[risk] = (acc[risk] || 0) + 1
-      return acc
-    }, {})
-    const riskDistribution = riskOrder
-      .map((risk) => ({ name: getRiskLabel(risk), risk, total: counts[risk] || 0, fill: getRiskColor(risk) }))
-      .filter((row) => row.total > 0)
-    const providerRows = groupRows(claims, 'id_proveedor')
-    const branchRows = groupRows(claims, 'ramo')
-    const cityRows = groupRows(claims, 'ciudad')
-    const topCases = [...claims].sort((a, b) => num(b.score_final) - num(a.score_final)).slice(0, 10)
-    const criticalCount = claims.filter((claim) => ['critico', 'alto'].includes(normalizeRisk(claim.nivel_riesgo))).length
-    const mediumCount = counts.medio || 0
-    return { total, totalAmount, averageScore, riskDistribution, providerRows, branchRows, cityRows, topCases, criticalCount, mediumCount, topProvider: providerRows[0]?.name || 'N/D' }
-  }, [claims])
+    const summary = report?.summary
+    const providerRows = normalizeBackendRows(providerRanking, 'id_proveedor')
+    const branchRows = normalizeBackendRows(branchRanking, 'ramo')
+    const cityRows = normalizeBackendRows(cityRanking, 'ciudad')
+    const riskDistribution = summary
+      ? [
+          { name: 'Crítico', risk: 'critico', total: summary.casos_rojos || 0, fill: getRiskColor('rojo') },
+          { name: 'Medio', risk: 'medio', total: summary.casos_amarillos || 0, fill: getRiskColor('amarillo') },
+          { name: 'Bajo', risk: 'bajo', total: summary.casos_verdes || 0, fill: getRiskColor('verde') },
+        ].filter((row) => row.total > 0)
+      : []
+    const topCases = claims.slice(0, 10)
+    return {
+      total: summary?.total_siniestros ?? 0,
+      totalAmount: summary?.monto_total_reclamado ?? 0,
+      averageScore: Math.round(Number(summary?.score_promedio_portafolio ?? 0)),
+      riskDistribution,
+      providerRows,
+      branchRows,
+      cityRows,
+      topCases,
+      criticalCount: summary?.casos_rojos ?? 0,
+      mediumCount: summary?.casos_amarillos ?? 0,
+      topProvider: providerRows[0]?.name || 'N/D',
+    }
+  }, [claims, branchRanking, cityRanking, providerRanking, report])
 
   const analyzeClaim = (claim: ClaimSummary) => {
     setSelectedClaimId(claim.id_siniestro)
@@ -184,9 +387,11 @@ export function StepCommandCenter() {
               <button onClick={() => setCurrentStep(1)} className="inline-flex items-center justify-center gap-2 bg-white px-5 py-3 label-mono-md font-bold uppercase text-primary hover:bg-[var(--surface-high)]">
                 Iniciar flujo de análisis <ArrowRight className="h-4 w-4" />
               </button>
-              <button onClick={() => void loadClaims()} className="inline-flex items-center justify-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-white hover:bg-white/10">
+              <button onClick={() => { void loadClaims(); void loadCommandCenterData() }} className="inline-flex items-center justify-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-white hover:bg-white/10">
                 Sincronizar datos
               </button>
+              <ReportDialog report={report} loading={reportLoading} onLoad={() => void loadCommandCenterData()} />
+              <SimulatorDialog />
             </div>
           </div>
           <div className="institutional-card p-6">

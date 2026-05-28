@@ -188,3 +188,79 @@ export function alertToText(alert: unknown): string {
   }
   return 'Alerta de riesgo activada'
 }
+
+export interface RiskAggregateRow {
+  name?: string
+  id_proveedor?: string
+  ramo?: string
+  ciudad?: string
+  total_siniestros: number
+  casos_rojos?: number
+  score_promedio: number
+}
+
+export interface ExecutiveReport {
+  generated_at: string
+  summary: {
+    total_siniestros: number
+    casos_verdes: number
+    casos_amarillos: number
+    casos_rojos: number
+    porcentaje_rojo: number
+    mix_riesgo_pct: Record<string, number>
+    monto_total_reclamado: number
+    monto_reclamado_casos_rojos: number
+    score_promedio_portafolio?: number
+  }
+  top_casos: ClaimSummary[]
+  riesgo_por_ramo: RiskAggregateRow[]
+  top_proveedores: RiskAggregateRow[]
+  top_ciudades: RiskAggregateRow[]
+  ethics_note: string
+}
+
+export interface SimulationResponse extends ClaimExplanation {
+  ok?: boolean
+  simulated?: boolean
+  source?: string
+  input_normalizado?: Record<string, unknown>
+  risk?: {
+    score_final?: number | null
+    nivel_riesgo?: string | null
+    accion_sugerida?: string | null
+  }
+  signals?: Record<string, unknown>
+  ui?: {
+    priority_badge?: string
+    summary_cards?: Array<{ label: string; value: unknown }>
+    recommended_next_steps?: string[]
+  }
+  context?: Record<string, unknown>
+}
+
+export function getProviderRiskRanking(limit = 10) {
+  return apiRequest<RiskAggregateRow[]>(`/api/rankings/providers?limit=${limit}`)
+}
+
+export function getCityRiskDistribution() {
+  return apiRequest<RiskAggregateRow[]>('/api/risk/cities')
+}
+
+export function getBranchRiskDistribution() {
+  return apiRequest<RiskAggregateRow[]>('/api/risk/branches')
+}
+
+export function getExecutiveReport(topLimit = 10) {
+  return apiRequest<ExecutiveReport>(`/api/report?format=dict&top_limit=${topLimit}`)
+}
+
+export function getExecutiveReportMarkdown(topLimit = 10) {
+  return apiRequest<{ format: string; content: string }>(`/api/report?format=markdown&top_limit=${topLimit}`)
+}
+
+export function simulateClaim(claimData: Record<string, unknown>) {
+  return apiRequest<SimulationResponse>('/api/simulator/claim', {
+    method: 'POST',
+    body: JSON.stringify(claimData),
+  })
+}
