@@ -10,6 +10,7 @@ import { ClaimNetworkReactFlow } from '@/components/graph/claim-network-reactflo
 import { RecurringEntitiesList } from '@/components/graph/recurring-entities-list'
 import { ProviderRankingChart } from '@/components/graph/provider-ranking-chart'
 import { RiskSpiderChart } from '@/components/graph/risk-spider-chart'
+import { FraudRingsView } from '@/components/graph/fraud-rings-view'
 
 export function StepIntelligence() {
   const { selectedClaim, selectedClaimId, selectedExplanation, loadClaimExplanation, claims } = useAppState()
@@ -48,6 +49,7 @@ export function StepIntelligence() {
         <Tabs defaultValue="graph" className="w-full">
           <TabsList>
             <TabsTrigger value="graph">Grafo del caso</TabsTrigger>
+            <TabsTrigger value="rings">Redes de fraude</TabsTrigger>
             <TabsTrigger value="entities">Entidades recurrentes</TabsTrigger>
             <TabsTrigger value="ranking">Rankings</TabsTrigger>
             <TabsTrigger value="spider">Patrones (Araña)</TabsTrigger>
@@ -55,6 +57,9 @@ export function StepIntelligence() {
           <TabsContent value="graph" className="mt-4 institutional-card space-y-3 p-6">
             <p className="text-sm text-muted-foreground">Vista completa de la red del siniestro (zoom y desplazamiento habilitados).</p>
             <ClaimNetworkReactFlow nodes={graph.nodes} edges={graph.edges} />
+          </TabsContent>
+          <TabsContent value="rings" className="mt-4">
+            <FraudRingsView />
           </TabsContent>
           <TabsContent value="entities" className="mt-4 institutional-card p-6">
             <RecurringEntitiesList entities={payload.recurring_entities} limit={12} />

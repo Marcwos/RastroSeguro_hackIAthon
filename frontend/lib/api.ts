@@ -367,3 +367,45 @@ export function getStarCases() {
 export function getBusinessImpact(reviewPercent = 0.1) {
   return apiRequest<BusinessImpact>(`/api/reports/business-impact?review_percent=${reviewPercent}`)
 }
+
+export interface FraudRingSharedEntity {
+  type: string
+  value: string
+  key: string
+  siniestros_vinculados: number
+  siniestros_relacionados: string[]
+}
+
+export interface FraudRingClaimSummary {
+  id_siniestro: string
+  ramo?: string | null
+  nivel_riesgo?: string | null
+  score_final?: number | null
+  monto_reclamado?: number | null
+  id_proveedor?: string | null
+  beneficiario?: string | null
+}
+
+export interface FraudRing {
+  id_anillo: string
+  siniestros: string[]
+  tamano: number
+  casos_rojos: number
+  pct_rojos: number
+  monto_expuesto: number
+  score_promedio: number
+  ring_risk_score: number
+  entidades_compartidas: FraudRingSharedEntity[]
+  explicacion: string
+  claims_resumen: FraudRingClaimSummary[]
+}
+
+export interface FraudRingsResponse {
+  total_anillos: number
+  anillos: FraudRing[]
+  explicacion_global: string
+}
+
+export function getFraudRings(limit = 10) {
+  return apiRequest<FraudRingsResponse>(`/api/graph/fraud-rings?limit=${limit}`)
+}

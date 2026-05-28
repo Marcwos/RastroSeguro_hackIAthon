@@ -1,3 +1,4 @@
+import { FraudRing } from '@/lib/api'
 import { ClaimGraphPayload, GraphEdge, GraphNode } from './graph-types'
 
 export function buildClaimGraph(payload: ClaimGraphPayload): { nodes: GraphNode[]; edges: GraphEdge[] } {
@@ -30,6 +31,66 @@ export function buildClaimGraph(payload: ClaimGraphPayload): { nodes: GraphNode[
       label: connection.type,
       weight: recurring?.total_siniestros ?? 1,
     })
+  }
+
+  return { nodes, edges }
+}
+
+export function buildFraudRingGraph(ring: FraudRing): { nodes: GraphNode[]; edges: GraphEdge[] } {
+  const nodes: GraphNode[] = []
+  const edges: GraphEdge[] = []
+
+  for (const entity of ring.entidades_compartidas) {
+    nodes.push({
+      id: entity.key,
+      label: entity.value,
+      type: (entity.type as GraphNode['type']) || 'proveedor',
+      risk: 'high',
+      count: entity.siniestros_vinculados,
+    })
+  }
+
+  for (const claim of ring.claims_resumen) {
+    const claimId = claim.id_siniestro
+    const isRed = String(claim.nivel_riesgo || '').toLowerCase().includes('rojo')
+    nodes.push({
+      id: claimId,
+      label: claimId,
+      type: 'claim',
+      risk: isRed ? 'high' : 'normal',
+      count: 1,
+    })
+
+    for (const entity of ring.entidades_compartidas) {
+      if (!entity.siniestros_relacionados.includes(claimId)) {
+        continue
+      }
+      edges.push({
+        id: `${claimId}-${entity.key}`,
+        source: claimId,
+        target: entity.key,
+        label: entity.type,
+        weight: entity.siniestros_vinculados,
+      })
+    }
+  }
+
+  const orphanClaims = ring.claims_resumen.filter((claim) =>
+    !ring.entidades_compartidas.some((entity) => entity.siniestros_relacionados.includes(claim.id_siniestro)),
+  )
+  if (orphanClaims.length >= 2 && ring.entidades_compartidas.length > 0) {
+    const bridge = ring.entidades_compartidas[0].key
+    for (const claim of orphanClaims) {
+      if (!edges.some((edge) => edge.id === `${claim.id_siniestro}-${bridge}`)) {
+        edges.push({
+          id: `${claim.id_siniestro}-${bridge}`,
+          source: claim.id_siniestro,
+          target: bridge,
+          label: 'vinculo_indirecto',
+          weight: 1,
+        })
+      }
+    }
   }
 
   return { nodes, edges }
