@@ -13,12 +13,25 @@ from src.simulator.simulate_claim import simulate_new_claim
 from src.utils.serialization import from_json_list
 
 
+_cached_df: Any = None
+_cached_path: Path | None = None
+_cached_mtime: float | None = None
+
+
 def _load_scored(data_path: Path = OUTPUT_PATH):
+    global _cached_df, _cached_path, _cached_mtime
     if not data_path.exists():
         raise FileNotFoundError(f"No se encontró {data_path}. Ejecuta python -m src.scoring.final_score")
     import pandas as pd
 
-    return pd.read_csv(data_path)
+    mtime = data_path.stat().st_mtime
+    if _cached_df is not None and _cached_path == data_path and _cached_mtime == mtime:
+        return _cached_df
+
+    _cached_df = pd.read_csv(data_path)
+    _cached_path = data_path
+    _cached_mtime = mtime
+    return _cached_df
 
 
 def get_top_risky_claims(limit: int = 10, data_path: Path = OUTPUT_PATH) -> list[dict[str, Any]]:
