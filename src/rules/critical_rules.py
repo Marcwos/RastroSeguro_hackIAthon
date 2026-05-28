@@ -15,7 +15,7 @@ DETRAS = "por detrás"
 _IMPACT_KEYWORDS = {
     "frontal": ["frontal", FRENTE, "encounter"],
     "posterior": ["posterior", DETRAS, "alcance"],
-    "lateral": ["lateral", "costado", "interseccion"],
+    "lateral": ["lateral", "costado", "interseccion", "intersección"],
 }
 _IMPACT_CONTRADICTIONS = {
     "frontal": ["posterior", DETRAS, "choque por alcance"],
@@ -81,18 +81,33 @@ def _rf04_dinamica_imposible(claim: Claim) -> list[RuleResult]:
     tipo_evento = str(claim.get("tipo_evento", claim.get("cobertura", ""))).lower()
     if not impacto or impacto not in _IMPACT_KEYWORDS:
         return []
-    if all(token not in tipo_evento for token in ("choque", "accidente", "colision")):
+
+    if as_bool(claim.get("dinamica_inconsistente")) or as_bool(claim.get("impacto_inconsistente")):
+        return _rf04_result(claim, impacto, "flag_inconsistencia")
+
+    if tipo_evento and all(token not in tipo_evento for token in ("choque", "accidente", "colision", "colisión")):
         return []
-    contradictions = _IMPACT_CONTRADICTIONS.get(impacto, [])
-    if not any(kw in descripcion for kw in contradictions):
-        return []
+
+    # Do not penalize generic demo narratives. RF-04 should only fire when a
+    # claim has an explicit inconsistency flag or the description contradicts
+    # the declared impact direction.
+    declared = set(_IMPACT_KEYWORDS[impacto])
+    other_keywords = set(_IMPACT_CONTRADICTIONS.get(impacto, []))
+    has_declared_evidence = any(keyword in descripcion for keyword in declared)
+    has_contradictory_evidence = any(keyword in descripcion for keyword in other_keywords)
+    if has_contradictory_evidence and not has_declared_evidence:
+        return _rf04_result(claim, impacto, "contradiccion_textual")
+    return []
+
+
+def _rf04_result(claim: Claim, impacto: str, reason: str) -> list[RuleResult]:
     return [RuleResult(
         code="RF-04",
         name="Dinámica del accidente físicamente improbable",
         points=10,
         severity="critica",
         message="El relato no es coherente con el tipo de impacto declarado.",
-        evidence={"tipo_impacto": impacto, "descripcion": claim.get("descripcion", "")[:120]},
+        evidence={"tipo_impacto": impacto, "motivo": reason, "descripcion": claim.get("descripcion", "")[:120]},
         category="critica_pdf",
         pdf_ref="RF-04",
     )]
@@ -142,7 +157,14 @@ def _rf06_demora_robo(claim: Claim) -> list[RuleResult]:
 
 
 def _rf07_narrativa_clonada(claim: Claim) -> list[RuleResult]:
-    if as_bool(claim.get("alerta_narrativa")) and str(claim.get("nivel_alerta_nlp", "")).lower() in {"alta", "high"}:
+    desc = str(claim.get("descripcion", "")).lower()
+    clone_markers = ["narrativa similar", "patrón repetido", "clonada", "recurrente con narrativa"]
+    has_clone_marker = any(marker in desc for marker in clone_markers)
+    if (
+        as_bool(claim.get("alerta_narrativa"))
+        and str(claim.get("nivel_alerta_nlp", "")).lower() in {"alta", "high"}
+        and has_clone_marker
+    ):
         return [RuleResult(
             code="RF-07",
             name="Narrativa idéntica o clonada",
@@ -156,9 +178,7 @@ def _rf07_narrativa_clonada(claim: Claim) -> list[RuleResult]:
             category="critica_pdf",
             pdf_ref="RF-07",
         )]
-    desc = str(claim.get("descripcion", "")).lower()
-    clone_markers = ["narrativa similar", "patrón repetido", "clonada", "recurrente con narrativa"]
-    if any(m in desc for m in clone_markers):
+    if has_clone_marker:
         return [RuleResult(
             code="RF-07",
             name="Narrativa idéntica o clonada",

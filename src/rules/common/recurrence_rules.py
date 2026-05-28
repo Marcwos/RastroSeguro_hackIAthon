@@ -63,18 +63,6 @@ def _recurrent_party_rules(claim: Claim) -> list[RuleResult]:
 
 
 def _sercop_sanctions_rule(claim: Claim) -> list[RuleResult]:
-    if as_bool(claim.get("lista_restrictiva_sercop")):
-        return [RuleResult(
-            code="RB-012",
-            name="Proveedor en lista restrictiva SERCOP",
-            points=10,
-            severity="critica",
-            message="El proveedor coincide con la lista restrictiva SERCOP.",
-            evidence={
-                "supplier_ruc": claim.get("supplier_ruc"),
-                "lista_restrictiva_sercop": True,
-            },
-            category="legal",
-            pdf_ref="RF-03",
-        )]
+    # RF-03 in critical_rules owns this signal. Keeping it only there avoids
+    # double counting the same SERCOP evidence as both RB-012 and RF-03.
     return []

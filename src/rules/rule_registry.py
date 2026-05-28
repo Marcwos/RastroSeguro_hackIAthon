@@ -47,11 +47,16 @@ def evaluate_rules(claim: Claim) -> list[RuleResult]:
     return results
 
 
-def rules_score(results: list[RuleResult]) -> float:
-    """Convert accumulated rule points into a 0-100 score.
+RULE_SCORE_CAP_POINTS = 100.0
 
-    The cap keeps the scoring interpretable: 50 raw points means the rules alone
-    represent critical accumulated risk.
+
+def rules_score(results: list[RuleResult]) -> float:
+    """Convert accumulated rule points into a calibrated 0-100 score.
+
+    Critical RF rules and branch rules can now coexist in the same case, so the
+    cap is intentionally higher than early prototypes. This avoids classifying
+    almost every enriched synthetic claim as Rojo while preserving escalation
+    for genuinely accumulated evidence.
     """
     total_points = sum(result.points for result in results)
-    return round(min(100.0, (total_points / 50.0) * 100.0), 2)
+    return round(min(100.0, (total_points / RULE_SCORE_CAP_POINTS) * 100.0), 2)

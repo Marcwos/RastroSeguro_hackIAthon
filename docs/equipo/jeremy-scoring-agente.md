@@ -87,6 +87,8 @@ score_reglas >= 90 → score_final mínimo 80
 score_reglas >= 75 → score_final mínimo 76
 ```
 
+Nota de calibración: con las reglas críticas RF integradas, `score_reglas` se normaliza sobre 100 puntos acumulados para evitar que señales duplicadas o frecuentes conviertan casi todo el portafolio en Rojo.
+
 ## Semáforo
 
 | Score | Nivel | Acción |

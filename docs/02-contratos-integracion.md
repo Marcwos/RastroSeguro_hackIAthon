@@ -386,3 +386,5 @@ ethics_note
 ```
 
 Justin puede usar el dict para componentes visuales o el Markdown para una vista/exportación rápida.
+
+Nota de calibración: con las reglas críticas RF integradas, `score_reglas` se normaliza sobre 100 puntos acumulados para evitar que señales duplicadas o frecuentes conviertan casi todo el portafolio en Rojo.

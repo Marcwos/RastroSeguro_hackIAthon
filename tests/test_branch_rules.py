@@ -30,7 +30,7 @@ class BranchRulesTest(unittest.TestCase):
             "fecha_factura": "2026-03-05",
         }
         self.assert_rule_codes(claim, {"RS-001", "RS-002", "RS-003", "RS-004"})
-        self.assertGreater(score_claim(claim)["score_reglas"], 50)
+        self.assertGreater(score_claim(claim)["score_reglas"], 30)
 
     def test_home_rules_emit_property_signals(self):
         claim = {
@@ -49,7 +49,7 @@ class BranchRulesTest(unittest.TestCase):
             "evidencia_fotografica": False,
         }
         self.assert_rule_codes(claim, {"RH-001", "RH-002", "RH-003", "RH-004"})
-        self.assertGreater(score_claim(claim)["score_reglas"], 50)
+        self.assertGreater(score_claim(claim)["score_reglas"], 30)
 
     def test_life_rules_emit_beneficiary_signals(self):
         claim = {
@@ -68,7 +68,7 @@ class BranchRulesTest(unittest.TestCase):
             "documento_soporte": False,
         }
         self.assert_rule_codes(claim, {"RL-001", "RL-002", "RL-003", "RL-004"})
-        self.assertGreaterEqual(score_claim(claim)["score_reglas"], 60)
+        self.assertGreaterEqual(score_claim(claim)["score_reglas"], 40)
 
     def test_general_rules_emit_coverage_signals(self):
         claim = {
@@ -85,7 +85,7 @@ class BranchRulesTest(unittest.TestCase):
             "inconsistencia_cobertura": True,
         }
         self.assert_rule_codes(claim, {"RG-001", "RG-002", "RG-003"})
-        self.assertGreater(score_claim(claim)["score_reglas"], 50)
+        self.assertGreater(score_claim(claim)["score_reglas"], 30)
 
 
 if __name__ == "__main__":
