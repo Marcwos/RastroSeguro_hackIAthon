@@ -21,7 +21,8 @@ build/
 # Data
 data/raw/
 data/curated/
-data/processed/
+data/processed/*
+!data/processed/siniestros_scored.csv
 
 # Playwright & Screenshots
 .playwright-mcp/
