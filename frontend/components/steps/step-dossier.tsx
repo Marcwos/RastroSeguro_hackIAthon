@@ -8,6 +8,13 @@ import { formatCurrency, getRiskColor, getRiskLabel } from '@/lib/claims-data'
 
 const num = (value: unknown) => Number(value ?? 0)
 
+function normalizeClaimCode(raw: string) {
+  const text = String(raw || '').trim().toUpperCase().replace(/_/g, '-')
+  const match = text.match(/^SIN-?(\d+)$/)
+  if (match) return `SIN-${String(Number(match[1]))}`
+  return text
+}
+
 function normalizeRisk(level?: string | null) {
   const value = String(level || '').toLowerCase()
   if (['critico', 'crítico', 'rojo'].includes(value)) return 'critico'
@@ -37,9 +44,9 @@ export function StepDossier() {
 
 
   const searchInDossier = () => {
-    const query = searchCode.trim().toUpperCase().replace('_', '-')
+    const query = normalizeClaimCode(searchCode)
     if (!query) return
-    const found = claims.find((c) => String(c.id_siniestro || '').toUpperCase() === query)
+    const found = claims.find((c) => normalizeClaimCode(String(c.id_siniestro || '')) === query)
     if (!found) {
       setSearchError(`No se encontró ${query}`)
       return
