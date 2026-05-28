@@ -84,6 +84,10 @@ def _dispatch(intent: str, claim_id: str | None, limit: int, question: str) -> A
         return tools.get_policy_start_border_cases(limit=limit)
     if intent == "patrones_repetidos":
         return tools.get_repeated_patterns(limit=limit)
+    if intent == "concentracion_rojos":
+        return tools.get_provider_red_concentration(threshold=0.8)
+    if intent == "ahorro_potencial":
+        return tools.simulate_portfolio_savings()
     return tools.get_top_risky_claims(limit=limit)
 
 
@@ -107,6 +111,8 @@ def _message_for(intent: str) -> str:
         "montos_atipicos": "Casos con montos atípicos frente a la suma asegurada.",
         "borde_vigencia": "Siniestros ocurridos cerca del inicio de la póliza.",
         "patrones_repetidos": "Patrones recurrentes en reclamos sospechosos.",
+        "concentracion_rojos": "Proveedores que concentran la mayoría de alertas rojas.",
+        "ahorro_potencial": "Estimación de ahorro potencial por revisión temprana de casos rojos.",
     }
     return messages.get(intent, "Respuesta generada desde herramientas verificables.")
 

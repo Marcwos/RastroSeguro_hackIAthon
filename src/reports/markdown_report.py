@@ -21,6 +21,20 @@ def render_markdown_report(report: dict[str, Any]) -> str:
         f"- Monto total reclamado: **{summary.get('monto_total_reclamado', 0)}**",
         f"- Monto en casos rojos: **{summary.get('monto_reclamado_casos_rojos', 0)}**",
         "",
+    ]
+    savings = report.get("ahorro_potencial_estimado", {})
+    if savings:
+        lines.extend([
+            "## Ahorro potencial estimado",
+            "",
+            f"- Monto expuesto (rojos): **{savings.get('monto_expuesto_rojos', 0)}**",
+            f"- Tasa prevención asumida: **{savings.get('tasa_prevencion_asumida', 0)}**",
+            f"- Ahorro estimado: **{savings.get('ahorro_potencial_estimado', 0)}**",
+            "",
+            str(savings.get("nota_etica", "")),
+            "",
+        ])
+    lines.extend([
         _table("Top casos críticos", report.get("top_casos", [])),
         _table("Riesgo por ramo", report.get("riesgo_por_ramo", [])),
         _table("Top proveedores", report.get("top_proveedores", [])),
@@ -29,7 +43,7 @@ def render_markdown_report(report: dict[str, Any]) -> str:
         "",
         str(report.get("ethics_note", "")),
         "",
-    ]
+    ])
     return "\n".join(lines)
 
 

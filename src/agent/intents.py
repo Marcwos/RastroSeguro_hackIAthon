@@ -32,6 +32,8 @@ INTENT_ALIASES = {
     "borde_vigencia": ["cerca del inicio", "inicio de la poliza", "inicio de la póliza", "borde de vigencia"],
     "patrones_repetidos": ["patrones", "patron", "patrón", "se repiten", "repetidos"],
     "simular_siniestro": ["simula", "simular", "simulación", "simulacion", "nuevo siniestro"],
+    "ahorro_potencial": ["ahorro", "ahorros", "perdida evitada", "pérdida evitada", "savings", "potencial"],
+    "concentracion_rojos": ["80%", "80 por ciento", "ochenta por ciento", "concentran el 80", "alertas rojas proveedores"],
     "documentacion": ["regla", "reglas", "score", "metodologia", "metodología", "limitacion", "limitación", "etica", "ética"],
 }
 

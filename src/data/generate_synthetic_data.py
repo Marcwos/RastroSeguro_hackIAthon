@@ -74,6 +74,12 @@ OUTPUT_COLUMNS = CONTRACT_COLUMNS + PDF_EXTENSION_COLUMNS + [
     c for c in ECUADOR_EXTENSION_COLUMNS if c not in CONTRACT_COLUMNS
 ]
 
+VEHICLE_BRANDS = [
+    ("Toyota", "Corolla"), ("Toyota", "Hilux"), ("Chevrolet", "Spark"),
+    ("Kia", "Rio"), ("Hyundai", "Accent"), ("Nissan", "Sentra"),
+    ("Mazda", "3"), ("Volkswagen", "Gol"), ("Renault", "Logan"),
+]
+
 def _extract_proveedor_id(row: pd.Series) -> str:
     if pd.notna(row.get("id_proveedor")):
         return str(row["id_proveedor"])
@@ -114,9 +120,22 @@ def _from_canonical(df: pd.DataFrame) -> pd.DataFrame:
     out["placa_hash"] = out["id_siniestro"].str[-6:].where(is_vehicle, "")
     out["chasis_hash"] = out["id_siniestro"].str[-8:].where(is_vehicle, "")
     out["motor_hash"] = out["id_siniestro"].str[-10:-4].where(is_vehicle, "")
-    out["marca"] = "Toyota"
-    out["modelo"] = "Corolla"
-    out["anio"] = 2018
+
+    rng = random.Random(42)
+    marcas, modelos, anios = [], [], []
+    for idx, row in out.iterrows():
+        if str(row.get("ramo", "")).lower() == "vehiculos":
+            brand, model = rng.choice(VEHICLE_BRANDS)
+            marcas.append(brand)
+            modelos.append(model)
+            anios.append(rng.randint(2010, 2024))
+        else:
+            marcas.append("")
+            modelos.append("")
+            anios.append(None)
+    out["marca"] = marcas
+    out["modelo"] = modelos
+    out["anio"] = anios
     out["tipo_evento"] = out["cobertura"].where(is_vehicle, "")
     out["tipo_impacto"] = "posterior"
     out["tercero_identificado"] = ~is_vehicle | (out["etiqueta_fraude_simulada"] == 0)
@@ -179,6 +198,7 @@ def _generate_fresh(rows: int, seed: int) -> pd.DataFrame:
         historial = max(0, int(rng.gauss(1.0, 1.2)))
         fraude = 1 if (dias_ini <= 15 and monto > suma * 0.9) or historial >= 3 else int(rng.random() < 0.08)
         docs_ok = fraude == 0 or rng.random() > 0.4
+        brand_model = rng.choice(VEHICLE_BRANDS) if ramo == "vehiculos" else ("", "")
         records.append(
             {
                 "id_siniestro": f"SIN-{i:06d}",
@@ -211,9 +231,9 @@ def _generate_fresh(rows: int, seed: int) -> pd.DataFrame:
                 "placa_hash": f"PL{i % 10000:04d}" if ramo == "vehiculos" else "",
                 "chasis_hash": f"CH{i % 10000:04d}" if ramo == "vehiculos" else "",
                 "motor_hash": f"MO{i % 10000:04d}" if ramo == "vehiculos" else "",
-                "marca": "Toyota" if ramo == "vehiculos" else "",
-                "modelo": "Corolla" if ramo == "vehiculos" else "",
-                "anio": 2018 if ramo == "vehiculos" else None,
+                "marca": brand_model[0],
+                "modelo": brand_model[1],
+                "anio": rng.randint(2010, 2024) if ramo == "vehiculos" else None,
                 "tipo_evento": cobertura if ramo == "vehiculos" else "",
                 "tipo_impacto": rng.choice(["frontal", "posterior", "lateral"]) if ramo == "vehiculos" else "",
                 "tercero_identificado": fraude == 0,

@@ -27,6 +27,7 @@ _IMPACT_CONTRADICTIONS = {
 def evaluate_critical_rules(claim: Claim) -> list[RuleResult]:
     results: list[RuleResult] = []
     results.extend(_rf01_robo_pt(claim))
+    results.extend(_rf02_falsificacion_documental(claim))
     results.extend(_rf03_lista_restrictiva(claim))
     results.extend(_rf04_dinamica_imposible(claim))
     results.extend(_rf05_borde_48h(claim))
@@ -55,6 +56,21 @@ def _rf01_robo_pt(claim: Claim) -> list[RuleResult]:
             pdf_ref="RF-01",
         )]
     return []
+
+
+def _rf02_falsificacion_documental(claim: Claim) -> list[RuleResult]:
+    if not as_bool(claim.get("documentos_inconsistentes")):
+        return []
+    return [RuleResult(
+        code="RF-02",
+        name="Evidencia de falsificación o adulteración documental",
+        points=10,
+        severity="critica",
+        message="Se registran inconsistencias documentales que sugieren posible falsificación.",
+        evidence={"documentos_inconsistentes": True},
+        category="critica_pdf",
+        pdf_ref="RF-02",
+    )]
 
 
 def _rf03_lista_restrictiva(claim: Claim) -> list[RuleResult]:

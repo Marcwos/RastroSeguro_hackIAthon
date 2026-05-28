@@ -222,3 +222,49 @@ def get_demo_star_cases(data_path: Path = OUTPUT_PATH) -> dict[str, Any]:
 def get_business_impact(review_percent: float = 0.10, data_path: Path = OUTPUT_PATH) -> dict[str, Any]:
     """Return prioritization impact metrics framed as exposure, not automatic savings."""
     return build_business_impact(data_path=data_path, review_percent=review_percent)
+
+
+def get_provider_red_concentration(threshold: float = 0.8, data_path: Path = OUTPUT_PATH) -> dict[str, Any]:
+    """Providers that cumulatively account for >= threshold of red alerts (jury demo)."""
+    df = _load_scored(data_path)
+    if "id_proveedor" not in df.columns or "nivel_riesgo" not in df.columns:
+        return {"threshold": threshold, "total_casos_rojos": 0, "proveedores": []}
+
+    red = df[df["nivel_riesgo"].astype(str).str.lower() == "rojo"]
+    total_red = int(len(red))
+    if total_red == 0:
+        return {"threshold": threshold, "total_casos_rojos": 0, "proveedores": []}
+
+    grouped = (
+        red.groupby("id_proveedor", dropna=False)
+        .size()
+        .reset_index(name="casos_rojos")
+        .sort_values("casos_rojos", ascending=False)
+    )
+    grouped["pct_del_total_rojo"] = (grouped["casos_rojos"] / total_red * 100).round(2)
+    grouped["pct_acumulado"] = grouped["pct_del_total_rojo"].cumsum().round(2)
+
+    selected = []
+    for _, row in grouped.iterrows():
+        selected.append({
+            "id_proveedor": row["id_proveedor"],
+            "casos_rojos": int(row["casos_rojos"]),
+            "pct_del_total_rojo": float(row["pct_del_total_rojo"]),
+            "pct_acumulado": float(row["pct_acumulado"]),
+        })
+        if row["pct_acumulado"] >= threshold * 100:
+            break
+
+    return {
+        "threshold": threshold,
+        "total_casos_rojos": total_red,
+        "proveedores": selected,
+        "cubre_pct_rojos": selected[-1]["pct_acumulado"] if selected else 0.0,
+    }
+
+
+def simulate_portfolio_savings(data_path: Path = OUTPUT_PATH) -> dict[str, Any]:
+    df = _load_scored(data_path)
+    from src.reports.savings_simulation import simulate_savings
+
+    return simulate_savings(df.to_dict("records"))

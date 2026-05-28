@@ -76,6 +76,10 @@ def build_benchmark(input_path: Path = INPUT_PATH) -> dict:
                 "question": "Recomienda qué casos debería revisar primero el analista.",
                 "expected_output": tools.recommend_review_order(limit=10, data_path=input_path),
             },
+            {
+                "question": "¿Qué proveedores concentran el 80% de las alertas rojas?",
+                "expected_output": tools.get_provider_red_concentration(threshold=0.8, data_path=input_path),
+            },
         ],
         "rows_scored": int(len(df)),
     }

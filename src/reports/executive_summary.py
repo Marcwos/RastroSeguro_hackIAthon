@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from src.reports.sections import aggregate_by_field, exposed_amount, risk_counts, top_claims
+from src.reports.savings_simulation import simulate_savings
 
 
 def build_executive_report(claims: list[dict[str, Any]], top_limit: int = 10) -> dict[str, Any]:
@@ -35,6 +36,7 @@ def build_executive_report(claims: list[dict[str, Any]], top_limit: int = 10) ->
             "monto_reclamado_casos_rojos": exposed_amount(claims, "Rojo"),
             "score_promedio_portafolio": score_promedio,
         },
+        "ahorro_potencial_estimado": simulate_savings(claims),
         "top_casos": top_claims(claims, limit=top_limit),
         "riesgo_por_ramo": aggregate_by_field(claims, "ramo"),
         "top_proveedores": aggregate_by_field(claims, "id_proveedor"),

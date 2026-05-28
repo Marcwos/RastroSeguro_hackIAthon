@@ -119,3 +119,12 @@ Vista preparada para el pitch y preguntas del jurado con:
 - Guion sugerido de demo en vivo.
 
 El agente también reconoce consultas sobre expediente antifraude, casos estrella e impacto de negocio usando herramientas determinísticas sobre `data/processed/siniestros_scored.csv`. Estas capacidades se exponen al frontend mediante FastAPI: `/api/claims/{id_siniestro}/dossier`, `/api/reports/star-cases` y `/api/reports/business-impact`.
+
+## Guion demo jurado (PDF §23.2)
+
+1. **Consulta agéntica:** *"¿Qué proveedores concentran el 80% de las alertas rojas?"*
+2. **Prueba de score:** simular siniestro 24 h después de la póliza → explicar RF-05 y semáforo.
+3. **Verificación repositorio:** mostrar `src/rules/`, `docs/arquitectura.md`, `docs/uso_ia.md`, `validate_deliverables`.
+4. **Ahorro potencial:** Command Center → KPI ahorro estimado + reporte ejecutivo.
+5. **Auditoría:** `GET /api/report/audit?format=markdown`
+6. **Expediente y casos estrella:** vistas `step-dossier` y `step-executive-demo`.

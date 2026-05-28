@@ -7,7 +7,7 @@ Matriz de trazabilidad entre reglas del PDF, códigos internos y señales.
 | PDF | Código | Severidad | Descripción |
 |---|---|---|---|
 | RF-01 | RF-01 | Rojo | Robo con monto cercano a suma asegurada (pérdida total) |
-| RF-02 | RB-007 | Rojo | Documentos inconsistentes / posible falsificación |
+| RF-02 | RF-02 | Rojo | Documentos inconsistentes / posible falsificación |
 | RF-03 | RF-03 / RB-012 | Rojo | Coincidencia con lista restrictiva SERCOP |
 | RF-04 | RF-04 | Rojo | Dinámica del accidente físicamente improbable |
 | RF-05 | RF-05 | Amarillo | Siniestro <48h desde inicio de póliza |
@@ -24,7 +24,7 @@ Matriz de trazabilidad entre reglas del PDF, códigos internos y señales.
 | RB-004 | Monto ≥95% suma asegurada | 7 |
 | RB-005 | Monto ≥80% suma asegurada | 4 |
 | RB-006 | Documentos incompletos | 4 |
-| RB-007 | Documentos inconsistentes | 10 |
+| RB-007 | *(delegado a RF-02)* Documentos inconsistentes | — |
 | RB-008 | Alta frecuencia asegurado | 8 |
 | RB-009 | Frecuencia moderada asegurado | 4 |
 | RB-010 | Proveedor recurrente | 6 |
@@ -39,7 +39,9 @@ Matriz de trazabilidad entre reglas del PDF, códigos internos y señales.
 | RV-005 | Sin tercero identificado | 5 |
 | RV-006 | Conductor recurrente | 8 |
 | RV-008 | Frecuencia solo RC | 6 |
-| RV-009 | Demora denuncia robo >48h | 4–8 |
+| RV-009 | Demora denuncia robo (>48h / 24–48h) | 4–8 |
+| RV-010 | Volcadura vs relato contradictorio | 6 |
+| RV-011 | Accidente múltiple nocturno | 3 |
 
 ## Semáforo de riesgo
 

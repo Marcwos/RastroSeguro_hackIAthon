@@ -35,7 +35,8 @@ class JeremyCoreTest(unittest.TestCase):
         codes = {result.code for result in results}
 
         self.assertIn("RB-001", codes)
-        self.assertIn("RB-007", codes)
+        self.assertIn("RF-02", codes)
+        self.assertNotIn("RB-007", codes)
         self.assertIn("RV-001", codes)
         self.assertTrue(all(result.message for result in results))
         self.assertTrue(all(isinstance(result.evidence, dict) for result in results))

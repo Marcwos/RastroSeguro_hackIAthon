@@ -293,6 +293,16 @@ export interface ExecutiveReport {
   top_proveedores: RiskAggregateRow[]
   top_ciudades: RiskAggregateRow[]
   ethics_note: string
+  ahorro_potencial_estimado?: SavingsEstimate
+}
+
+export interface SavingsEstimate {
+  casos_rojos: number
+  monto_expuesto_rojos: number
+  tasa_prevencion_asumida: number
+  ahorro_potencial_estimado: number
+  desglose_por_ramo?: Array<{ ramo: string; monto_expuesto: number; ahorro_estimado: number }>
+  nota_etica?: string
 }
 
 export interface SimulationResponse extends ClaimExplanation {
@@ -332,6 +342,10 @@ export function getExecutiveReport(topLimit = 10) {
 
 export function getExecutiveReportMarkdown(topLimit = 10) {
   return apiRequest<{ format: string; content: string }>(`/api/report?format=markdown&top_limit=${topLimit}`)
+}
+
+export function getSavingsEstimate() {
+  return apiRequest<SavingsEstimate>('/api/report/savings')
 }
 
 export function simulateClaim(claimData: Record<string, unknown>) {

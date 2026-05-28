@@ -11,6 +11,7 @@
 - Métricas altas reflejan datos sintéticos con señales inyectadas; no garantizan performance en producción.
 - El detector de anomalías puede marcar casos normales en portafolios reales (falsos positivos).
 - NLP de similitud depende de `descripcion`; reclamos muy cortos reducen precisión.
+- La simulación de ahorro potencial es una **estimación ilustrativa**, no un ahorro garantizado.
 
 ## Decisiones
 
@@ -20,6 +21,9 @@
 
 ## Alcance técnico
 
-- Prototipo en Python con CSV; no incluye integración runtime con R u Oracle.
-- API REST no expuesta; demo vía Streamlit y agente local.
-- LLM opcional desactivado por defecto (`RASTRO_LLM_ENABLED=false`).
+- **Runtime principal**: Python + CSV (`data/synthetic/`, `data/processed/`).
+- **API REST**: FastAPI en `api/main.py` — `uvicorn api.main:app --reload --port 8000`.
+- **UI**: Streamlit (`app/main.py`) y Next.js (`frontend/`).
+- **R**: scripts de validación reproducible en `r/`; no integrados en el pipeline de scoring.
+- **Oracle**: esquema DDL y Docker XE de referencia en `db/oracle/`; Postgres/Supabase para analítica cloud.
+- LLM opcional desactivado por defecto (`RASTRO_LLM_ENABLED=false`); el agente funciona de forma determinística sin API externa.

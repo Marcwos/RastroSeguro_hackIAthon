@@ -19,6 +19,14 @@ def route_intent(question: str) -> str:
 
 def route(question: str) -> IntentMatch:
     text = normalize_question(question)
+    if any(token in text for token in ("80", "ochenta")) and "proveedor" in text:
+        return IntentMatch(
+            name="concentracion_rojos",
+            confidence=0.95,
+            requires_claim_id=False,
+            uses_documentation=False,
+        )
+
     best_name = "top_riesgo"
     best_score = 0
 

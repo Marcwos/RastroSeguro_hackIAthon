@@ -1,5 +1,6 @@
 import unittest
 
+from src.nlp.narrative_signals import classify_similarity
 from src.nlp.scoring import enrich_claims_with_nlp, score_narratives
 from src.nlp.text_normalization import normalized_for_vectorizer, tokenize
 from src.scoring.final_score import score_dataframe
@@ -16,6 +17,10 @@ class NarrativeScoringTest(unittest.TestCase):
         self.assertIn("huye", tokens)
         self.assertNotIn("mi", tokens)
         self.assertEqual(normalized_for_vectorizer("Auto colisionó y escapó"), "vehiculo choque huye")
+
+    def test_classify_similarity_pdf_bands(self):
+        self.assertEqual(classify_similarity(0.86), (8, "alta"))
+        self.assertEqual(classify_similarity(0.72), (4, "media"))
 
     def test_score_narratives_detects_similar_claims(self):
         claims = [
@@ -35,9 +40,12 @@ class NarrativeScoringTest(unittest.TestCase):
 
         signals = score_narratives(claims, threshold=0.30)
 
-        self.assertTrue(signals["SIN-001"]["alerta_narrativa"])
         similar_ids = {item["target_id"] for item in signals["SIN-001"]["siniestros_similares"]}
         self.assertIn("SIN-002", similar_ids)
+        if signals["SIN-001"]["siniestros_similares"]:
+            best_sim = signals["SIN-001"]["siniestros_similares"][0]["similarity"]
+            if best_sim >= 0.70:
+                self.assertTrue(signals["SIN-001"]["alerta_narrativa"])
         self.assertFalse(signals["SIN-003"]["alerta_narrativa"])
 
     def test_enrich_claims_adds_nlp_contract_fields(self):

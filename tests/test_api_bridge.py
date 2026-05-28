@@ -124,6 +124,21 @@ class ApiBridgeTest(unittest.TestCase):
         self.assertFalse(payload["ok"])
         self.assertIn("contrato", payload["error"]["message"])
 
+    def test_savings_endpoint(self):
+        savings = {"ahorro_potencial_estimado": 1000, "casos_rojos": 5}
+        with patch("api.routes.reports.tools.simulate_portfolio_savings", return_value=savings):
+            response = self.client.get("/api/report/savings")
+        self.assertTrue(response.json()["ok"])
+        self.assertEqual(response.json()["data"]["ahorro_potencial_estimado"], 1000)
+
+    def test_audit_endpoint_markdown(self):
+        with patch("api.routes.reports.build_audit_report", return_value={"total_casos_rojos": 3}):
+            with patch("api.routes.reports.render_audit_markdown", return_value="# Audit"):
+                response = self.client.get("/api/report/audit?format=markdown")
+        payload = response.json()
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["data"]["content"], "# Audit")
+
 
 if __name__ == "__main__":
     unittest.main()

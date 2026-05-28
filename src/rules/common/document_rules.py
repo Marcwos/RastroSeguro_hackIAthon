@@ -24,16 +24,6 @@ def evaluate_document_rules(claim: Claim) -> list[RuleResult]:
             category="documentos",
         ))
 
-    if as_bool(claim.get("documentos_inconsistentes")):
-        results.append(RuleResult(
-            code="RB-007",
-            name="Documentos inconsistentes",
-            points=10,
-            severity="critica",
-            message="Se registran inconsistencias documentales que requieren revisión.",
-            evidence={"documentos_inconsistentes": claim.get("documentos_inconsistentes")},
-            category="documentos",
-            pdf_ref="RF-02",
-        ))
+    # RF-02 in critical_rules owns inconsistent-document signal; skip RB-007 here.
 
     return results

@@ -76,6 +76,17 @@ function ReportDialog({ report, loading, onLoad }: { report: ExecutiveReport | n
               ))}
             </div>
             <p className="border-l-4 border-primary pl-3 text-sm italic text-muted-foreground">{report.ethics_note}</p>
+            {report.ahorro_potencial_estimado ? (
+              <div className="border border-emerald-700/30 bg-emerald-950/20 p-4">
+                <p className="label-mono text-emerald-400">Ahorro potencial estimado</p>
+                <p className="font-display text-3xl font-semibold text-emerald-300">
+                  {formatCurrency(report.ahorro_potencial_estimado.ahorro_potencial_estimado)}
+                </p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {report.ahorro_potencial_estimado.nota_etica}
+                </p>
+              </div>
+            ) : null}
             <div className="grid gap-4 lg:grid-cols-2">
               <ReportTable title="Top casos" rows={report.top_casos || []} primary="id_siniestro" secondary="score_final" />
               <ReportTable title="Top proveedores" rows={report.top_proveedores || []} primary="id_proveedor" secondary="score_promedio" />
@@ -363,6 +374,7 @@ export function StepCommandCenter() {
       criticalCount: summary?.casos_rojos ?? 0,
       mediumCount: summary?.casos_amarillos ?? 0,
       topProvider: providerRows[0]?.name || 'N/D',
+      savingsEstimate: report?.ahorro_potencial_estimado?.ahorro_potencial_estimado ?? 0,
     }
   }, [claims, branchRanking, cityRanking, providerRanking, report])
 
@@ -389,6 +401,7 @@ export function StepCommandCenter() {
     { label: 'Casos alto/crítico', value: analytics.criticalCount.toString(), note: 'Revisión prioritaria', Icon: AlertTriangle },
     { label: 'Monto expuesto', value: formatCurrency(analytics.totalAmount), note: 'Total reclamado', Icon: CircleDollarSign },
     { label: 'Score promedio', value: `${analytics.averageScore}/100`, note: 'Riesgo global', Icon: Target },
+    { label: 'Ahorro potencial', value: formatCurrency(analytics.savingsEstimate), note: 'Estimación ilustrativa', Icon: CircleDollarSign },
   ]
 
   return (

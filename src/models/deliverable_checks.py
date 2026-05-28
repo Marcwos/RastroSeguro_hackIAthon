@@ -52,6 +52,17 @@ def check_notebooks(notebooks_dir: Path, required_notebooks: list[str]) -> list[
     return [f"missing notebook {nb}" for nb in required_notebooks if not (notebooks_dir / nb).exists()]
 
 
+def check_pdf_compliance_files(pitch_path: Path, r_script_path: Path, oracle_schema_path: Path) -> list[str]:
+    errors: list[str] = []
+    if not pitch_path.exists():
+        errors.append(f"missing {pitch_path}")
+    if not r_script_path.exists():
+        errors.append(f"missing {r_script_path}")
+    if not oracle_schema_path.exists():
+        errors.append(f"missing {oracle_schema_path}")
+    return errors
+
+
 def check_artifact_contract(path: Path) -> tuple[bool, list[str]]:
     errors: list[str] = []
     if not path.exists():

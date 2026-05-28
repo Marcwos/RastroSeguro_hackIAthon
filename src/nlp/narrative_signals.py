@@ -6,12 +6,11 @@ from src.nlp.similarity_engine import SimilarityMatch
 
 
 def classify_similarity(similarity: float) -> tuple[int, str]:
-    if similarity >= 0.70:
+    """PDF §7: >=85% -> 8 pts; 70-84% -> 4 pts."""
+    if similarity >= 0.85:
         return 8, "alta"
-    if similarity >= 0.50:
-        return 6, "media"
-    if similarity >= 0.30:
-        return 4, "baja"
+    if similarity >= 0.70:
+        return 4, "media"
     return 0, "sin_alerta"
 
 

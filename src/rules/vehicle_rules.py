@@ -73,13 +73,20 @@ def evaluate_vehicle_rules(claim: Claim) -> list[RuleResult]:
         ))
 
     if not _bool(claim.get("tercero_identificado")) and ("choque" in tipo_evento or "accidente" in tipo_evento):
+        monto = _num(claim.get("monto_reclamado"))
+        suma = max(_num(claim.get("suma_asegurada")), 1)
+        points = 5 if monto / suma >= 0.5 else 3
         results.append(RuleResult(
             code="RV-005",
             name="Tercero no identificado",
-            points=5,
-            severity="media",
-            message="El siniestro reporta tercero no identificado.",
-            evidence={"tercero_identificado": claim.get("tercero_identificado")},
+            points=points,
+            severity="media" if points == 3 else "alta",
+            message="El siniestro reporta tercero no identificado."
+            + (" Daño severo sin rastro del tercero." if points == 5 else ""),
+            evidence={
+                "tercero_identificado": claim.get("tercero_identificado"),
+                "ratio_monto_suma": round(monto / suma, 4),
+            },
             category="vehiculos",
         ))
 
@@ -119,15 +126,61 @@ def evaluate_vehicle_rules(claim: Claim) -> list[RuleResult]:
 
     if "robo" in cobertura:
         dias_reporte = int(_num(claim.get("dias_entre_ocurrencia_reporte")))
-        if dias_reporte > 4:
-            points = 6
+        horas = dias_reporte * 24
+        if horas > 48:
+            points, severity = 8, "alta"
+        elif horas >= 24:
+            points, severity = 4, "media"
+        else:
+            points = 0
+        if points:
             results.append(RuleResult(
                 code="RV-009",
                 name="Demora en denuncia de robo (>48h)",
                 points=points,
+                severity=severity,
+                message=f"La denuncia de robo se realizó {horas} horas ({dias_reporte} días) después del evento.",
+                evidence={
+                    "dias_entre_ocurrencia_reporte": dias_reporte,
+                    "horas_demora": horas,
+                    "cobertura": cobertura,
+                },
+                category="vehiculos",
+            ))
+
+    results.extend(_dynamic_suspicion_rules(claim))
+    return results
+
+
+def _dynamic_suspicion_rules(claim: Claim) -> list[RuleResult]:
+    """PDF §7 dinámica sospechosa: volcadura, múltiple+madrugada."""
+    results: list[RuleResult] = []
+    impacto = str(claim.get("tipo_impacto", "")).lower()
+    descripcion = str(claim.get("descripcion", "")).lower()
+    tipo_evento = str(claim.get("tipo_evento", claim.get("cobertura", ""))).lower()
+
+    if "volcadura" in impacto or "volcadura" in descripcion:
+        contradictions = ["frontal", "posterior", "alcance", "estacionado"]
+        if any(token in descripcion for token in contradictions):
+            results.append(RuleResult(
+                code="RV-010",
+                name="Dinámica sospechosa: volcadura vs relato",
+                points=6,
                 severity="alta",
-                message=f"La denuncia de robo se realizó {dias_reporte} días después del evento.",
-                evidence={"dias_entre_ocurrencia_reporte": dias_reporte, "cobertura": cobertura},
+                message="Relato ilógico frente al tipo de impacto (volcadura).",
+                evidence={"tipo_impacto": impacto, "descripcion": claim.get("descripcion", "")[:120]},
+                category="vehiculos",
+            ))
+
+    if "multiple" in tipo_evento or "multiple" in descripcion or "múltiple" in descripcion:
+        if _bool(claim.get("ocurrio_noche")):
+            results.append(RuleResult(
+                code="RV-011",
+                name="Accidente múltiple de madrugada",
+                points=3,
+                severity="media",
+                message="Accidente múltiple reportado en horario nocturno.",
+                evidence={"tipo_evento": tipo_evento, "ocurrio_noche": claim.get("ocurrio_noche")},
                 category="vehiculos",
             ))
 

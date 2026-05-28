@@ -17,6 +17,7 @@ from src.models.deliverable_checks import (
     check_dataset_schema,
     check_documentation,
     check_notebooks,
+    check_pdf_compliance_files,
     check_qa_report,
     check_scored_artifacts,
     check_star_cases,
@@ -38,7 +39,16 @@ NOTEBOOKS_DIR = ROOT / "notebooks"
 
 PDF_DATASET_COLUMNS = PDF_EXTENSION_COLUMNS
 COMPLEMENTARY_TABLES = ["polizas.csv", "asegurados.csv", "proveedores.csv", "documentos.csv", "dataset_manifest.json"]
-REQUIRED_DOCS = ["reglas_negocio.md", "modelo_datos.md", "limitaciones.md"]
+REQUIRED_DOCS = [
+    "reglas_negocio.md",
+    "modelo_datos.md",
+    "limitaciones.md",
+    "arquitectura.md",
+    "uso_ia.md",
+]
+PRESENTATION_PITCH = ROOT / "presentation" / "pitch.md"
+R_VALIDATION_SCRIPT = ROOT / "r" / "01_validacion_metricas.R"
+ORACLE_SCHEMA = ROOT / "db" / "oracle" / "schema.sql"
 REQUIRED_NOTEBOOKS = [
     "01_exploracion_datos.ipynb",
     "02_modelo_fraude.ipynb",
@@ -89,6 +99,7 @@ def validate() -> dict:
 
     errors.extend(check_documentation(DOCS_DIR, REQUIRED_DOCS))
     errors.extend(check_notebooks(NOTEBOOKS_DIR, REQUIRED_NOTEBOOKS))
+    errors.extend(check_pdf_compliance_files(PRESENTATION_PITCH, R_VALIDATION_SCRIPT, ORACLE_SCHEMA))
 
     if df["id_siniestro"].duplicated().any():
         errors.append("duplicate id_siniestro")

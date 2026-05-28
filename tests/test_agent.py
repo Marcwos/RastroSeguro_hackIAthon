@@ -19,6 +19,8 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(route_intent("Explícame SIN-0045"), "explicar_siniestro")
         self.assertEqual(route_intent("¿Qué narrativas similares tiene SIN-0045?"), "narrativas_similares")
         self.assertEqual(route_intent("¿Qué conexiones de grafo tiene SIN-0045?"), "conexiones_grafo")
+        self.assertEqual(route_intent("¿Qué proveedores concentran el 80% de las alertas rojas?"), "concentracion_rojos")
+        self.assertEqual(route_intent("Estima el ahorro potencial del portafolio"), "ahorro_potencial")
         self.assertTrue(route("Qué reglas usan para el score").uses_documentation)
 
     def test_entity_extraction(self):
