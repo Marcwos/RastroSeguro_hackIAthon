@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useAppState } from '@/lib/app-context'
-import { ArrowRight, LayoutDashboard, LockKeyhole, Shield, Terminal } from 'lucide-react'
+import { ArrowRight, FileSearch, LayoutDashboard, LockKeyhole, Shield, Star, Terminal } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function Sidebar() {
@@ -53,6 +53,35 @@ export function Sidebar() {
             <span className={cn('h-2 w-2 shrink-0 rounded-full', flowReady ? 'bg-[var(--tertiary-fixed-dim)]' : 'bg-border')} />
             {flowReady ? `Caso activo: ${selectedClaimId}` : 'Sin caso activo todavía'}
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <button
+            disabled={!flowReady}
+            onClick={() => flowReady && setCurrentStep(5)}
+            className={cn(
+              'font-display flex w-full items-center gap-3 rounded px-3 py-3 text-left text-[15px] font-semibold transition-colors',
+              currentStep === 5
+                ? 'border-l-4 border-primary bg-[var(--secondary-container)] font-bold text-[var(--on-secondary-container)]'
+                : 'text-muted-foreground opacity-75 hover:bg-[var(--surface-high)] hover:opacity-100',
+              !flowReady && 'cursor-not-allowed opacity-40 hover:bg-transparent'
+            )}
+          >
+            <FileSearch className="h-4 w-4" />
+            Expediente antifraude
+          </button>
+          <button
+            onClick={() => setCurrentStep(6)}
+            className={cn(
+              'font-display flex w-full items-center gap-3 rounded px-3 py-3 text-left text-[15px] font-semibold transition-colors',
+              currentStep === 6
+                ? 'border-l-4 border-primary bg-[var(--secondary-container)] font-bold text-[var(--on-secondary-container)]'
+                : 'text-muted-foreground opacity-75 hover:bg-[var(--surface-high)] hover:opacity-100'
+            )}
+          >
+            <Star className="h-4 w-4" />
+            Demo ejecutiva
+          </button>
         </div>
       </nav>
 

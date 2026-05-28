@@ -8,6 +8,12 @@ from typing import Any
 from src.explainability.explain_claim import explain_claim
 from src.reports.executive_summary import build_executive_report
 from src.reports.markdown_report import render_markdown_report
+
+from src.reports.demo_differentiators import (
+    build_business_impact,
+    build_claim_dossier,
+    build_star_case_catalog,
+)
 from src.scoring.final_score import OUTPUT_PATH
 from src.simulator.simulate_claim import simulate_new_claim
 from src.utils.serialization import from_json_list
@@ -201,3 +207,18 @@ def get_repeated_patterns(limit: int = 10, data_path: Path = OUTPUT_PATH) -> lis
         if row["casos"] >= 5:
             patterns.append({"patron": "proveedor_recurrente", "id_proveedor": row["id_proveedor"], "casos": int(row["casos"])})
     return patterns[:limit]
+
+
+def get_claim_dossier(id_siniestro: str, data_path: Path = OUTPUT_PATH) -> dict[str, Any]:
+    """Return a juror-friendly investigation dossier for one claim."""
+    return build_claim_dossier(id_siniestro, data_path=data_path)
+
+
+def get_demo_star_cases(data_path: Path = OUTPUT_PATH) -> dict[str, Any]:
+    """Return curated live-demo cases: evident, non-obvious, ethical and recurrent patterns."""
+    return build_star_case_catalog(data_path=data_path)
+
+
+def get_business_impact(review_percent: float = 0.10, data_path: Path = OUTPUT_PATH) -> dict[str, Any]:
+    """Return prioritization impact metrics framed as exposure, not automatic savings."""
+    return build_business_impact(data_path=data_path, review_percent=review_percent)

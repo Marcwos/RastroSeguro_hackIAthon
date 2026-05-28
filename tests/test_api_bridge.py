@@ -47,6 +47,34 @@ class ApiBridgeTest(unittest.TestCase):
         self.assertTrue(response.json()["ok"])
         self.assertEqual(response.json()["data"]["score_final"], 88)
 
+
+    def test_dossier_endpoint_calls_tool(self):
+        with patch("api.routes.claims.tools.get_claim_dossier", return_value={"id_siniestro": "SIN-9", "headline": "Expediente"}) as tool:
+            response = self.client.get("/api/claims/SIN-9/dossier")
+
+        tool.assert_called_once_with("SIN-9")
+        payload = response.json()
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["data"]["headline"], "Expediente")
+
+    def test_star_cases_endpoint_calls_tool(self):
+        with patch("api.routes.reports.tools.get_demo_star_cases", return_value={"count": 1, "cases": []}) as tool:
+            response = self.client.get("/api/reports/star-cases")
+
+        tool.assert_called_once_with()
+        payload = response.json()
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["data"]["count"], 1)
+
+    def test_business_impact_endpoint_accepts_review_percent(self):
+        with patch("api.routes.reports.tools.get_business_impact", return_value={"mensaje": "exposición"}) as tool:
+            response = self.client.get("/api/reports/business-impact?review_percent=0.2")
+
+        tool.assert_called_once_with(review_percent=0.2)
+        payload = response.json()
+        self.assertTrue(payload["ok"])
+        self.assertIn("exposición", payload["data"]["mensaje"])
+
     def test_simulator_endpoint_accepts_direct_claim_payload(self):
         simulated = {"ok": True, "simulated": True, "risk": {"nivel_riesgo": "Rojo"}}
         with patch("api.routes.simulator.simulate_new_claim", return_value=simulated) as simulate:

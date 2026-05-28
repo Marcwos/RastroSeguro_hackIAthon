@@ -69,3 +69,82 @@ class ReportsTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class DemoDifferentiatorsTest(unittest.TestCase):
+    def test_claim_dossier_and_business_impact_are_jury_ready(self):
+        import json
+        import tempfile
+        from pathlib import Path
+
+        import pandas as pd
+
+        from src.reports.demo_differentiators import build_business_impact, build_claim_dossier, build_star_case_catalog
+
+        rows = [
+            {
+                "id_siniestro": "SIN-900",
+                "ramo": "vehiculos",
+                "cobertura": "robo",
+                "ciudad": "Quito",
+                "id_asegurado": "ASEG-1",
+                "id_proveedor": "PROV-A",
+                "beneficiario": "Taller A",
+                "monto_reclamado": 9500,
+                "suma_asegurada": 10000,
+                "fecha_ocurrencia": "2026-01-02",
+                "fecha_reporte": "2026-01-08",
+                "score_final": 91,
+                "nivel_riesgo": "Rojo",
+                "score_reglas": 88,
+                "score_modelo": 70,
+                "score_anomalia": 65,
+                "score_nlp": 80,
+                "score_grafo": 75,
+                "score_categorico": 50,
+                "alerta_narrativa": True,
+                "alertas_activadas": json.dumps([
+                    {"code": "RB-001", "name": "Borde de vigencia", "points": 8, "severity": "alta", "message": "Ocurrió cerca del inicio.", "evidence": {"dias": 2}}
+                ]),
+                "siniestros_similares": json.dumps([{"id_siniestro": "SIN-901", "similaridad": 0.91}]),
+                "conexiones_grafo": json.dumps([{"entity": "PROV-A", "type": "proveedor"}]),
+                "entidades_recurrentes": json.dumps([{"entity": "PROV-A", "count": 3}]),
+                "explicacion_nlp": "Narrativa similar a otro reclamo.",
+                "explicacion_grafo": "Proveedor recurrente en la red.",
+                "accion_sugerida": "Escalar a revisión.",
+                "explicacion": "Priorización para revisión humana.",
+            },
+            {
+                "id_siniestro": "SIN-901",
+                "ramo": "hogar",
+                "cobertura": "incendio",
+                "ciudad": "Cuenca",
+                "id_asegurado": "ASEG-2",
+                "id_proveedor": "PROV-A",
+                "monto_reclamado": 2000,
+                "suma_asegurada": 10000,
+                "score_final": 62,
+                "nivel_riesgo": "Amarillo",
+                "score_reglas": 30,
+                "score_modelo": 55,
+                "score_anomalia": 55,
+                "score_nlp": 68,
+                "score_grafo": 68,
+                "score_categorico": 50,
+                "alerta_narrativa": True,
+                "alertas_activadas": "[]",
+            },
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "scored.csv"
+            pd.DataFrame(rows).to_csv(path, index=False)
+            dossier = build_claim_dossier("SIN-900", data_path=path)
+            impact = build_business_impact(data_path=path, review_percent=0.5)
+            stars = build_star_case_catalog(data_path=path)
+
+        self.assertEqual(dossier["risk"]["decision_automatica"], "No")
+        self.assertEqual(dossier["claim"]["ratio_monto_suma"], 0.95)
+        self.assertTrue(dossier["evidence"])
+        self.assertIn("alerta", dossier["ethical_guardrail"].lower())
+        self.assertEqual(impact["casos_a_revisar_top_percent"], 1)
+        self.assertIn("exposición", impact["mensaje"])
+        self.assertGreaterEqual(stars["count"], 2)

@@ -6,6 +6,7 @@ from fastapi import APIRouter, Query
 
 from api.routes._errors import run_endpoint
 from src.reports.generate_report import generate_report_dict, generate_report_markdown
+from src.agent import tools
 
 router = APIRouter(prefix="/api", tags=["reports"])
 
@@ -15,3 +16,13 @@ def report(format: str = Query(default="dict", pattern="^(dict|markdown)$"), top
     if format == "markdown":
         return run_endpoint(lambda: {"format": "markdown", "content": generate_report_markdown(top_limit=top_limit)})
     return run_endpoint(lambda: generate_report_dict(top_limit=top_limit))
+
+
+@router.get("/reports/star-cases")
+def star_cases():
+    return run_endpoint(tools.get_demo_star_cases)
+
+
+@router.get("/reports/business-impact")
+def business_impact(review_percent: float = Query(default=0.10, ge=0.01, le=1.0)):
+    return run_endpoint(lambda: tools.get_business_impact(review_percent=review_percent))

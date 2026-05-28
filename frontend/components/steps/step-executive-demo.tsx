@@ -1,0 +1,133 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { ArrowLeft, Bot, BriefcaseBusiness, CircleDollarSign, FileText, Loader2, PlayCircle, ShieldCheck, Star, Target } from 'lucide-react'
+import { useAppState } from '@/lib/app-context'
+import { BusinessImpact, StarCasesResponse, getBusinessImpact, getStarCases } from '@/lib/api'
+import { formatCurrency, getRiskColor, getRiskLabel } from '@/lib/claims-data'
+
+const num = (value: unknown) => Number(value ?? 0)
+function normalizeRisk(level?: string | null) {
+  const value = String(level || '').toLowerCase()
+  if (['critico', 'crítico', 'rojo'].includes(value)) return 'critico'
+  if (['alto', 'high'].includes(value)) return 'alto'
+  if (['medio', 'amarillo', 'medium'].includes(value)) return 'medio'
+  if (['bajo', 'verde', 'low'].includes(value)) return 'bajo'
+  return 'medio'
+}
+
+export function StepExecutiveDemo() {
+  const { setCurrentStep, setSelectedClaimId, setIsDataLoaded, setShowChat } = useAppState()
+  const [impact, setImpact] = useState<BusinessImpact | null>(null)
+  const [stars, setStars] = useState<StarCasesResponse | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setLoading(true)
+    setError(null)
+    Promise.all([getBusinessImpact(0.1), getStarCases()])
+      .then(([impactData, starData]) => { setImpact(impactData); setStars(starData) })
+      .catch((err) => setError(err instanceof Error ? err.message : 'No se pudo cargar la demo ejecutiva.'))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const openCase = (id: string) => {
+    setSelectedClaimId(id)
+    setIsDataLoaded(true)
+    setCurrentStep(5)
+  }
+
+  return (
+    <section className="px-4 py-8 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <header className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
+          <div className="border border-border bg-[var(--primary-container)] p-8 text-white">
+            <div className="flex items-center gap-2 text-[var(--primary-fixed)]"><Star className="h-5 w-5" /><span className="label-mono-md uppercase">Executive Demo</span></div>
+            <h1 className="display-heading mt-4 text-4xl lg:text-5xl">Casos estrella e impacto de negocio</h1>
+            <p className="mt-3 max-w-2xl text-base text-[var(--primary-fixed-dim)]">Vista preparada para pitch: casos memorables, exposición priorizada y guion de prueba de fuego conectado al backend.</p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <button onClick={() => setShowChat(true)} className="inline-flex items-center gap-2 bg-white px-5 py-3 label-mono-md font-bold uppercase text-primary"><Bot className="h-4 w-4" />Preguntar al agente</button>
+              <button onClick={() => setCurrentStep(0)} className="inline-flex items-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-white"><ArrowLeft className="h-4 w-4" />Command Center</button>
+            </div>
+          </div>
+          <div className="institutional-card p-6">
+            <div className="flex items-start gap-3">
+              <ShieldCheck className="h-8 w-8 text-green-700" />
+              <div>
+                <p className="label-mono-md font-bold uppercase">Mensaje para jurado</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">RastroSeguro no promete ahorro automático ni confirma fraude. Prioriza exposición para revisión humana y muestra evidencia verificable.</p>
+              </div>
+            </div>
+            {impact && <p className="mt-5 border-l-4 border-primary pl-3 text-sm italic text-muted-foreground">{impact.mensaje}</p>}
+          </div>
+        </header>
+
+        {loading && <div className="institutional-card flex items-center gap-2 p-5 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Preparando demo desde FastAPI...</div>}
+        {error && <div className="border border-destructive bg-[var(--error-container)] p-4 text-[var(--on-error-container)]">{error}</div>}
+
+        {impact && (
+          <div className="grid gap-4 md:grid-cols-4">
+            <Kpi label="Siniestros" value={impact.total_siniestros.toLocaleString()} Icon={FileText} />
+            <Kpi label="Casos rojos" value={impact.casos_rojos.toLocaleString()} Icon={Target} />
+            <Kpi label="Top a revisar" value={impact.casos_a_revisar_top_percent.toLocaleString()} Icon={BriefcaseBusiness} />
+            <Kpi label="Exposición priorizada" value={formatCurrency(impact.monto_priorizado_top_percent)} Icon={CircleDollarSign} />
+          </div>
+        )}
+
+        <div className="grid grid-cols-12 gap-4">
+          <section className="institutional-card col-span-12 overflow-hidden xl:col-span-8">
+            <div className="section-header flex items-center gap-2"><Star className="h-4 w-4" />Casos estrella para el pitch</div>
+            <div className="divide-y divide-border">
+              {(stars?.cases || []).map((item) => {
+                const risk = normalizeRisk(item.nivel_riesgo)
+                return (
+                  <button key={`${item.tipo}-${item.id_siniestro}`} onClick={() => openCase(item.id_siniestro)} className="grid w-full gap-3 p-4 text-left transition-colors hover:bg-[var(--surface-low)] md:grid-cols-[1fr_auto]">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="bg-[var(--surface-high)] px-2 py-1 label-mono-md font-bold uppercase">{item.tipo}</span>
+                        <span className="font-mono text-sm font-semibold">{item.id_siniestro}</span>
+                        <span className="px-2 py-1 label-mono text-white" style={{ backgroundColor: getRiskColor(risk) }}>{getRiskLabel(risk)}</span>
+                      </div>
+                      <p className="mt-2 text-sm font-medium">{item.por_que_destaca}</p>
+                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{item.explicacion_demo || 'Caso preparado para demo.'}</p>
+                    </div>
+                    <div className="text-left md:text-right">
+                      <p className="font-display text-3xl font-semibold">{Math.round(num(item.score_final))}</p>
+                      <p className="label-mono text-muted-foreground">{formatCurrency(item.monto_reclamado)}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{item.ramo || 'N/D'} · {item.ciudad || 'N/D'}</p>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </section>
+
+          <aside className="institutional-card col-span-12 overflow-hidden xl:col-span-4">
+            <div className="section-header flex items-center gap-2"><PlayCircle className="h-4 w-4" />Guion de demo en vivo</div>
+            <ol className="space-y-3 p-5 text-sm">
+              {[
+                'Abrir un rojo evidente y mostrar reglas/documentos.',
+                'Abrir un rojo no evidente y explicar grafo/NLP.',
+                'Mostrar un amarillo ético: alerta, no acusación.',
+                'Preguntar al agente: proveedores con más alertas.',
+                'Simular un siniestro nuevo ocurrido cerca del inicio de póliza.',
+              ].map((step, index) => (
+                <li key={step} className="flex gap-3 border border-border bg-[var(--surface-low)] p-3"><span className="label-mono-md font-bold text-primary">{index + 1}</span>{step}</li>
+              ))}
+            </ol>
+          </aside>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function Kpi({ label, value, Icon }: { label: string; value: string; Icon: React.ComponentType<{ className?: string }> }) {
+  return (
+    <div className="institutional-card p-5">
+      <div className="flex items-center justify-between"><p className="label-mono-md uppercase text-muted-foreground">{label}</p><Icon className="h-5 w-5 text-[var(--on-secondary-container)]" /></div>
+      <p className="mt-3 font-display text-3xl font-semibold">{value}</p>
+    </div>
+  )
+}

@@ -8,6 +8,8 @@ import { StepUpload } from '@/components/steps/step-upload'
 import { StepSummary } from '@/components/steps/step-summary'
 import { StepAnalysis } from '@/components/steps/step-analysis'
 import { StepIntelligence } from '@/components/steps/step-intelligence'
+import { StepDossier } from '@/components/steps/step-dossier'
+import { StepExecutiveDemo } from '@/components/steps/step-executive-demo'
 import { AIAssistant } from '@/components/ai-assistant'
 
 function MainContent() {
@@ -24,6 +26,8 @@ function MainContent() {
           {currentStep === 2 && <StepSummary />}
           {currentStep === 3 && <StepAnalysis />}
           {currentStep === 4 && <StepIntelligence />}
+          {currentStep === 5 && <StepDossier />}
+          {currentStep === 6 && <StepExecutiveDemo />}
         </main>
       </div>
       <AIAssistant />

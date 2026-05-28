@@ -4,7 +4,8 @@ from __future__ import annotations
 
 QUICK_QUESTIONS = [
     "¿Cuáles son los 10 siniestros con mayor riesgo de posible fraude?",
-    "¿Por qué el siniestro SIN-000001 fue marcado como alto riesgo?",
+    "¿Por qué el siniestro SIN-001 fue marcado como alto riesgo?",
+    "Genera expediente antifraude del siniestro SIN-001.",
     "¿Qué proveedores concentran más alertas?",
     "¿Qué ramos tienen mayor porcentaje de casos sospechosos?",
     "¿Qué ciudades presentan mayor concentración de alertas?",
@@ -14,6 +15,8 @@ QUICK_QUESTIONS = [
     "¿Qué siniestros ocurrieron cerca del inicio de la póliza?",
     "¿Qué patrones se repiten en los reclamos sospechosos?",
     "Genera un resumen ejecutivo de los casos críticos.",
+    "Muéstrame los casos estrella para la demo ejecutiva.",
+    "¿Cuál es el impacto de negocio del top 10% priorizado?",
     "Recomienda qué casos debería revisar primero el analista.",
 ]
 

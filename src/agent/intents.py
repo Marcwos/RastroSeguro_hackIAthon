@@ -16,6 +16,7 @@ class IntentMatch:
 INTENT_ALIASES = {
     "top_riesgo": ["top", "mayor riesgo", "mas riesgo", "más riesgo", "prioridad", "priorizar"],
     "explicar_siniestro": ["explica", "explicame", "explícame", "por que", "por qué", "detalle", "porque", "por que este", "por qué este", "marcado como alto"],
+    "expediente_siniestro": ["expediente", "ficha antifraude", "dossier", "investigacion", "investigación"],
     "ranking_proveedores": ["proveedor", "proveedores", "taller", "clinica", "clínica", "concentran", "alertas rojas"],
     "ranking_ciudades": ["ciudad", "ciudades", "zona", "concentracion", "concentración"],
     "riesgo_por_ramo": ["ramo", "ramos", "multi ramo", "multiramo", "sospechosos", "porcentaje"],
@@ -23,6 +24,8 @@ INTENT_ALIASES = {
     "narrativas_similares": ["narrativa", "narrativas", "relato", "relatos", "similares", "clonada", "clonadas"],
     "conexiones_grafo": ["grafo", "relacion", "relación", "conexiones", "red"],
     "resumen_ejecutivo": ["resumen", "ejecutivo", "gerencia", "casos criticos", "casos críticos"],
+    "casos_estrella": ["casos estrella", "demo ejecutiva", "casos demo", "caso rojo evidente", "rojo no evidente"],
+    "impacto_negocio": ["impacto", "negocio", "ahorro", "exposicion", "exposición", "top 10%"],
     "recomendar_revision": ["recomienda", "revisar primero", "revisar primero", "orden de revision", "orden de revisión", "deberia revisar", "debería revisar"],
     "frecuencia_asegurados": ["asegurados", "frecuencia de reclamos", "mas reclamos", "más reclamos"],
     "montos_atipicos": ["montos atipicos", "montos atípicos", "monto atipico", "monto atípico"],
@@ -32,5 +35,5 @@ INTENT_ALIASES = {
     "documentacion": ["regla", "reglas", "score", "metodologia", "metodología", "limitacion", "limitación", "etica", "ética"],
 }
 
-CLAIM_REQUIRED_INTENTS = {"explicar_siniestro", "narrativas_similares", "conexiones_grafo"}
+CLAIM_REQUIRED_INTENTS = {"explicar_siniestro", "expediente_siniestro", "narrativas_similares", "conexiones_grafo"}
 DOC_INTENTS = {"documentacion"}

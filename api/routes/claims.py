@@ -26,6 +26,11 @@ def claim_explanation(id_siniestro: str):
     return run_endpoint(lambda: explain_claim(id_siniestro))
 
 
+@router.get("/claims/{id_siniestro}/dossier")
+def claim_dossier(id_siniestro: str):
+    return run_endpoint(lambda: tools.get_claim_dossier(id_siniestro))
+
+
 @router.get("/rankings/providers")
 def provider_ranking(limit: int = Query(default=10, ge=1, le=100)):
     return run_endpoint(lambda: tools.get_provider_risk_ranking(limit=limit))

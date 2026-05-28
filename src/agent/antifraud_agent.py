@@ -58,8 +58,14 @@ def _dispatch(intent: str, claim_id: str | None, limit: int, question: str) -> A
         return tools.get_missing_documents()
     if intent == "resumen_ejecutivo":
         return tools.generate_executive_summary()
+    if intent == "casos_estrella":
+        return tools.get_demo_star_cases()
+    if intent == "impacto_negocio":
+        return tools.get_business_impact()
     if intent == "explicar_siniestro":
         return tools.explain_claim(claim_id or "")
+    if intent == "expediente_siniestro":
+        return tools.get_claim_dossier(claim_id or "")
     if intent == "narrativas_similares":
         return tools.get_similar_narratives(claim_id or "")
     if intent == "conexiones_grafo":
@@ -89,7 +95,10 @@ def _message_for(intent: str) -> str:
         "riesgo_por_ramo": "Comparación de riesgo por ramo.",
         "documentos_faltantes": "Casos con documentos faltantes o incompletos.",
         "resumen_ejecutivo": "Resumen ejecutivo generado desde datos procesados.",
+        "casos_estrella": "Casos estrella seleccionados para demo ejecutiva.",
+        "impacto_negocio": "Impacto de priorización expresado como exposición a revisar, no ahorro automático.",
         "explicar_siniestro": "Explicación trazable del siniestro solicitado.",
+        "expediente_siniestro": "Expediente antifraude con evidencias, próximos pasos y guardrail ético.",
         "narrativas_similares": "Narrativas similares detectadas para el siniestro solicitado.",
         "conexiones_grafo": "Conexiones y entidades recurrentes del siniestro solicitado.",
         "documentacion": "Respuesta basada en documentación interna del proyecto.",

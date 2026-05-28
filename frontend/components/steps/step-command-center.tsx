@@ -302,6 +302,8 @@ export function StepCommandCenter() {
   const [branchRanking, setBranchRanking] = useState<RiskAggregateRow[] | null>(null)
   const [report, setReport] = useState<ExecutiveReport | null>(null)
   const [reportLoading, setReportLoading] = useState(false)
+  const [historyCode, setHistoryCode] = useState('')
+  const [historyError, setHistoryError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!claims.length) void loadClaims()
@@ -363,6 +365,18 @@ export function StepCommandCenter() {
     setCurrentStep(2)
   }
 
+  const searchInHistory = () => {
+    const query = historyCode.trim().toUpperCase().replace('_', '-')
+    if (!query) return
+    const found = claims.find((c) => String(c.id_siniestro || '').toUpperCase() === query)
+    if (!found) {
+      setHistoryError(`No se encontró ${query}`)
+      return
+    }
+    setHistoryError(null)
+    analyzeClaim(found)
+  }
+
   const kpis = [
     { label: 'Siniestros evaluados', value: analytics.total.toString(), note: 'Dataset priorizado', Icon: FileSearch },
     { label: 'Casos alto/crítico', value: analytics.criticalCount.toString(), note: 'Revisión prioritaria', Icon: AlertTriangle },
@@ -392,6 +406,9 @@ export function StepCommandCenter() {
               </button>
               <ReportDialog report={report} loading={reportLoading} onLoad={() => void loadCommandCenterData()} />
               <SimulatorDialog />
+              <button onClick={() => setCurrentStep(6)} className="inline-flex items-center justify-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-white hover:bg-white/10">
+                Demo ejecutiva
+              </button>
             </div>
           </div>
           <div className="institutional-card p-6">
@@ -519,7 +536,20 @@ export function StepCommandCenter() {
             </div>
 
             <div className="institutional-card overflow-hidden">
-              <div className="section-header flex items-center justify-between"><span>Top 10 casos prioritarios</span><span>{isLoadingClaims ? 'Sincronizando...' : 'Ordenado por score final'}</span></div>
+              <div className="section-header flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><span>Top 10 casos prioritarios (Historial)</span><span>{isLoadingClaims ? 'Sincronizando...' : 'Ordenado por score final'}</span></div>
+              <div className="border-b border-border bg-[var(--surface-low)] p-3">
+                <div className="flex flex-col gap-2 md:flex-row md:items-center">
+                  <input
+                    value={historyCode}
+                    onChange={(e) => setHistoryCode(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && searchInHistory()}
+                    placeholder="Buscar en historial por código (SIN-046)"
+                    className="w-full border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary md:max-w-sm"
+                  />
+                  <button onClick={searchInHistory} className="border border-border px-3 py-2 label-mono-md text-muted-foreground hover:text-primary">Buscar</button>
+                </div>
+                {historyError && <p className="mt-2 text-xs text-destructive">{historyError}</p>}
+              </div>
               <div className="overflow-x-auto">
                 <table className="zebra w-full text-left">
                   <thead>

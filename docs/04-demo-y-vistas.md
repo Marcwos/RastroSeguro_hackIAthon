@@ -94,3 +94,28 @@ No usar “modo jurado” como concepto formal de producto. Si se necesitan acce
 - Proveedor recurrente: concentración de alertas.
 - Narrativa similar: reclamos con textos parecidos.
 - Simulación en vivo: nuevo caso evaluado durante la demo.
+
+## Implementación de diferenciadores para destacar
+
+Se agregaron dos secciones explícitas al frontend Next.js (`frontend/`), no a Streamlit:
+
+### Expediente antifraude
+
+Convierte un siniestro seleccionado en una ficha investigativa con:
+
+- Score, nivel de riesgo y decisión automática = No.
+- Evidencias trazables ordenadas por puntaje.
+- Principal componente que explica el riesgo.
+- Señales de NLP y grafo cuando existen.
+- Próximos pasos de revisión humana.
+- Guardrail ético visible: alerta de priorización, no acusación.
+
+### Demo ejecutiva
+
+Vista preparada para el pitch y preguntas del jurado con:
+
+- Casos estrella: rojo evidente, rojo no evidente, amarillo ético, proveedor recurrente y narrativa similar.
+- Impacto de negocio como exposición priorizada del top 10%, sin presentarlo como ahorro automático.
+- Guion sugerido de demo en vivo.
+
+El agente también reconoce consultas sobre expediente antifraude, casos estrella e impacto de negocio usando herramientas determinísticas sobre `data/processed/siniestros_scored.csv`. Estas capacidades se exponen al frontend mediante FastAPI: `/api/claims/{id_siniestro}/dossier`, `/api/reports/star-cases` y `/api/reports/business-impact`.
