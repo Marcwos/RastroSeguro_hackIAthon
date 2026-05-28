@@ -111,7 +111,7 @@ export function StepUpload() {
             <input
               className="absolute inset-0 opacity-0"
               type="file"
-              accept=".csv,.xls,.xlsx,.json"
+              accept=".csv,text/csv"
               onChange={(e) => handleFileUpload(e.target.files)}
             />
             <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-[var(--surface-container)] group-hover:bg-[var(--primary-container)]">
@@ -119,8 +119,8 @@ export function StepUpload() {
             </div>
             <div className="text-center">
               <h3 className="font-display text-xl font-semibold">Carga de Datos Institucional</h3>
-              <p className="text-sm text-muted-foreground">Arrastre archivos CSV/JSON o haga clic para explorar el sistema local.</p>
-              <p className="label-mono mt-1 text-muted-foreground">Formatos permitidos: .csv, .xls, .json (Máx 50MB)</p>
+              <p className="text-sm text-muted-foreground">Arrastre un archivo CSV o haga clic para explorarlo desde su equipo.</p>
+              <p className="label-mono mt-1 text-muted-foreground">Formato permitido: .csv (Máx 50MB)</p>
             </div>
           </label>
 
