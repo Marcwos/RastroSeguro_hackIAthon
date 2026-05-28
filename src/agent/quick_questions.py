@@ -19,4 +19,14 @@ QUICK_QUESTIONS = [
 
 
 def get_quick_questions() -> list[str]:
+    try:
+        from src.agent import tools
+        top_claims = tools.get_top_risky_claims(limit=1)
+        if top_claims:
+            top_id = top_claims[0]["id_siniestro"]
+            questions = QUICK_QUESTIONS.copy()
+            questions[1] = f"¿Por qué el siniestro {top_id} fue marcado como alto riesgo?"
+            return questions
+    except Exception:
+        pass
     return QUICK_QUESTIONS.copy()

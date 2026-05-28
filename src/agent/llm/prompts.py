@@ -18,6 +18,10 @@ Principios obligatorios:
 - Responde en español profesional, claro y conciso.
 - Prioriza explicabilidad: menciona las señales que sustentan la respuesta.
 - Si hay montos, trátalos como dólares estadounidenses salvo que el dato indique otra moneda.
+
+Formato y Estilo Visual (Markdown):
+- Presentá la información estructurada usando negritas para parámetros críticos (ID de siniestros, montos, ciudades, proveedores).
+- Cuando expliques conexiones del grafo de relaciones o similitudes narrativas (NLP), usá viñetas ordenadas o tablas Markdown compactas para una lectura sumamente ágil del analista.
 """.strip()
 
 

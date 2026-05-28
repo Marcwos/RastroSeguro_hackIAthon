@@ -134,10 +134,28 @@ class AgentTest(unittest.TestCase):
         self.assertTrue(any(word in top_snippet for word in ["score", "final", "compuesto"]))
 
     def test_quick_questions_are_available_for_ui(self):
-        questions = get_quick_questions()
+        fake_df = __import__("pandas").DataFrame(
+            [
+                {
+                    "id_siniestro": "SIN-000088",
+                    "id_asegurado": "ASEG-1",
+                    "id_proveedor": "PROV-1",
+                    "ramo": "vehiculos",
+                    "ciudad": "Quito",
+                    "monto_reclamado": 9000,
+                    "suma_asegurada": 10000,
+                    "score_final": 99.0,
+                    "nivel_riesgo": "Rojo",
+                    "accion_sugerida": "Revisar",
+                }
+            ]
+        )
+        with patch("src.agent.tools._load_scored", return_value=fake_df):
+            questions = get_quick_questions()
 
         self.assertGreaterEqual(len(questions), 5)
         self.assertTrue(any("proveedores" in question.lower() for question in questions))
+        self.assertTrue(any("SIN-000088" in question for question in questions))
 
 
 if __name__ == "__main__":

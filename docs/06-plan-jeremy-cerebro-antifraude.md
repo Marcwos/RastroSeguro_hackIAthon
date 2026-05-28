@@ -478,3 +478,21 @@ Responsabilidades:
 | `generate_report.py` | Entrypoints públicos |
 
 El reporte incluye resumen, top casos críticos, riesgo por ramo, top proveedores, top ciudades y nota ética.
+
+---
+
+## Robustness and Formatting Improvements (HackIAthon 2026)
+
+To ensure the system is rock-solid for the live 4-minute pitch, we implemented these enhancements:
+
+### 1. Dynamic Quick Questions (`src/agent/quick_questions.py`)
+- Removed the hardcoded `"SIN-000001"` risk question.
+- Dynamically queries the database for the actual top-risk claim ID using `tools.get_top_risky_claims(limit=1)` and injects it into the question list.
+- Implemented robust error boundary handling to fallback gracefully to standard static queries in case of load failures or ungenerated datasets.
+
+### 2. Structured LLM Visual Formatting (`src/agent/llm/prompts.py`)
+- Refined the `SYSTEM_INSTRUCTIONS` prompt to mandate clean Markdown output.
+- Instructs the LLM to format graph connections, entity lists, and textual similarities using **bold text highlights, compact Markdown tables, and clean bullet lists** for a highly executive presentation inside Justin's UI.
+
+### 3. Integrated Test Suite Environment (`pytest.ini`)
+- Added `pytest.ini` configuration at the project root to automatically include the workspace in the pythonpath. Developers can run `.venv/bin/pytest` immediately without manually configuring the `PYTHONPATH` environment variable.
