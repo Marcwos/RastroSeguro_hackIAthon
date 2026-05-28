@@ -5,11 +5,22 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import joblib
 import pandas as pd
 
 from src.data.ecuador_context import ECUADOR_EXTENSION_COLUMNS
 from src.data.generate_synthetic_data import PDF_EXTENSION_COLUMNS
+from src.data.qa_metrics import ECUADOR_SOURCE_FLOORS, SIGNAL_COVERAGE_FLOOR
+from src.models.deliverable_checks import (
+    check_artifact_contract,
+    check_benchmark_questions,
+    check_complementary_tables,
+    check_dataset_schema,
+    check_documentation,
+    check_notebooks,
+    check_qa_report,
+    check_scored_artifacts,
+    check_star_cases,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DATASET_PATH = ROOT / "data" / "synthetic" / "siniestros.csv"
@@ -58,19 +69,6 @@ REQUIRED_DATASET_COLUMNS = [
 ]
 
 
-def _artifact_contract_ok(path: Path) -> tuple[bool, list[str]]:
-    errors: list[str] = []
-    if not path.exists():
-        return False, [f"missing {path}"]
-    artifact = joblib.load(path)
-    if not isinstance(artifact, dict):
-        return False, [f"{path.name} no es dict compatible"]
-    for key in ("model", "feature_columns", "metrics"):
-        if key not in artifact:
-            errors.append(f"{path.name} missing key {key}")
-    return not errors, errors
-
-
 def validate() -> dict:
     errors: list[str] = []
     summary: dict[str, object] = {}
@@ -81,37 +79,16 @@ def validate() -> dict:
 
     df = pd.read_csv(DATASET_PATH)
     summary["dataset_rows"] = int(len(df))
-    missing_cols = [c for c in REQUIRED_DATASET_COLUMNS if c not in df.columns]
-    if missing_cols:
-        errors.append(f"missing dataset columns: {missing_cols}")
-
-    missing_ecuador = [c for c in ECUADOR_EXTENSION_COLUMNS if c not in df.columns]
+    errors.extend(check_dataset_schema(df, REQUIRED_DATASET_COLUMNS, ECUADOR_EXTENSION_COLUMNS, PDF_DATASET_COLUMNS))
     summary["ecuador_extension_columns_present"] = [c for c in ECUADOR_EXTENSION_COLUMNS if c in df.columns]
-    if missing_ecuador:
-        errors.append(f"missing ecuador extension columns: {missing_ecuador}")
-
-    missing_pdf = [c for c in PDF_DATASET_COLUMNS if c not in df.columns]
     summary["pdf_extension_columns_present"] = [c for c in PDF_DATASET_COLUMNS if c in df.columns]
-    if missing_pdf:
-        errors.append(f"missing pdf extension columns: {missing_pdf}")
 
-    for table in COMPLEMENTARY_TABLES:
-        path = SYNTHETIC_DIR / table
-        if not path.exists():
-            errors.append(f"missing complementary table {path}")
-        elif path.suffix == ".csv":
-            rows = len(pd.read_csv(path))
-            summary[f"rows_{table.replace('.csv', '')}"] = rows
-            if rows < 1:
-                errors.append(f"empty complementary table {table}")
+    comp_errors, comp_summary = check_complementary_tables(SYNTHETIC_DIR, COMPLEMENTARY_TABLES)
+    errors.extend(comp_errors)
+    summary.update(comp_summary)
 
-    for doc in REQUIRED_DOCS:
-        if not (DOCS_DIR / doc).exists():
-            errors.append(f"missing doc {doc}")
-
-    for nb in REQUIRED_NOTEBOOKS:
-        if not (NOTEBOOKS_DIR / nb).exists():
-            errors.append(f"missing notebook {nb}")
+    errors.extend(check_documentation(DOCS_DIR, REQUIRED_DOCS))
+    errors.extend(check_notebooks(NOTEBOOKS_DIR, REQUIRED_NOTEBOOKS))
 
     if df["id_siniestro"].duplicated().any():
         errors.append("duplicate id_siniestro")
@@ -121,65 +98,38 @@ def validate() -> dict:
     if not FEATURES_PATH.exists():
         errors.append("missing features.csv")
     else:
-        fdf = pd.read_csv(FEATURES_PATH)
-        summary["features_rows"] = int(len(fdf))
+        summary["features_rows"] = int(len(pd.read_csv(FEATURES_PATH, usecols=["id_siniestro"])))
 
-    clf_ok, clf_errors = _artifact_contract_ok(CLASSIFIER_PATH)
-    an_ok, an_errors = _artifact_contract_ok(ANOMALY_PATH)
+    clf_ok, clf_errors = check_artifact_contract(CLASSIFIER_PATH)
+    an_ok, an_errors = check_artifact_contract(ANOMALY_PATH)
     if not clf_ok:
         errors.extend(clf_errors)
     if not an_ok:
         errors.extend(an_errors)
 
-    for required in (METRICS_PATH, STAR_CASES_PATH, SCORED_PATH):
-        if not required.exists():
-            errors.append(f"missing {required}")
-    if SCORED_PATH.exists():
-        sdf = pd.read_csv(SCORED_PATH, nrows=50)
-        if "rule_trace" not in sdf.columns:
-            errors.append("missing rule_trace in siniestros_scored.csv")
+    errors.extend(check_scored_artifacts(METRICS_PATH, SCORED_PATH, STAR_CASES_PATH))
 
-    if not QA_PATH.exists():
-        errors.append(f"missing {QA_PATH}")
-    else:
+    if QA_PATH.exists():
         qa = json.loads(QA_PATH.read_text(encoding="utf-8"))
-        summary["qa_ok"] = bool(qa.get("ok"))
-        summary["ecuador_coverage"] = qa.get("ecuador_coverage", {})
-        coverage = qa.get("signal_coverage", {})
-        weak = [k for k, v in coverage.items() if float(v) < 0.01]
-        if weak:
-            errors.append(f"signal coverage too low: {weak}")
-        ecuador = qa.get("ecuador_coverage", {})
-        if ecuador.get("supplier_ruc_real_rate", 0) < 0.5:
-            errors.append("ecuador supplier_ruc_real_rate below 0.5")
-        if ecuador.get("lista_restrictiva_rate", 0) < 0.001:
-            errors.append("ecuador lista_restrictiva_rate below 0.001")
-        source_usage = qa.get("ecuador_source_usage", {})
-        summary["ecuador_source_usage"] = source_usage
-        if source_usage.get("sercop_usage_rate", 0) < 0.95:
-            errors.append("ecuador sercop_usage_rate below 0.95")
-        if source_usage.get("ocds_usage_rate", 0) < 0.5:
-            errors.append("ecuador ocds_usage_rate below 0.5")
-        if source_usage.get("ecu911_usage_rate", 0) < 0.95:
-            errors.append("ecuador ecu911_usage_rate below 0.95")
-        if source_usage.get("inec_usage_rate", 0) < 0.95:
-            errors.append("ecuador inec_usage_rate below 0.95")
+        qa_errors, qa_summary = check_qa_report(qa, SIGNAL_COVERAGE_FLOOR, ECUADOR_SOURCE_FLOORS)
+        errors.extend(qa_errors)
+        summary.update(qa_summary)
+    else:
+        errors.append(f"missing {QA_PATH}")
 
     if STAR_CASES_PATH.exists():
         payload = json.loads(STAR_CASES_PATH.read_text(encoding="utf-8"))
-        levels = {str(item.get("nivel_riesgo", "")).lower() for item in payload.get("cases", [])}
-        if "rojo" not in levels or "amarillo" not in levels:
-            errors.append("casos_estrella must include both Rojo and Amarillo")
-        summary["star_cases_count"] = int(payload.get("count", 0))
+        star_errors, star_summary = check_star_cases(payload)
+        errors.extend(star_errors)
+        summary.update(star_summary)
 
-    if not BENCHMARK_PATH.exists():
-        errors.append(f"missing {BENCHMARK_PATH}")
-    else:
+    if BENCHMARK_PATH.exists():
         bench = json.loads(BENCHMARK_PATH.read_text(encoding="utf-8"))
-        q_count = len(bench.get("questions", []))
-        summary["benchmark_questions"] = q_count
-        if q_count < 12:
-            errors.append("benchmark preguntas insuficiente (<12)")
+        bench_errors, bench_summary = check_benchmark_questions(bench, min_questions=12)
+        errors.extend(bench_errors)
+        summary.update(bench_summary)
+    else:
+        errors.append(f"missing {BENCHMARK_PATH}")
 
     summary["ok"] = not errors
     summary["errors"] = errors
@@ -195,4 +145,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

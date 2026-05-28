@@ -5,7 +5,7 @@ import { useAppState } from '@/lib/app-context'
 import { ApiClientError, askAgent, getQuickQuestions } from '@/lib/api'
 import { MessageCircle, X, Send, Bot, User, Plus, SlidersHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 
 function shortenQuestion(text: string, max = 72): string {
   const trimmed = text.trim()
@@ -48,6 +48,7 @@ export function AIAssistant() {
   const [isTyping, setIsTyping] = useState(false)
   const [apiQuickQuestions, setApiQuickQuestions] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const reduceMotion = useReducedMotion()
 
   const quickQuestions = useMemo(() => {
     const base = contextualQuickQuestions(selectedClaimId)
@@ -130,17 +131,17 @@ export function AIAssistant() {
         {!showChat && (
           <motion.button
             type="button"
-            initial={{ y: 12, opacity: 0, scale: 0.95 }}
-            animate={{
+            initial={reduceMotion ? false : { y: 12, opacity: 0, scale: 0.95 }}
+            animate={reduceMotion ? undefined : {
               y: 0,
               opacity: 1,
               scale: [1, 1.06, 1],
-              boxShadow: ['0 0 0 0 rgba(59,130,246,0.35)', '0 0 0 12px rgba(59,130,246,0)', '0 0 0 0 rgba(59,130,246,0)'],
+              boxShadow: ['0 0 0 0 rgba(37,99,235,0.35)', '0 0 0 12px rgba(37,99,235,0)', '0 0 0 0 rgba(37,99,235,0)'],
             }}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 1.2 }}
-            exit={{ y: 12, opacity: 0 }}
+            transition={reduceMotion ? undefined : { duration: 2, repeat: Infinity, repeatDelay: 1.2 }}
+            exit={reduceMotion ? undefined : { y: 12, opacity: 0 }}
             onClick={() => setShowChat(true)}
-            className="fixed bottom-5 left-1/2 z-[100] flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border border-primary/40 bg-primary text-primary-foreground shadow-lg"
+            className="focus-ring fixed bottom-5 left-1/2 z-[100] flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border border-primary/40 bg-primary text-primary-foreground shadow-lg"
             aria-label="Abrir asistente de riesgo"
           >
             <MessageCircle className="h-5 w-5" />
@@ -153,19 +154,19 @@ export function AIAssistant() {
           <motion.div
             role="dialog"
             aria-label="Asistente de riesgo"
-            initial={{ opacity: 0, y: 16, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.98 }}
-            transition={{ duration: 0.2 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 16, scale: 0.98 }}
+            animate={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+            exit={reduceMotion ? undefined : { opacity: 0, y: 16, scale: 0.98 }}
+            transition={{ duration: reduceMotion ? 0 : 0.2 }}
             className={cn(
-              'fixed bottom-20 left-1/2 z-[100] flex -translate-x-1/2 flex-col overflow-hidden border border-border bg-card shadow-2xl',
+              'fixed bottom-20 left-1/2 z-[100] flex -translate-x-1/2 flex-col overflow-hidden border border-border bg-card text-card-foreground shadow-2xl ring-1 ring-border/60 dark:shadow-black/40',
               'h-[min(62vh,520px)] w-[min(94vw,560px)] rounded-2xl',
             )}
           >
             <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-[var(--surface-container)] px-4 py-3 text-foreground">
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--secondary-container)]">
-                  <Bot className="h-5 w-5 text-[var(--on-secondary-container)]" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--secondary-container)] text-[var(--on-secondary-container)]">
+                  <Bot className="h-5 w-5" />
                 </div>
                 <div className="min-w-0">
                   <p className="truncate font-semibold">Asistente de Riesgo</p>
@@ -179,7 +180,7 @@ export function AIAssistant() {
               <button
                 type="button"
                 onClick={() => setShowChat(false)}
-                className="shrink-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-[var(--surface-high)] hover:text-foreground"
+                className="focus-ring shrink-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-[var(--surface-high)] hover:text-foreground"
                 aria-label="Cerrar asistente"
               >
                 <X className="h-5 w-5" />
@@ -209,7 +210,7 @@ export function AIAssistant() {
                       className={cn(
                         'max-w-[85%] rounded-lg px-3 py-2.5 text-sm leading-relaxed',
                         message.role === 'assistant'
-                          ? 'border border-border bg-card text-foreground'
+                          ? 'border border-border bg-card text-card-foreground'
                           : 'bg-primary text-primary-foreground',
                       )}
                     >
@@ -246,7 +247,7 @@ export function AIAssistant() {
                         title={q}
                         onClick={() => handleSend(q)}
                         disabled={isTyping}
-                        className="shrink-0 rounded-full border border-border bg-[var(--surface-low)] px-3 py-1.5 text-xs text-foreground transition-colors hover:border-primary disabled:opacity-50"
+                        className="focus-ring shrink-0 rounded-full border border-border bg-[var(--surface-low)] px-3 py-1.5 text-xs text-foreground transition-colors hover:border-primary disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {shortenQuestion(q, 42)}
                       </button>
@@ -272,22 +273,22 @@ export function AIAssistant() {
 
                     <div className="mt-2 flex items-center justify-between">
                       <div className="flex items-center gap-1">
-                        <button type="button" aria-label="Agregar" className="rounded-md p-2 text-muted-foreground hover:bg-[var(--surface-high)] hover:text-foreground">
+                        <button type="button" aria-label="Agregar" className="focus-ring rounded-md p-2 text-muted-foreground hover:bg-[var(--surface-high)] hover:text-foreground">
                           <Plus className="h-4 w-4" />
                         </button>
-                        <button type="button" aria-label="Opciones" className="rounded-md p-2 text-muted-foreground hover:bg-[var(--surface-high)] hover:text-foreground">
+                        <button type="button" aria-label="Opciones" className="focus-ring rounded-md p-2 text-muted-foreground hover:bg-[var(--surface-high)] hover:text-foreground">
                           <SlidersHorizontal className="h-4 w-4" />
                         </button>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="rounded-full border border-border bg-background px-2.5 py-1 text-[11px] text-muted-foreground">Rastro IA</span>
+                        <span className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">Rastro IA</span>
                         <button
                           type="button"
                           onClick={() => void handleSend()}
                           disabled={!input.trim() || isTyping}
                           className={cn(
-                            'flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-foreground transition-colors hover:bg-[var(--surface-high)]',
+                            'focus-ring flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-foreground transition-colors hover:bg-[var(--surface-high)]',
                             (!input.trim() || isTyping) && 'cursor-not-allowed opacity-50',
                           )}
                           aria-label="Enviar mensaje"
@@ -297,7 +298,7 @@ export function AIAssistant() {
                       </div>
                     </div>
                   </div>
-                  <p className="mt-2 text-center text-[10px] text-muted-foreground">
+                  <p className="mt-2 text-center text-xs text-muted-foreground">
                     Prioriza revisión humana; no acusa fraude automáticamente.
                   </p>
                 </div>

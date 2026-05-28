@@ -6,6 +6,8 @@ from typing import Any
 
 import pandas as pd
 
+from src.data.portfolio_stats import PortfolioStats
+
 NUMERIC_FEATURE_COLUMNS = [
     "dias_desde_inicio_poliza",
     "dias_desde_fin_poliza",
@@ -147,14 +149,8 @@ def enrich_base_columns(df: pd.DataFrame) -> pd.DataFrame:
     out["historial_alto_asegurado_flag"] = (out["historial_siniestros_asegurado"].astype(float) >= 3).astype(int)
     out["historial_alto_vehiculo_flag"] = (out["historial_siniestros_vehiculo"].astype(float) >= 3).astype(int)
 
-    provider_counts = out["id_proveedor"].astype(str).value_counts() if "id_proveedor" in out.columns else {}
-    beneficiary_counts = out["beneficiario"].astype(str).value_counts() if "beneficiario" in out.columns else {}
-    out["proveedor_recurrencia_count"] = (
-        out["id_proveedor"].astype(str).map(provider_counts).fillna(1).astype(float) if "id_proveedor" in out.columns else 1.0
-    )
-    out["beneficiario_recurrencia_count"] = (
-        out["beneficiario"].astype(str).map(beneficiary_counts).fillna(1).astype(float) if "beneficiario" in out.columns else 1.0
-    )
+    stats = PortfolioStats.from_frame(out)
+    out = stats.enrich_frame(out)
 
     if "supplier_risk_signal_score" in out.columns:
         out["supplier_risk_signal_score"] = pd.to_numeric(out["supplier_risk_signal_score"], errors="coerce").fillna(0.0)

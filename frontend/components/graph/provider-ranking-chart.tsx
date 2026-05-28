@@ -4,6 +4,9 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import { RecurringEntity } from './graph-types'
 
+const gridStroke = 'hsl(var(--chart-grid) / 0.35)'
+const axisStyle = { fill: 'var(--muted-foreground)', fontSize: 12 }
+
 export function ProviderRankingChart({ entities }: { entities: RecurringEntity[] }) {
   const rows = [...entities]
     .filter((e) => e.type === 'proveedor' || e.field === 'id_proveedor')
@@ -16,11 +19,11 @@ export function ProviderRankingChart({ entities }: { entities: RecurringEntity[]
   return (
     <ChartContainer config={{ total: { label: 'Siniestros', color: 'hsl(var(--chart-1))' } }} className="h-[260px] w-full">
       <BarChart data={rows} margin={{ left: 4, right: 4 }}>
-        <CartesianGrid vertical={false} />
-        <XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={11} />
-        <YAxis allowDecimals={false} tickLine={false} axisLine={false} fontSize={11} />
+        <CartesianGrid vertical={false} stroke={gridStroke} />
+        <XAxis dataKey="name" tickLine={false} axisLine={false} tick={axisStyle} />
+        <YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={axisStyle} />
         <ChartTooltip content={<ChartTooltipContent />} />
-        <Bar dataKey="total" radius={4} fill="var(--color-total)" />
+        <Bar dataKey="total" radius={4} fill="hsl(var(--chart-1))" />
       </BarChart>
     </ChartContainer>
   )

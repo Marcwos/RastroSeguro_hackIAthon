@@ -82,6 +82,8 @@ export function StepUpload() {
     : ['ID_SINIESTRO', 'RAMO', 'CIUDAD', 'PROVEEDOR', 'SCORE']
 
   const showPreview = csvRows.length > 0
+  const isUploading = status === 'validating' || isLoadingClaims
+  const uploadComplete = status === 'valid' && uploadedFile && !isUploading
 
   return (
     <section className="px-4 py-8 lg:px-8">
@@ -93,36 +95,90 @@ export function StepUpload() {
             <span className="label-mono-md text-muted-foreground">Recepción</span>
           </div>
           <h1 className="display-heading text-3xl lg:text-4xl">Paso 1: Recepción de Información del Siniestro</h1>
-          <p className="max-w-2xl text-base text-muted-foreground">
+          <p className="max-w-2xl text-base text-readable text-muted-foreground">
             Cargue un archivo CSV con los registros del siniestro para iniciar la auditoría y priorización.
           </p>
         </header>
 
         <div className="grid grid-cols-12 gap-4">
           <label
-            onDragOver={(e) => { e.preventDefault(); setDrag(true) }}
+            onDragOver={(e) => {
+              if (isUploading) return
+              e.preventDefault()
+              setDrag(true)
+            }}
             onDragLeave={() => setDrag(false)}
-            onDrop={(e) => { e.preventDefault(); setDrag(false); handleFileUpload(e.dataTransfer.files) }}
+            onDrop={(e) => {
+              if (isUploading) return
+              e.preventDefault()
+              setDrag(false)
+              handleFileUpload(e.dataTransfer.files)
+            }}
             className={cn(
-              'institutional-card group relative col-span-12 flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-4 p-8 transition-colors lg:col-span-8',
-              drag ? 'bg-[var(--secondary-container)]' : 'hover:border-primary',
+              'institutional-card group relative col-span-12 flex min-h-[220px] flex-col items-center justify-center gap-4 overflow-hidden p-8 transition-colors lg:col-span-8',
+              isUploading && 'cursor-wait border-2 border-primary bg-[var(--secondary-container)]/40',
+              uploadComplete && 'border-2 border-[var(--tertiary-fixed-dim)] bg-[var(--success-container)]/30',
+              !isUploading && !uploadComplete && (drag ? 'cursor-copy border-2 border-primary bg-[var(--secondary-container)]' : 'cursor-pointer hover:border-primary'),
             )}
+            aria-busy={isUploading}
           >
             <input
-              className="absolute inset-0 opacity-0"
+              className="absolute inset-0 opacity-0 disabled:pointer-events-none"
               type="file"
               accept=".csv,text/csv"
+              disabled={isUploading}
               onChange={(e) => handleFileUpload(e.target.files)}
             />
-            <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-[var(--surface-container)] group-hover:bg-[var(--primary-container)]">
-              <CloudUpload className="h-10 w-10 text-muted-foreground group-hover:text-white" />
+
+            {isUploading && (
+              <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-[var(--surface-lowest)]/85 backdrop-blur-[2px]">
+                <div className="absolute inset-0 overflow-hidden">
+                  <div className="upload-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
+                </div>
+                <div className="relative flex h-20 w-20 items-center justify-center rounded-xl border-2 border-primary bg-[var(--secondary-container)]">
+                  <Loader2 className="h-10 w-10 animate-spin text-primary motion-reduce:animate-none" aria-hidden />
+                </div>
+                <div className="relative text-center">
+                  <p className="font-display text-lg font-semibold text-foreground">Cargando archivo…</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Validando estructura y conectando con el servidor</p>
+                </div>
+                <div className="relative h-1.5 w-48 overflow-hidden rounded-full bg-[var(--surface-container)]">
+                  <div className="upload-progress h-full rounded-full bg-primary motion-reduce:animate-none" />
+                </div>
+              </div>
+            )}
+
+            {uploadComplete && (
+              <div className="pointer-events-none absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded-md bg-[var(--tertiary-fixed)] px-2.5 py-1 text-xs font-semibold text-[var(--on-tertiary-fixed)]">
+                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+                Listo
+              </div>
+            )}
+
+            <div
+              className={cn(
+                'flex h-20 w-20 items-center justify-center rounded-lg transition-colors',
+                uploadComplete
+                  ? 'bg-[var(--tertiary-fixed)]'
+                  : 'bg-[var(--surface-container)] group-hover:bg-[var(--primary-container)]',
+                isUploading && 'opacity-40',
+              )}
+            >
+              {uploadComplete ? (
+                <CheckCircle2 className="h-10 w-10 text-[var(--on-tertiary-fixed)]" aria-hidden />
+              ) : (
+                <CloudUpload className="h-10 w-10 text-muted-foreground group-hover:text-white" aria-hidden />
+              )}
             </div>
-            <div className="text-center">
-              <h3 className="font-display text-xl font-semibold">Carga de Datos Institucional</h3>
-              {uploadedFile ? (
+            <div className={cn('text-center', isUploading && 'opacity-30')}>
+              <h3 className="font-display text-xl font-semibold">
+                {uploadComplete ? 'Archivo recibido' : 'Carga de Datos Institucional'}
+              </h3>
+              {uploadComplete && uploadedFile ? (
                 <div className="mt-2 flex flex-col items-center gap-1">
-                  <span className="inline-flex items-center gap-2 label-mono-md font-bold uppercase text-green-700">
-                    <CheckCircle2 className="h-4 w-4" /> Archivo cargado
+                  <span className="inline-flex items-center gap-2 label-mono-md font-bold uppercase text-[var(--on-tertiary-fixed)]">
+                    <CheckCircle2 className="h-4 w-4" aria-hidden />
+                    Archivo cargado
                   </span>
                   <p className="text-sm text-muted-foreground">
                     {uploadedFile.name} ({Math.round(uploadedFile.size / 1024)} KB)
@@ -130,7 +186,9 @@ export function StepUpload() {
                 </div>
               ) : (
                 <>
-                  <p className="text-sm text-muted-foreground">Arrastre un archivo CSV o haga clic para explorarlo desde su equipo.</p>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    Arrastre un archivo CSV o haga clic para explorarlo desde su equipo.
+                  </p>
                   <p className="label-mono mt-1 text-muted-foreground">Formato permitido: .csv (Máx 50MB)</p>
                 </>
               )}
@@ -141,7 +199,7 @@ export function StepUpload() {
             <Gavel className="h-8 w-8 text-[var(--primary-fixed-dim)]" />
             <div className="space-y-3">
               <p className="label-mono-md uppercase text-[var(--primary-fixed)]">Protocolo de Integridad</p>
-              <p className="text-sm italic text-[var(--on-primary-container)]">
+              <p className="text-sm leading-relaxed text-[var(--on-primary-container)]">
                 Validación estructural y preparación de datos para priorización institucional.
               </p>
             </div>
@@ -185,7 +243,7 @@ export function StepUpload() {
           <div className="institutional-card col-span-12 overflow-hidden">
             <div className="section-header flex justify-between">
               <span>Previsualización de Estructura</span>
-              <button type="button" className="border border-border bg-background px-2 py-1 text-[10px] uppercase">
+              <button type="button" className="focus-ring border border-border bg-background px-2 py-1 text-xs uppercase">
                 Configurar Mapeo
               </button>
             </div>
@@ -195,7 +253,7 @@ export function StepUpload() {
                   <thead>
                     <tr className="border-b border-border bg-[var(--surface-low)]">
                       {previewHeaders.map((h) => (
-                        <th key={h} className="label-mono border-r border-border px-4 py-2 text-muted-foreground last:border-r-0">
+                        <th key={h} className="label-mono border-r border-border px-4 py-2.5 text-foreground last:border-r-0">
                           {h}
                         </th>
                       ))}
@@ -205,7 +263,7 @@ export function StepUpload() {
                     {csvRows.map((row) => (
                       <tr key={row.join('-')} className="border-b border-border last:border-b-0">
                         {row.map((cell, i) => (
-                          <td key={`${row[0]}-${i}`} className="label-mono-md border-r border-border px-4 py-2 last:border-r-0">
+                          <td key={`${row[0]}-${i}`} className="label-mono-md border-r border-border px-4 py-2.5 text-sm last:border-r-0">
                             {cell}
                           </td>
                         ))}
@@ -227,7 +285,7 @@ export function StepUpload() {
         <footer className="flex items-center justify-between border-t border-border pt-6">
           <div className="flex items-center gap-2">
             <span className={cn('h-2 w-2 rounded-full', isApiReady ? 'bg-[var(--tertiary-fixed-dim)]' : 'bg-destructive')} />
-            <span className="label-mono text-[var(--on-tertiary-fixed)]">
+            <span className="label-mono text-foreground">
               {isApiReady ? 'Servidor de Validación Activo' : 'Esperando API de RastroSeguro'}
             </span>
             {(status === 'validating' || isLoadingClaims) && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -242,7 +300,7 @@ export function StepUpload() {
                 setStatus('idle')
                 setSelectedClaimId(null)
               }}
-              className="border border-border bg-[var(--surface-container)] px-8 py-2 label-mono-md"
+              className="focus-ring border border-border bg-[var(--surface-container)] px-8 py-2 label-mono-md text-foreground"
             >
               Limpiar
             </button>
@@ -250,7 +308,7 @@ export function StepUpload() {
               type="button"
               disabled={status !== 'valid' || processing || !selectedClaimId}
               onClick={handleNext}
-              className="bg-primary px-8 py-2 label-mono-md text-white disabled:cursor-not-allowed disabled:opacity-40"
+              className="focus-ring bg-primary px-8 py-2 label-mono-md text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
             >
               {processing ? 'Procesando...' : `Procesar ${selectedClaimId || ''}`}
             </button>

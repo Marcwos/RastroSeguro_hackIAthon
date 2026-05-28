@@ -50,7 +50,7 @@ export function ClaimNetworkCard({ payload, onOpenFullView }: { payload: ClaimGr
         </div>
       </div>
 
-      <p className="text-sm text-muted-foreground">{payload.explanation} Esta red no confirma fraude: solo prioriza revisión humana.</p>
+      <p className="text-sm leading-relaxed text-muted-foreground">{payload.explanation} Esta red no confirma fraude: solo prioriza revisión humana.</p>
 
       <div className="grid gap-4 md:grid-cols-2">
         <ClaimNetworkMini nodes={nodes} edges={edges} />

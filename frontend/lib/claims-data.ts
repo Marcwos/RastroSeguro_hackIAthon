@@ -285,6 +285,42 @@ export function getRiskLabel(nivel: string): string {
   }
 }
 
+export type RiskLevel = 'verde' | 'amarillo' | 'rojo' | 'neutral'
+
+export function normalizeRiskLevel(nivel: string): RiskLevel {
+  const key = nivel?.toLowerCase()
+  if (key === 'bajo' || key === 'verde') return 'verde'
+  if (key === 'medio' || key === 'amarillo') return 'amarillo'
+  if (key === 'alto' || key === 'critico' || key === 'crítico' || key === 'rojo') return 'rojo'
+  return 'neutral'
+}
+
+export function getRiskBadgeClasses(nivel: string): string {
+  switch (normalizeRiskLevel(nivel)) {
+    case 'verde':
+      return 'risk-badge-verde'
+    case 'amarillo':
+      return 'risk-badge-amarillo'
+    case 'rojo':
+      return 'risk-badge-rojo'
+    default:
+      return 'bg-secondary text-secondary-foreground'
+  }
+}
+
+export function getActionPanelClasses(nivel: string): string {
+  switch (normalizeRiskLevel(nivel)) {
+    case 'verde':
+      return 'action-panel-verde'
+    case 'amarillo':
+      return 'action-panel-amarillo'
+    case 'rojo':
+      return 'action-panel-rojo'
+    default:
+      return 'action-panel-amarillo'
+  }
+}
+
 export function formatCurrency(amount: number | null | undefined): string {
   if (amount == null || Number.isNaN(Number(amount))) return 'No disponible'
   return new Intl.NumberFormat('es-EC', {

@@ -1,7 +1,7 @@
 {
   "rows": 25000,
   "unique_ids": 25000,
-  "fraud_rate": 0.2579,
+  "fraud_rate": 0.264,
   "distribution_by_ramo": {
     "vehiculos": 0.467,
     "hogar": 0.1666,

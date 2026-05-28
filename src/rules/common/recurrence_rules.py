@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from src.data.portfolio_stats import RECURRENCE_THRESHOLD
 from src.rules.common.coercion import as_bool, as_number
 from src.rules.models import RuleResult
 
@@ -45,18 +46,21 @@ def _insured_history_rule(claim: Claim) -> list[RuleResult]:
 
 def _recurrent_party_rules(claim: Claim) -> list[RuleResult]:
     results: list[RuleResult] = []
-    for field, code, name in (
-        ("proveedor_recurrente", "RB-010", "Proveedor recurrente"),
-        ("beneficiario_recurrente", "RB-011", "Beneficiario recurrente"),
+    for field, code, name, count_field in (
+        ("proveedor_recurrente", "RB-010", "Proveedor recurrente", "proveedor_recurrencia_count"),
+        ("beneficiario_recurrente", "RB-011", "Beneficiario recurrente", "beneficiario_recurrencia_count"),
     ):
-        if as_bool(claim.get(field)):
+        flag = claim.get(field)
+        if flag is None and claim.get(count_field) is not None:
+            flag = as_number(claim.get(count_field)) >= RECURRENCE_THRESHOLD
+        if as_bool(flag):
             results.append(RuleResult(
                 code=code,
                 name=name,
                 points=3,
                 severity="alta",
                 message=f"El caso está asociado a un {name.lower()} en casos observados.",
-                evidence={field: claim.get(field)},
+                evidence={field: flag, count_field: claim.get(count_field)},
                 category="recurrencia",
             ))
     return results

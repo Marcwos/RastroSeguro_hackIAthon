@@ -40,9 +40,9 @@ export function StepIntelligence() {
     <section className="px-4 py-8 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
         <header>
-          <span className="label-mono uppercase tracking-widest text-muted-foreground">AntiFraud Intelligence</span>
+          <span className="label-mono uppercase tracking-widest text-muted-foreground">Inteligencia antifraude</span>
           <h1 className="display-heading text-3xl lg:text-4xl">Paso 4: Inteligencia de Relaciones</h1>
-          <p className="mt-1 text-muted-foreground">Exploración de red, recurrencias y concentración de entidades.</p>
+          <p className="mt-2 text-base text-readable text-muted-foreground">Exploración de red, recurrencias y concentración de entidades.</p>
         </header>
 
         <Tabs defaultValue="graph" className="w-full">

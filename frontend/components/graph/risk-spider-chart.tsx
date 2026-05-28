@@ -19,6 +19,8 @@ const AXES = [
   { key: 'score_categorico', label: 'Categórico' },
 ] as const
 
+const gridStroke = 'hsl(var(--chart-grid) / 0.35)'
+
 const num = (v: unknown) => Number(v ?? 0)
 
 export function RiskSpiderChart({ selectedClaim, claims }: { selectedClaim: ClaimSummary | null; claims: ClaimSummary[] }) {
@@ -55,9 +57,9 @@ export function RiskSpiderChart({ selectedClaim, claims }: { selectedClaim: Clai
             className="h-[360px] w-full"
           >
             <RadarChart data={data} outerRadius="72%">
-              <PolarGrid />
-              <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 11 }} />
-              <PolarRadiusAxis angle={30} domain={[0, 40]} tick={{ fontSize: 10 }} />
+              <PolarGrid stroke={gridStroke} />
+              <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
+              <PolarRadiusAxis angle={30} domain={[0, 40]} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} stroke={gridStroke} />
               <ChartTooltip content={<ChartTooltipContent />} />
               <ChartLegend content={<ChartLegendContent />} />
               <Radar name="Promedio" dataKey="Promedio" fill="var(--color-Promedio)" fillOpacity={0.15} stroke="var(--color-Promedio)" strokeWidth={2} />
@@ -73,7 +75,7 @@ export function RiskSpiderChart({ selectedClaim, claims }: { selectedClaim: Clai
               {topDrivers.map((d) => (
                 <div key={d.dimension} className="border border-border bg-[var(--surface-low)] p-3">
                   <p className="font-semibold">{d.dimension}</p>
-                  <p className="text-xs text-muted-foreground">+{d.diff} vs promedio</p>
+                  <p className="text-sm text-muted-foreground">+{d.diff} vs promedio</p>
                 </div>
               ))}
             </div>

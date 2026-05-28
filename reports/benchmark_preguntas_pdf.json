@@ -4,92 +4,92 @@
       "question": "¿Cuáles son los 10 siniestros con mayor riesgo de posible fraude?",
       "expected_output": [
         {
-          "id_siniestro": "SIN-001178",
+          "id_siniestro": "SIN-006355",
           "ramo": "vehiculos",
-          "ciudad": "Quito",
-          "id_proveedor": "PROV-059174461500",
-          "score_final": 88.97,
+          "ciudad": "Guayaquil",
+          "id_proveedor": "PROV-172003735500",
+          "score_final": 87.71,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-001867",
+          "id_siniestro": "SIN-009667",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-171202215900",
-          "score_final": 88.93,
+          "id_proveedor": "PROV-179257379300",
+          "score_final": 87.12,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-000227",
+          "id_siniestro": "SIN-008905",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-179300515200",
-          "score_final": 88.85,
+          "id_proveedor": "PROV-179198629600",
+          "score_final": 86.46,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-001711",
+          "id_siniestro": "SIN-002023",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-171486071300",
-          "score_final": 88.79,
+          "id_proveedor": "PROV-119173386600",
+          "score_final": 86.32,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-001015",
+          "id_siniestro": "SIN-008677",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-172185642300",
-          "score_final": 88.77,
+          "id_proveedor": "PROV-110382122700",
+          "score_final": 86.11,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-001511",
+          "id_siniestro": "SIN-014665",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-179081934500",
-          "score_final": 88.73,
+          "id_proveedor": "PROV-170972199500",
+          "score_final": 85.91,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-000377",
+          "id_siniestro": "SIN-017389",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-060195086800",
-          "score_final": 88.73,
+          "id_proveedor": "PROV-170889743200",
+          "score_final": 85.8,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-000007",
+          "id_siniestro": "SIN-002891",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-050231515300",
-          "score_final": 88.72,
+          "id_proveedor": "PROV-179096541400",
+          "score_final": 85.79,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-001307",
+          "id_siniestro": "SIN-017833",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-096477302200",
-          "score_final": 88.72,
+          "id_proveedor": "PROV-110470770600",
+          "score_final": 85.77,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-001519",
+          "id_siniestro": "SIN-004675",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-170250640100",
-          "score_final": 88.63,
+          "id_proveedor": "PROV-179296758900",
+          "score_final": 85.76,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         }
@@ -98,31 +98,42 @@
     {
       "question": "¿Por qué este siniestro fue marcado como alto riesgo?",
       "expected_output": {
-        "id_siniestro": "SIN-001178",
-        "score_final": 88.97,
+        "id_siniestro": "SIN-006355",
+        "score_final": 87.71,
         "nivel_riesgo": "Rojo",
         "alertas": [
           {
+            "code": "RB-002",
+            "name": "Siniestro cerca del fin de póliza",
+            "points": 4.0,
+            "severity": "media",
+            "message": "El siniestro ocurrió a 30 días del fin de vigencia.",
+            "evidence": {
+              "dias_desde_fin_poliza": 30
+            },
+            "category": "vigencia"
+          },
+          {
             "code": "RB-003",
             "name": "Reporte tardío",
-            "points": 3.0,
-            "severity": "baja",
-            "message": "El siniestro fue reportado 4 días después de la ocurrencia.",
+            "points": 5.0,
+            "severity": "media",
+            "message": "El siniestro fue reportado 12 días después de la ocurrencia.",
             "evidence": {
-              "dias_entre_ocurrencia_reporte": 4
+              "dias_entre_ocurrencia_reporte": 12
             },
             "category": "tiempo_reporte"
           },
           {
-            "code": "RB-005",
-            "name": "Monto elevado frente a suma asegurada",
-            "points": 4.0,
-            "severity": "media",
-            "message": "El monto reclamado representa el 94% de la suma asegurada.",
+            "code": "RB-004",
+            "name": "Monto cercano a suma asegurada",
+            "points": 7.0,
+            "severity": "alta",
+            "message": "El monto reclamado representa el 99% de la suma asegurada.",
             "evidence": {
-              "monto_reclamado": 2985.68,
-              "suma_asegurada": 3187.64,
-              "ratio": 0.9366
+              "monto_reclamado": 17643.18,
+              "suma_asegurada": 17855.57,
+              "ratio": 0.9881
             },
             "category": "monto"
           },
@@ -154,9 +165,9 @@
             "name": "Alta frecuencia de reclamos del asegurado",
             "points": 8.0,
             "severity": "alta",
-            "message": "El asegurado registra 4 siniestros previos.",
+            "message": "El asegurado registra 3 siniestros previos.",
             "evidence": {
-              "historial_siniestros_asegurado": 4
+              "historial_siniestros_asegurado": 3
             },
             "category": "frecuencia"
           },
@@ -167,7 +178,8 @@
             "severity": "alta",
             "message": "El caso está asociado a un proveedor recurrente en casos observados.",
             "evidence": {
-              "proveedor_recurrente": true
+              "proveedor_recurrente": true,
+              "proveedor_recurrencia_count": null
             },
             "category": "recurrencia"
           },
@@ -178,54 +190,58 @@
             "severity": "alta",
             "message": "El caso está asociado a un beneficiario recurrente en casos observados.",
             "evidence": {
-              "beneficiario_recurrente": true
+              "beneficiario_recurrente": true,
+              "beneficiario_recurrencia_count": null
             },
             "category": "recurrencia"
           },
           {
-            "code": "RF-07",
-            "name": "Narrativa idéntica o clonada",
-            "points": 8.0,
-            "severity": "alta",
-            "message": "Se detectó narrativa similar a otros reclamos del portafolio.",
+            "code": "RF-01",
+            "name": "Cobertura pérdida total por robo",
+            "points": 12.0,
+            "severity": "critica",
+            "message": "Robo con monto reclamado cercano a la suma asegurada (posible pérdida total).",
             "evidence": {
-              "alerta_narrativa": true,
-              "explicacion_nlp": "Narrativa similar a SIN-000024 con 100% de similitud. Esto sugiere revisar posible repetición de relato o patrón operativo."
+              "cobertura": "robo",
+              "ratio_monto_suma": 0.9881
             },
             "category": "critica_pdf",
-            "pdf_ref": "RF-07"
+            "pdf_ref": "RF-01"
+          },
+          {
+            "code": "RF-03",
+            "name": "Coincidencia con lista restrictiva SERCOP",
+            "points": 10.0,
+            "severity": "critica",
+            "message": "El proveedor o beneficiario coincide con la lista restrictiva SERCOP.",
+            "evidence": {
+              "supplier_ruc": 1720037355001,
+              "lista_restrictiva_sercop": true
+            },
+            "category": "critica_pdf",
+            "pdf_ref": "RF-03"
+          },
+          {
+            "code": "RF-06",
+            "name": "Demora atípica en denuncia de robo (>4 días)",
+            "points": 8.0,
+            "severity": "alta",
+            "message": "Denuncia de robo reportada 12 días después del evento.",
+            "evidence": {
+              "dias_entre_ocurrencia_reporte": 12,
+              "cobertura": "robo"
+            },
+            "category": "critica_pdf",
+            "pdf_ref": "RF-06"
           },
           {
             "code": "RV-002",
             "name": "Vehículo con múltiples siniestros",
             "points": 6.0,
             "severity": "alta",
-            "message": "El vehículo registra 4 siniestros previos.",
+            "message": "El vehículo registra 3 siniestros previos.",
             "evidence": {
-              "historial_siniestros_vehiculo": 4
-            },
-            "category": "vehiculos"
-          },
-          {
-            "code": "RV-004",
-            "name": "Ausencia de reporte policial",
-            "points": 5.0,
-            "severity": "media",
-            "message": "El caso no registra reporte policial para un evento que normalmente lo requiere.",
-            "evidence": {
-              "tipo_evento": "choque",
-              "reporte_policial": false
-            },
-            "category": "vehiculos"
-          },
-          {
-            "code": "RV-005",
-            "name": "Tercero no identificado",
-            "points": 5.0,
-            "severity": "media",
-            "message": "El siniestro reporta tercero no identificado.",
-            "evidence": {
-              "tercero_identificado": false
+              "historial_siniestros_vehiculo": 3
             },
             "category": "vehiculos"
           },
@@ -250,77 +266,89 @@
               "zona_alta_siniestralidad": true
             },
             "category": "vehiculos"
+          },
+          {
+            "code": "RV-009",
+            "name": "Demora en denuncia de robo (>48h)",
+            "points": 6.0,
+            "severity": "alta",
+            "message": "La denuncia de robo se realizó 12 días después del evento.",
+            "evidence": {
+              "dias_entre_ocurrencia_reporte": 12,
+              "cobertura": "robo"
+            },
+            "category": "vehiculos"
           }
         ],
-        "explicacion": "El siniestro SIN-001178 fue clasificado como Rojo porque acumula señales de riesgo: Se registran inconsistencias documentales que requieren revisión.; El asegurado registra 4 siniestros previos.; Se detectó narrativa similar a otros reclamos del portafolio.; El vehículo registra 4 siniestros previos.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
+        "explicacion": "El siniestro SIN-006355 fue clasificado como Rojo porque acumula señales de riesgo: Robo con monto reclamado cercano a la suma asegurada (posible pérdida total).; Se registran inconsistencias documentales que requieren revisión.; El proveedor o beneficiario coincide con la lista restrictiva SERCOP.; El asegurado registra 3 siniestros previos.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
         "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo.",
         "componentes_score": {
-          "reglas": 100.0,
-          "modelo": 97.33,
+          "reglas": 93.0,
+          "modelo": 100.0,
           "anomalia": 80.0,
           "nlp": 100,
           "grafo": 100.0,
-          "categorico": 100.0
+          "categorico": 56.67
         },
         "detalles_avanzados": {
           "nlp": {
-            "explicacion": "Narrativa similar a SIN-000024 con 100% de similitud. Esto sugiere revisar posible repetición de relato o patrón operativo.",
+            "explicacion": "Narrativa similar a SIN-020125 con 100% de similitud. Esto sugiere revisar posible repetición de relato o patrón operativo.",
             "similares": [
               {
-                "source_id": "SIN-001178",
-                "target_id": "SIN-000024",
+                "source_id": "SIN-006355",
+                "target_id": "SIN-020125",
                 "similarity": 1.0
               },
               {
-                "source_id": "SIN-001178",
-                "target_id": "SIN-000038",
+                "source_id": "SIN-006355",
+                "target_id": "SIN-007037",
                 "similarity": 1.0
               },
               {
-                "source_id": "SIN-001178",
-                "target_id": "SIN-000080",
+                "source_id": "SIN-006355",
+                "target_id": "SIN-004159",
                 "similarity": 1.0
               }
             ]
           },
           "grafo": {
-            "explicacion": "Se detectó recurrencia en proveedor PROV-059174461500 asociado a 20 siniestros.",
+            "explicacion": "Se detectó recurrencia en proveedor PROV-172003735500 asociado a 21 siniestros.",
             "conexiones": [
               {
                 "type": "asegurado",
-                "value": "ASEG-010471",
+                "value": "ASEG-011526",
                 "field": "id_asegurado",
-                "key": "asegurado:ASEG-010471"
+                "key": "asegurado:ASEG-011526"
               },
               {
                 "type": "proveedor",
-                "value": "PROV-059174461500",
+                "value": "PROV-172003735500",
                 "field": "id_proveedor",
-                "key": "proveedor:PROV-059174461500"
+                "key": "proveedor:PROV-172003735500"
               },
               {
                 "type": "beneficiario",
-                "value": "PROV-RUC-0591744615001",
+                "value": "PROV-RUC-1720037355001",
                 "field": "beneficiario",
-                "key": "beneficiario:PROV-RUC-0591744615001"
+                "key": "beneficiario:PROV-RUC-1720037355001"
               },
               {
                 "type": "vehiculo",
-                "value": "ASEG-010471",
+                "value": "ASEG-011526",
                 "field": "id_vehiculo",
-                "key": "vehiculo:ASEG-010471"
+                "key": "vehiculo:ASEG-011526"
               },
               {
                 "type": "taller",
-                "value": "PROV-RUC-0591744615001",
+                "value": "PROV-RUC-1720037355001",
                 "field": "taller",
-                "key": "taller:PROV-RUC-0591744615001"
+                "key": "taller:PROV-RUC-1720037355001"
               },
               {
                 "type": "ciudad",
-                "value": "Quito",
+                "value": "Guayaquil",
                 "field": "ciudad",
-                "key": "ciudad:Quito"
+                "key": "ciudad:Guayaquil"
               },
               {
                 "type": "ramo",
@@ -330,65 +358,65 @@
               },
               {
                 "type": "cobertura",
-                "value": "choque",
+                "value": "robo",
                 "field": "cobertura",
-                "key": "cobertura:choque"
+                "key": "cobertura:robo"
               }
             ],
             "entidades_recurrentes": [
               {
                 "type": "proveedor",
-                "value": "PROV-059174461500",
+                "value": "PROV-172003735500",
                 "field": "id_proveedor",
-                "key": "proveedor:PROV-059174461500",
-                "total_siniestros": 20,
+                "key": "proveedor:PROV-172003735500",
+                "total_siniestros": 21,
                 "siniestros_relacionados": [
-                  "SIN-000070",
-                  "SIN-000155",
-                  "SIN-000234",
-                  "SIN-000309",
-                  "SIN-000413",
-                  "SIN-000505",
-                  "SIN-000569",
-                  "SIN-000670",
-                  "SIN-000705",
-                  "SIN-000938"
+                  "SIN-001722",
+                  "SIN-001961",
+                  "SIN-002507",
+                  "SIN-003232",
+                  "SIN-003607",
+                  "SIN-003649",
+                  "SIN-003839",
+                  "SIN-003957",
+                  "SIN-006805",
+                  "SIN-007863"
                 ]
               },
               {
                 "type": "beneficiario",
-                "value": "PROV-RUC-0591744615001",
+                "value": "PROV-RUC-1720037355001",
                 "field": "beneficiario",
-                "key": "beneficiario:PROV-RUC-0591744615001",
-                "total_siniestros": 20,
+                "key": "beneficiario:PROV-RUC-1720037355001",
+                "total_siniestros": 21,
                 "siniestros_relacionados": [
-                  "SIN-000070",
-                  "SIN-000155",
-                  "SIN-000234",
-                  "SIN-000309",
-                  "SIN-000413",
-                  "SIN-000505",
-                  "SIN-000569",
-                  "SIN-000670",
-                  "SIN-000705",
-                  "SIN-000938"
+                  "SIN-001722",
+                  "SIN-001961",
+                  "SIN-002507",
+                  "SIN-003232",
+                  "SIN-003607",
+                  "SIN-003649",
+                  "SIN-003839",
+                  "SIN-003957",
+                  "SIN-006805",
+                  "SIN-007863"
                 ]
               },
               {
                 "type": "taller",
-                "value": "PROV-RUC-0591744615001",
+                "value": "PROV-RUC-1720037355001",
                 "field": "taller",
-                "key": "taller:PROV-RUC-0591744615001",
+                "key": "taller:PROV-RUC-1720037355001",
                 "total_siniestros": 9,
                 "siniestros_relacionados": [
-                  "SIN-000155",
-                  "SIN-000413",
-                  "SIN-000505",
-                  "SIN-000569",
-                  "SIN-000938",
-                  "SIN-000979",
-                  "SIN-001355",
-                  "SIN-001837"
+                  "SIN-002507",
+                  "SIN-003607",
+                  "SIN-003649",
+                  "SIN-003839",
+                  "SIN-006805",
+                  "SIN-008725",
+                  "SIN-017063",
+                  "SIN-021599"
                 ]
               }
             ]
@@ -409,27 +437,6 @@
                 "points": 7,
                 "severity": "alta",
                 "message": "Zona con alta siniestralidad de siniestros (ZONA1 en tesis)."
-              },
-              {
-                "field": "tercero_identificado",
-                "value": false,
-                "points": 6,
-                "severity": "media",
-                "message": "Ausencia de identificación del tercero (ACULPA en tesis)."
-              },
-              {
-                "field": "hay_testigos",
-                "value": false,
-                "points": 4,
-                "severity": "media",
-                "message": "Ausencia de testigos del siniestro."
-              },
-              {
-                "field": "reporte_policial",
-                "value": false,
-                "points": 5,
-                "severity": "media",
-                "message": "Ausencia de reporte policial oficial."
               }
             ]
           }
@@ -441,63 +448,63 @@
       "expected_output": [
         {
           "id_proveedor": "PROV-179237002700",
-          "total_siniestros": 38,
-          "score_promedio": 82.85,
-          "casos_rojos": 35
-        },
-        {
-          "id_proveedor": "PROV-110059718400",
-          "total_siniestros": 41,
-          "score_promedio": 80.49,
-          "casos_rojos": 35
+          "total_siniestros": 42,
+          "score_promedio": 74.63,
+          "casos_rojos": 42
         },
         {
           "id_proveedor": "PROV-119173386600",
-          "total_siniestros": 34,
-          "score_promedio": 81.39,
-          "casos_rojos": 29
-        },
-        {
-          "id_proveedor": "PROV-171698975900",
-          "total_siniestros": 28,
-          "score_promedio": 81.47,
-          "casos_rojos": 24
-        },
-        {
-          "id_proveedor": "PROV-179134993800",
-          "total_siniestros": 26,
-          "score_promedio": 81.3,
-          "casos_rojos": 24
-        },
-        {
-          "id_proveedor": "PROV-179291086200",
-          "total_siniestros": 24,
-          "score_promedio": 83.85,
-          "casos_rojos": 23
+          "total_siniestros": 40,
+          "score_promedio": 73.55,
+          "casos_rojos": 40
         },
         {
           "id_proveedor": "PROV-179296758900",
-          "total_siniestros": 27,
-          "score_promedio": 80.25,
-          "casos_rojos": 22
+          "total_siniestros": 39,
+          "score_promedio": 73.36,
+          "casos_rojos": 39
         },
         {
-          "id_proveedor": "PROV-179280618600",
-          "total_siniestros": 21,
-          "score_promedio": 83.57,
-          "casos_rojos": 21
+          "id_proveedor": "PROV-110059718400",
+          "total_siniestros": 38,
+          "score_promedio": 73.76,
+          "casos_rojos": 38
         },
         {
-          "id_proveedor": "PROV-171730636700",
-          "total_siniestros": 22,
-          "score_promedio": 83.31,
-          "casos_rojos": 21
+          "id_proveedor": "PROV-180444784300",
+          "total_siniestros": 28,
+          "score_promedio": 72.22,
+          "casos_rojos": 28
         },
         {
-          "id_proveedor": "PROV-170370955800",
+          "id_proveedor": "PROV-179198629600",
+          "total_siniestros": 26,
+          "score_promedio": 74.12,
+          "casos_rojos": 26
+        },
+        {
+          "id_proveedor": "PROV-110470770600",
           "total_siniestros": 23,
-          "score_promedio": 82.24,
-          "casos_rojos": 21
+          "score_promedio": 73.45,
+          "casos_rojos": 23
+        },
+        {
+          "id_proveedor": "PROV-179219205600",
+          "total_siniestros": 23,
+          "score_promedio": 73.11,
+          "casos_rojos": 23
+        },
+        {
+          "id_proveedor": "PROV-110382122700",
+          "total_siniestros": 23,
+          "score_promedio": 72.94,
+          "casos_rojos": 23
+        },
+        {
+          "id_proveedor": "PROV-170250640100",
+          "total_siniestros": 23,
+          "score_promedio": 71.95,
+          "casos_rojos": 23
         }
       ]
     },
@@ -506,33 +513,33 @@
       "expected_output": [
         {
           "ramo": "vehiculos",
-          "casos": 941,
-          "sospechosos": 769,
-          "pct_sospechosos": 81.72
+          "casos": 928,
+          "sospechosos": 816,
+          "pct_sospechosos": 87.93
+        },
+        {
+          "ramo": "generales",
+          "casos": 100,
+          "sospechosos": 82,
+          "pct_sospechosos": 82.0
         },
         {
           "ramo": "hogar",
-          "casos": 331,
-          "sospechosos": 230,
-          "pct_sospechosos": 69.49
+          "casos": 342,
+          "sospechosos": 278,
+          "pct_sospechosos": 81.29
         },
         {
           "ramo": "vida",
           "casos": 331,
-          "sospechosos": 227,
-          "pct_sospechosos": 68.58
-        },
-        {
-          "ramo": "generales",
-          "casos": 99,
-          "sospechosos": 58,
-          "pct_sospechosos": 58.59
+          "sospechosos": 261,
+          "pct_sospechosos": 78.85
         },
         {
           "ramo": "salud",
-          "casos": 298,
-          "sospechosos": 165,
-          "pct_sospechosos": 55.37
+          "casos": 299,
+          "sospechosos": 224,
+          "pct_sospechosos": 74.92
         }
       ]
     },
@@ -541,27 +548,27 @@
       "expected_output": [
         {
           "ciudad": "Guayaquil",
-          "total_siniestros": 667,
-          "score_promedio": 73.96,
-          "casos_rojos": 473
+          "total_siniestros": 641,
+          "score_promedio": 70.8,
+          "casos_rojos": 570
         },
         {
           "ciudad": "Quito",
-          "total_siniestros": 667,
-          "score_promedio": 70.63,
-          "casos_rojos": 453
+          "total_siniestros": 687,
+          "score_promedio": 64.33,
+          "casos_rojos": 519
         },
         {
           "ciudad": "Manta",
-          "total_siniestros": 333,
-          "score_promedio": 68.3,
-          "casos_rojos": 194
+          "total_siniestros": 342,
+          "score_promedio": 64.17,
+          "casos_rojos": 255
         },
         {
           "ciudad": "Cuenca",
-          "total_siniestros": 333,
-          "score_promedio": 56.83,
-          "casos_rojos": 78
+          "total_siniestros": 330,
+          "score_promedio": 60.92,
+          "casos_rojos": 238
         }
       ]
     },
@@ -569,63 +576,63 @@
       "question": "¿Qué asegurados tienen mayor frecuencia de reclamos?",
       "expected_output": [
         {
-          "id_asegurado": "ASEG-006940",
-          "total_reclamos": 3,
-          "score_promedio": 83.25,
-          "casos_rojos": 3
-        },
-        {
-          "id_asegurado": "ASEG-009648",
-          "total_reclamos": 3,
-          "score_promedio": 84.18,
-          "casos_rojos": 3
-        },
-        {
-          "id_asegurado": "ASEG-000550",
-          "total_reclamos": 3,
-          "score_promedio": 64.17,
-          "casos_rojos": 1
-        },
-        {
-          "id_asegurado": "ASEG-005569",
-          "total_reclamos": 3,
-          "score_promedio": 53.06,
-          "casos_rojos": 1
-        },
-        {
-          "id_asegurado": "ASEG-011301",
-          "total_reclamos": 3,
-          "score_promedio": 36.21,
-          "casos_rojos": 0
-        },
-        {
-          "id_asegurado": "ASEG-000133",
-          "total_reclamos": 2,
-          "score_promedio": 83.25,
-          "casos_rojos": 2
-        },
-        {
-          "id_asegurado": "ASEG-000308",
-          "total_reclamos": 2,
-          "score_promedio": 83.25,
-          "casos_rojos": 2
-        },
-        {
-          "id_asegurado": "ASEG-000424",
-          "total_reclamos": 2,
-          "score_promedio": 83.25,
-          "casos_rojos": 2
-        },
-        {
-          "id_asegurado": "ASEG-000460",
-          "total_reclamos": 2,
-          "score_promedio": 83.5,
-          "casos_rojos": 2
-        },
-        {
           "id_asegurado": "ASEG-000628",
+          "total_reclamos": 3,
+          "score_promedio": 73.88,
+          "casos_rojos": 3
+        },
+        {
+          "id_asegurado": "ASEG-001982",
+          "total_reclamos": 3,
+          "score_promedio": 69.45,
+          "casos_rojos": 3
+        },
+        {
+          "id_asegurado": "ASEG-007977",
+          "total_reclamos": 3,
+          "score_promedio": 69.36,
+          "casos_rojos": 3
+        },
+        {
+          "id_asegurado": "ASEG-010161",
+          "total_reclamos": 3,
+          "score_promedio": 76.7,
+          "casos_rojos": 3
+        },
+        {
+          "id_asegurado": "ASEG-011561",
+          "total_reclamos": 3,
+          "score_promedio": 78.07,
+          "casos_rojos": 3
+        },
+        {
+          "id_asegurado": "ASEG-012171",
+          "total_reclamos": 3,
+          "score_promedio": 70.98,
+          "casos_rojos": 3
+        },
+        {
+          "id_asegurado": "ASEG-004822",
+          "total_reclamos": 3,
+          "score_promedio": 61.98,
+          "casos_rojos": 2
+        },
+        {
+          "id_asegurado": "ASEG-006115",
+          "total_reclamos": 3,
+          "score_promedio": 68.38,
+          "casos_rojos": 2
+        },
+        {
+          "id_asegurado": "ASEG-011175",
+          "total_reclamos": 3,
+          "score_promedio": 61.06,
+          "casos_rojos": 2
+        },
+        {
+          "id_asegurado": "ASEG-000101",
           "total_reclamos": 2,
-          "score_promedio": 85.35,
+          "score_promedio": 69.22,
           "casos_rojos": 2
         }
       ]
@@ -634,63 +641,63 @@
       "question": "¿Qué documentos faltan en los casos críticos?",
       "expected_output": [
         {
-          "id_siniestro": "SIN-000001",
+          "id_siniestro": "SIN-006523",
           "nivel_riesgo": "Rojo",
-          "descripcion": "Caso crítico demo 1: siniestro de alto riesgo con patrón repetido en Guayaquil.",
+          "descripcion": "Vehículo impactado por tercero no identificado sin evidencia de cámaras en Guayaquil.",
           "documentos_completos": "No"
         },
         {
-          "id_siniestro": "SIN-000002",
+          "id_siniestro": "SIN-017212",
           "nivel_riesgo": "Rojo",
-          "descripcion": "Caso crítico demo 2: proveedor en lista restrictiva SERCOP en Quito.",
+          "descripcion": "Reclamo recurrente con narrativa similar y proveedor observado en Manta.",
           "documentos_completos": "No"
         },
         {
-          "id_siniestro": "SIN-000003",
+          "id_siniestro": "SIN-004849",
           "nivel_riesgo": "Rojo",
-          "descripcion": "Caso crítico demo 3: siniestro de alto riesgo con patrón repetido en Cuenca.",
+          "descripcion": "Vehículo impactado por tercero no identificado sin evidencia de cámaras en Guayaquil.",
           "documentos_completos": "No"
         },
         {
-          "id_siniestro": "SIN-000004",
+          "id_siniestro": "SIN-008304",
           "nivel_riesgo": "Rojo",
-          "descripcion": "Caso crítico demo 4: siniestro de alto riesgo con patrón repetido en Manta.",
+          "descripcion": "Reporte de robo tardío con inconsistencias en factura y denuncia en Quito.",
           "documentos_completos": "No"
         },
         {
-          "id_siniestro": "SIN-000005",
+          "id_siniestro": "SIN-022986",
           "nivel_riesgo": "Rojo",
-          "descripcion": "Caso crítico demo 5: proveedor en lista restrictiva SERCOP en Guayaquil.",
+          "descripcion": "Vehículo impactado por tercero no identificado sin evidencia de cámaras en Quito.",
           "documentos_completos": "No"
         },
         {
-          "id_siniestro": "SIN-000006",
+          "id_siniestro": "SIN-013892",
           "nivel_riesgo": "Rojo",
-          "descripcion": "Caso crítico demo 6: siniestro de alto riesgo con patrón repetido en Quito.",
+          "descripcion": "Reclamo recurrente con narrativa similar y proveedor observado en Quito.",
           "documentos_completos": "No"
         },
         {
-          "id_siniestro": "SIN-000007",
+          "id_siniestro": "SIN-003880",
           "nivel_riesgo": "Rojo",
-          "descripcion": "Caso crítico demo 7: siniestro de alto riesgo con patrón repetido en Guayaquil.",
+          "descripcion": "Vehículo impactado por tercero no identificado sin evidencia de cámaras en Manta.",
           "documentos_completos": "No"
         },
         {
-          "id_siniestro": "SIN-000008",
+          "id_siniestro": "SIN-019942",
           "nivel_riesgo": "Rojo",
-          "descripcion": "Caso crítico demo 8: proveedor en lista restrictiva SERCOP en Quito.",
+          "descripcion": "Vehículo impactado por tercero no identificado sin evidencia de cámaras en Manta.",
           "documentos_completos": "No"
         },
         {
-          "id_siniestro": "SIN-000009",
+          "id_siniestro": "SIN-004159",
           "nivel_riesgo": "Rojo",
-          "descripcion": "Caso crítico demo 9: siniestro de alto riesgo con patrón repetido en Cuenca.",
+          "descripcion": "Reporte de robo tardío con inconsistencias en factura y denuncia en Guayaquil.",
           "documentos_completos": "No"
         },
         {
-          "id_siniestro": "SIN-000010",
+          "id_siniestro": "SIN-008710",
           "nivel_riesgo": "Rojo",
-          "descripcion": "Caso crítico demo 10: siniestro de alto riesgo con patrón repetido en Manta.",
+          "descripcion": "Vehículo impactado por tercero no identificado sin evidencia de cámaras en Manta.",
           "documentos_completos": "No"
         }
       ]
@@ -699,94 +706,94 @@
       "question": "¿Qué casos tienen montos atípicos?",
       "expected_output": [
         {
-          "id_siniestro": "SIN-001178",
+          "id_siniestro": "SIN-006355",
           "ramo": "vehiculos",
-          "monto_reclamado": 2985.68,
-          "suma_asegurada": 3187.64,
-          "score_final": 88.97,
+          "monto_reclamado": 17643.18,
+          "suma_asegurada": 17855.57,
+          "score_final": 87.71,
           "nivel_riesgo": "Rojo",
-          "ratio_monto_suma": 0.9366
+          "ratio_monto_suma": 0.9881
         },
         {
-          "id_siniestro": "SIN-001867",
+          "id_siniestro": "SIN-008905",
           "ramo": "vehiculos",
-          "monto_reclamado": 16195.74,
-          "suma_asegurada": 16428.86,
-          "score_final": 88.93,
+          "monto_reclamado": 19210.85,
+          "suma_asegurada": 19327.88,
+          "score_final": 86.46,
           "nivel_riesgo": "Rojo",
-          "ratio_monto_suma": 0.9858
+          "ratio_monto_suma": 0.9939
         },
         {
-          "id_siniestro": "SIN-001711",
+          "id_siniestro": "SIN-002023",
           "ramo": "vehiculos",
-          "monto_reclamado": 22472.47,
-          "suma_asegurada": 22140.61,
-          "score_final": 88.79,
+          "monto_reclamado": 13388.03,
+          "suma_asegurada": 13974.37,
+          "score_final": 86.32,
           "nivel_riesgo": "Rojo",
-          "ratio_monto_suma": 1.015
+          "ratio_monto_suma": 0.958
         },
         {
-          "id_siniestro": "SIN-001015",
+          "id_siniestro": "SIN-008677",
           "ramo": "vehiculos",
-          "monto_reclamado": 18673.95,
-          "suma_asegurada": 18373.44,
-          "score_final": 88.77,
+          "monto_reclamado": 19672.36,
+          "suma_asegurada": 17717.45,
+          "score_final": 86.11,
           "nivel_riesgo": "Rojo",
-          "ratio_monto_suma": 1.0164
+          "ratio_monto_suma": 1.1103
         },
         {
-          "id_siniestro": "SIN-001511",
+          "id_siniestro": "SIN-014665",
           "ramo": "vehiculos",
-          "monto_reclamado": 4196.38,
-          "suma_asegurada": 3897.32,
-          "score_final": 88.73,
+          "monto_reclamado": 19430.95,
+          "suma_asegurada": 20955.04,
+          "score_final": 85.91,
           "nivel_riesgo": "Rojo",
-          "ratio_monto_suma": 1.0767
+          "ratio_monto_suma": 0.9273
         },
         {
-          "id_siniestro": "SIN-000377",
+          "id_siniestro": "SIN-017389",
           "ramo": "vehiculos",
-          "monto_reclamado": 6604.8,
-          "suma_asegurada": 6148.37,
-          "score_final": 88.73,
+          "monto_reclamado": 20523.77,
+          "suma_asegurada": 18946.52,
+          "score_final": 85.8,
           "nivel_riesgo": "Rojo",
-          "ratio_monto_suma": 1.0742
+          "ratio_monto_suma": 1.0832
         },
         {
-          "id_siniestro": "SIN-001307",
+          "id_siniestro": "SIN-002891",
           "ramo": "vehiculos",
-          "monto_reclamado": 5476.57,
-          "suma_asegurada": 5587.42,
-          "score_final": 88.72,
+          "monto_reclamado": 4755.07,
+          "suma_asegurada": 5084.63,
+          "score_final": 85.79,
           "nivel_riesgo": "Rojo",
-          "ratio_monto_suma": 0.9802
+          "ratio_monto_suma": 0.9352
         },
         {
-          "id_siniestro": "SIN-000007",
-          "ramo": "vehiculos",
-          "monto_reclamado": 16863.9,
-          "suma_asegurada": 17778.53,
-          "score_final": 88.72,
-          "nivel_riesgo": "Rojo",
-          "ratio_monto_suma": 0.9486
-        },
-        {
-          "id_siniestro": "SIN-001519",
+          "id_siniestro": "SIN-017833",
           "ramo": "vehiculos",
           "monto_reclamado": 24975.0,
-          "suma_asegurada": 22551.88,
-          "score_final": 88.63,
+          "suma_asegurada": 25857.68,
+          "score_final": 85.77,
           "nivel_riesgo": "Rojo",
-          "ratio_monto_suma": 1.1074
+          "ratio_monto_suma": 0.9659
         },
         {
-          "id_siniestro": "SIN-000911",
+          "id_siniestro": "SIN-004675",
           "ramo": "vehiculos",
-          "monto_reclamado": 3587.85,
-          "suma_asegurada": 3545.63,
-          "score_final": 88.58,
+          "monto_reclamado": 24975.0,
+          "suma_asegurada": 25260.94,
+          "score_final": 85.76,
           "nivel_riesgo": "Rojo",
-          "ratio_monto_suma": 1.0119
+          "ratio_monto_suma": 0.9887
+        },
+        {
+          "id_siniestro": "SIN-020887",
+          "ramo": "vehiculos",
+          "monto_reclamado": 20708.87,
+          "suma_asegurada": 20152.85,
+          "score_final": 85.72,
+          "nivel_riesgo": "Rojo",
+          "ratio_monto_suma": 1.0276
         }
       ]
     },
@@ -794,84 +801,84 @@
       "question": "¿Qué siniestros ocurrieron cerca del inicio de la póliza?",
       "expected_output": [
         {
-          "id_siniestro": "SIN-000007",
+          "id_siniestro": "SIN-008905",
           "ramo": "vehiculos",
-          "dias_desde_inicio_poliza": 1,
-          "score_final": 88.72,
+          "dias_desde_inicio_poliza": 4,
+          "score_final": 86.46,
           "nivel_riesgo": "Rojo",
-          "fecha_ocurrencia": "2025-04-18"
+          "fecha_ocurrencia": "2024-10-10"
         },
         {
-          "id_siniestro": "SIN-001067",
+          "id_siniestro": "SIN-002023",
           "ramo": "vehiculos",
-          "dias_desde_inicio_poliza": 5,
-          "score_final": 88.45,
+          "dias_desde_inicio_poliza": 22,
+          "score_final": 86.32,
           "nivel_riesgo": "Rojo",
-          "fecha_ocurrencia": "2019-06-12"
+          "fecha_ocurrencia": "2020-08-26"
         },
         {
-          "id_siniestro": "SIN-001958",
-          "ramo": "vehiculos",
-          "dias_desde_inicio_poliza": 18,
-          "score_final": 88.27,
-          "nivel_riesgo": "Rojo",
-          "fecha_ocurrencia": "2021-09-18"
-        },
-        {
-          "id_siniestro": "SIN-001394",
-          "ramo": "vehiculos",
-          "dias_desde_inicio_poliza": 28,
-          "score_final": 88.15,
-          "nivel_riesgo": "Rojo",
-          "fecha_ocurrencia": "2020-04-21"
-        },
-        {
-          "id_siniestro": "SIN-000010",
-          "ramo": "vehiculos",
-          "dias_desde_inicio_poliza": 1,
-          "score_final": 88.14,
-          "nivel_riesgo": "Rojo",
-          "fecha_ocurrencia": "2023-03-12"
-        },
-        {
-          "id_siniestro": "SIN-001483",
-          "ramo": "vehiculos",
-          "dias_desde_inicio_poliza": 6,
-          "score_final": 88.11,
-          "nivel_riesgo": "Rojo",
-          "fecha_ocurrencia": "2021-08-26"
-        },
-        {
-          "id_siniestro": "SIN-001964",
+          "id_siniestro": "SIN-002891",
           "ramo": "vehiculos",
           "dias_desde_inicio_poliza": 16,
-          "score_final": 88.09,
+          "score_final": 85.79,
           "nivel_riesgo": "Rojo",
-          "fecha_ocurrencia": "2023-01-24"
+          "fecha_ocurrencia": "2022-11-11"
         },
         {
-          "id_siniestro": "SIN-001111",
+          "id_siniestro": "SIN-007139",
           "ramo": "vehiculos",
-          "dias_desde_inicio_poliza": 0,
-          "score_final": 88.05,
+          "dias_desde_inicio_poliza": 18,
+          "score_final": 85.68,
           "nivel_riesgo": "Rojo",
-          "fecha_ocurrencia": "2022-09-14"
+          "fecha_ocurrencia": "2020-02-22"
         },
         {
-          "id_siniestro": "SIN-001613",
+          "id_siniestro": "SIN-014633",
           "ramo": "vehiculos",
-          "dias_desde_inicio_poliza": 7,
-          "score_final": 88.0,
+          "dias_desde_inicio_poliza": 13,
+          "score_final": 85.52,
           "nivel_riesgo": "Rojo",
-          "fecha_ocurrencia": "2019-11-05"
+          "fecha_ocurrencia": "2026-02-28"
         },
         {
-          "id_siniestro": "SIN-000003",
+          "id_siniestro": "SIN-020414",
+          "ramo": "vehiculos",
+          "dias_desde_inicio_poliza": 29,
+          "score_final": 84.58,
+          "nivel_riesgo": "Rojo",
+          "fecha_ocurrencia": "2021-12-21"
+        },
+        {
+          "id_siniestro": "SIN-018217",
           "ramo": "vehiculos",
           "dias_desde_inicio_poliza": 3,
-          "score_final": 87.96,
+          "score_final": 84.34,
           "nivel_riesgo": "Rojo",
-          "fecha_ocurrencia": "2020-02-01"
+          "fecha_ocurrencia": "2021-07-09"
+        },
+        {
+          "id_siniestro": "SIN-023633",
+          "ramo": "vehiculos",
+          "dias_desde_inicio_poliza": 16,
+          "score_final": 84.34,
+          "nivel_riesgo": "Rojo",
+          "fecha_ocurrencia": "2026-05-08"
+        },
+        {
+          "id_siniestro": "SIN-015529",
+          "ramo": "vehiculos",
+          "dias_desde_inicio_poliza": 15,
+          "score_final": 83.84,
+          "nivel_riesgo": "Rojo",
+          "fecha_ocurrencia": "2019-07-24"
+        },
+        {
+          "id_siniestro": "SIN-022652",
+          "ramo": "vehiculos",
+          "dias_desde_inicio_poliza": 9,
+          "score_final": 83.78,
+          "nivel_riesgo": "Rojo",
+          "fecha_ocurrencia": "2019-03-10"
         }
       ]
     },
@@ -888,106 +895,106 @@
         },
         {
           "patron": "lista_restrictiva_sercop",
-          "casos": 1226
-        },
-        {
-          "patron": "proveedor_recurrente",
-          "id_proveedor": "PROV-110059718400",
-          "casos": 41
+          "casos": 1205
         },
         {
           "patron": "proveedor_recurrente",
           "id_proveedor": "PROV-179237002700",
-          "casos": 38
-        },
-        {
-          "patron": "proveedor_recurrente",
-          "id_proveedor": "PROV-029151828100",
-          "casos": 35
+          "casos": 42
         },
         {
           "patron": "proveedor_recurrente",
           "id_proveedor": "PROV-119173386600",
-          "casos": 34
-        },
-        {
-          "patron": "proveedor_recurrente",
-          "id_proveedor": "PROV-060195086800",
-          "casos": 29
-        },
-        {
-          "patron": "proveedor_recurrente",
-          "id_proveedor": "PROV-171698975900",
-          "casos": 28
+          "casos": 40
         },
         {
           "patron": "proveedor_recurrente",
           "id_proveedor": "PROV-179296758900",
-          "casos": 27
+          "casos": 39
+        },
+        {
+          "patron": "proveedor_recurrente",
+          "id_proveedor": "PROV-110059718400",
+          "casos": 38
+        },
+        {
+          "patron": "proveedor_recurrente",
+          "id_proveedor": "PROV-050398871900",
+          "casos": 30
+        },
+        {
+          "patron": "proveedor_recurrente",
+          "id_proveedor": "PROV-092445812800",
+          "casos": 28
+        },
+        {
+          "patron": "proveedor_recurrente",
+          "id_proveedor": "PROV-180444784300",
+          "casos": 28
         }
       ]
     },
     {
       "question": "Genera un resumen ejecutivo de los casos críticos.",
       "expected_output": {
-        "generated_at": "2026-05-28T02:32:01.808633+00:00",
+        "generated_at": "2026-05-28T20:00:05.155862+00:00",
         "summary": {
           "total_siniestros": 2000,
-          "casos_verdes": 551,
-          "casos_amarillos": 251,
-          "casos_rojos": 1198,
-          "porcentaje_rojo": 59.9,
+          "casos_verdes": 339,
+          "casos_amarillos": 79,
+          "casos_rojos": 1582,
+          "porcentaje_rojo": 79.1,
           "mix_riesgo_pct": {
-            "verde": 27.55,
-            "amarillo": 12.55,
-            "rojo": 59.9
+            "verde": 16.95,
+            "amarillo": 3.95,
+            "rojo": 79.1
           },
-          "monto_total_reclamado": 27435803.56,
-          "monto_reclamado_casos_rojos": 18456527.96
+          "monto_total_reclamado": 27730355.86,
+          "monto_reclamado_casos_rojos": 22120048.96
         },
         "top_casos": [
           {
-            "id_siniestro": "SIN-001178",
+            "id_siniestro": "SIN-006355",
             "ramo": "vehiculos",
-            "ciudad": "Quito",
-            "id_proveedor": "PROV-059174461500",
-            "score_final": 88.97,
+            "ciudad": "Guayaquil",
+            "id_proveedor": "PROV-172003735500",
+            "score_final": 87.71,
             "nivel_riesgo": "Rojo",
             "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
           },
           {
-            "id_siniestro": "SIN-001867",
+            "id_siniestro": "SIN-009667",
             "ramo": "vehiculos",
             "ciudad": "Guayaquil",
-            "id_proveedor": "PROV-171202215900",
-            "score_final": 88.93,
+            "id_proveedor": "PROV-179257379300",
+            "score_final": 87.12,
             "nivel_riesgo": "Rojo",
             "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
           },
           {
-            "id_siniestro": "SIN-000227",
+            "id_siniestro": "SIN-008905",
             "ramo": "vehiculos",
             "ciudad": "Guayaquil",
-            "id_proveedor": "PROV-179300515200",
-            "score_final": 88.85,
+            "id_proveedor": "PROV-179198629600",
+            "score_final": 86.46,
             "nivel_riesgo": "Rojo",
             "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
           },
           {
-            "id_siniestro": "SIN-001711",
+            "id_siniestro": "SIN-002023",
             "ramo": "vehiculos",
             "ciudad": "Guayaquil",
-            "id_proveedor": "PROV-171486071300",
-            "score_final": 88.79,
+            "id_proveedor": "PROV-119173386600",
+            "score_final": 86.32,
             "nivel_riesgo": "Rojo",
             "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
           },
           {
-            "id_siniestro": "SIN-001015",
+            "id_siniestro": "SIN-008677",
             "ramo": "vehiculos",
             "ciudad": "Guayaquil",
-            "id_proveedor": "PROV-172185642300",
-            "score_final": 88.77,
+            "id_proveedor": "PROV-110382122700",
+            "score_final": 86.11,
             "nivel_riesgo": "Rojo",
             "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
           }
@@ -995,121 +1002,121 @@
         "riesgo_por_ramo": [
           {
             "ramo": "vehiculos",
-            "total_siniestros": 941,
-            "casos_rojos": 691,
-            "score_promedio": 74.24
+            "total_siniestros": 928,
+            "casos_rojos": 795,
+            "score_promedio": 69.0
+          },
+          {
+            "ramo": "hogar",
+            "total_siniestros": 342,
+            "casos_rojos": 255,
+            "score_promedio": 64.17
           },
           {
             "ramo": "vida",
             "total_siniestros": 331,
-            "casos_rojos": 217,
-            "score_promedio": 68.91
-          },
-          {
-            "ramo": "hogar",
-            "total_siniestros": 331,
-            "casos_rojos": 192,
-            "score_promedio": 68.18
+            "casos_rojos": 247,
+            "score_promedio": 63.73
           },
           {
             "ramo": "salud",
-            "total_siniestros": 298,
-            "casos_rojos": 70,
-            "score_promedio": 56.83
+            "total_siniestros": 299,
+            "casos_rojos": 215,
+            "score_promedio": 60.6
           },
           {
             "ramo": "generales",
-            "total_siniestros": 99,
-            "casos_rojos": 28,
-            "score_promedio": 60.01
+            "total_siniestros": 100,
+            "casos_rojos": 70,
+            "score_promedio": 64.39
           }
         ],
         "top_proveedores": [
           {
             "id_proveedor": "PROV-179237002700",
-            "total_siniestros": 38,
-            "casos_rojos": 35,
-            "score_promedio": 82.85
-          },
-          {
-            "id_proveedor": "PROV-110059718400",
-            "total_siniestros": 41,
-            "casos_rojos": 35,
-            "score_promedio": 80.49
+            "total_siniestros": 42,
+            "casos_rojos": 42,
+            "score_promedio": 74.63
           },
           {
             "id_proveedor": "PROV-119173386600",
-            "total_siniestros": 34,
-            "casos_rojos": 29,
-            "score_promedio": 81.39
-          },
-          {
-            "id_proveedor": "PROV-171698975900",
-            "total_siniestros": 28,
-            "casos_rojos": 24,
-            "score_promedio": 81.47
-          },
-          {
-            "id_proveedor": "PROV-179134993800",
-            "total_siniestros": 26,
-            "casos_rojos": 24,
-            "score_promedio": 81.3
-          },
-          {
-            "id_proveedor": "PROV-179291086200",
-            "total_siniestros": 24,
-            "casos_rojos": 23,
-            "score_promedio": 83.85
+            "total_siniestros": 40,
+            "casos_rojos": 40,
+            "score_promedio": 73.55
           },
           {
             "id_proveedor": "PROV-179296758900",
-            "total_siniestros": 27,
-            "casos_rojos": 22,
-            "score_promedio": 80.25
+            "total_siniestros": 39,
+            "casos_rojos": 39,
+            "score_promedio": 73.36
           },
           {
-            "id_proveedor": "PROV-179280618600",
-            "total_siniestros": 21,
-            "casos_rojos": 21,
-            "score_promedio": 83.57
+            "id_proveedor": "PROV-110059718400",
+            "total_siniestros": 38,
+            "casos_rojos": 38,
+            "score_promedio": 73.76
           },
           {
-            "id_proveedor": "PROV-171730636700",
-            "total_siniestros": 22,
-            "casos_rojos": 21,
-            "score_promedio": 83.31
+            "id_proveedor": "PROV-180444784300",
+            "total_siniestros": 28,
+            "casos_rojos": 28,
+            "score_promedio": 72.22
           },
           {
-            "id_proveedor": "PROV-170370955800",
+            "id_proveedor": "PROV-179198629600",
+            "total_siniestros": 26,
+            "casos_rojos": 26,
+            "score_promedio": 74.12
+          },
+          {
+            "id_proveedor": "PROV-110470770600",
             "total_siniestros": 23,
-            "casos_rojos": 21,
-            "score_promedio": 82.24
+            "casos_rojos": 23,
+            "score_promedio": 73.45
+          },
+          {
+            "id_proveedor": "PROV-179219205600",
+            "total_siniestros": 23,
+            "casos_rojos": 23,
+            "score_promedio": 73.11
+          },
+          {
+            "id_proveedor": "PROV-110382122700",
+            "total_siniestros": 23,
+            "casos_rojos": 23,
+            "score_promedio": 72.94
+          },
+          {
+            "id_proveedor": "PROV-170250640100",
+            "total_siniestros": 23,
+            "casos_rojos": 23,
+            "score_promedio": 71.95
           }
         ],
         "top_ciudades": [
           {
             "ciudad": "Guayaquil",
-            "total_siniestros": 667,
-            "casos_rojos": 473,
-            "score_promedio": 73.96
+            "total_siniestros": 641,
+            "casos_rojos": 570,
+            "score_promedio": 70.8
           },
           {
             "ciudad": "Quito",
-            "total_siniestros": 667,
-            "casos_rojos": 453,
-            "score_promedio": 70.63
+            "total_siniestros": 687,
+            "casos_rojos": 519,
+            "score_promedio": 64.33
           },
           {
             "ciudad": "Manta",
-            "total_siniestros": 333,
-            "casos_rojos": 194,
-            "score_promedio": 68.3
+            "total_siniestros": 342,
+            "casos_rojos": 255,
+            "score_promedio": 64.17
           },
           {
             "ciudad": "Cuenca",
-            "total_siniestros": 333,
-            "casos_rojos": 78,
-            "score_promedio": 56.83
+            "total_siniestros": 330,
+            "casos_rojos": 238,
+            "score_promedio": 60.92
           }
         ],
         "ethics_note": "RastroSeguro prioriza siniestros para revisión humana. No acusa fraude ni rechaza reclamos automáticamente."
@@ -1119,92 +1126,92 @@
       "question": "Recomienda qué casos debería revisar primero el analista.",
       "expected_output": [
         {
-          "id_siniestro": "SIN-001178",
+          "id_siniestro": "SIN-006355",
           "ramo": "vehiculos",
-          "ciudad": "Quito",
-          "id_proveedor": "PROV-059174461500",
-          "score_final": 88.97,
+          "ciudad": "Guayaquil",
+          "id_proveedor": "PROV-172003735500",
+          "score_final": 87.71,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-001867",
+          "id_siniestro": "SIN-009667",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-171202215900",
-          "score_final": 88.93,
+          "id_proveedor": "PROV-179257379300",
+          "score_final": 87.12,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-000227",
+          "id_siniestro": "SIN-008905",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-179300515200",
-          "score_final": 88.85,
+          "id_proveedor": "PROV-179198629600",
+          "score_final": 86.46,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-001711",
+          "id_siniestro": "SIN-002023",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-171486071300",
-          "score_final": 88.79,
+          "id_proveedor": "PROV-119173386600",
+          "score_final": 86.32,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-001015",
+          "id_siniestro": "SIN-008677",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-172185642300",
-          "score_final": 88.77,
+          "id_proveedor": "PROV-110382122700",
+          "score_final": 86.11,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-001511",
+          "id_siniestro": "SIN-014665",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-179081934500",
-          "score_final": 88.73,
+          "id_proveedor": "PROV-170972199500",
+          "score_final": 85.91,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-000377",
+          "id_siniestro": "SIN-017389",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-060195086800",
-          "score_final": 88.73,
+          "id_proveedor": "PROV-170889743200",
+          "score_final": 85.8,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-000007",
+          "id_siniestro": "SIN-002891",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-050231515300",
-          "score_final": 88.72,
+          "id_proveedor": "PROV-179096541400",
+          "score_final": 85.79,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-001307",
+          "id_siniestro": "SIN-017833",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-096477302200",
-          "score_final": 88.72,
+          "id_proveedor": "PROV-110470770600",
+          "score_final": 85.77,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         },
         {
-          "id_siniestro": "SIN-001519",
+          "id_siniestro": "SIN-004675",
           "ramo": "vehiculos",
           "ciudad": "Guayaquil",
-          "id_proveedor": "PROV-170250640100",
-          "score_final": 88.63,
+          "id_proveedor": "PROV-179296758900",
+          "score_final": 85.76,
           "nivel_riesgo": "Rojo",
           "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
         }
