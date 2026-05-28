@@ -4,6 +4,8 @@ Este documento define cómo dividimos el trabajo para migrar la interfaz de Stre
 
 ## Estado actual
 
+> **Pendientes actuales para Justin:** ver `docs/equipo/justin-nextjs-hardening.md` antes de seguir agregando pantallas. Ahí está el checklist de estabilidad para la demo Next.js.
+
 El puente API ya está implementado en `api/` con FastAPI y contrato estándar `{ ok, data, error }`.
 
 Para correrlo localmente:
