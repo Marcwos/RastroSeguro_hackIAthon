@@ -1,35 +1,61 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useAppState } from '@/lib/app-context'
 import { ApiClientError, askAgent, getQuickQuestions } from '@/lib/api'
 import { MessageCircle, X, Send, Bot, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const fallbackQuickQuestions = [
-  '¿Por qué este caso tiene ese score?',
-  'Ver relaciones del caso',
-]
+function shortenQuestion(text: string, max = 72): string {
+  const trimmed = text.trim()
+  if (trimmed.length <= max) return trimmed
+  return `${trimmed.slice(0, max - 1)}…`
+}
+
+function contextualQuickQuestions(claimId: string | null): string[] {
+  if (claimId) {
+    return [
+      `¿Por qué el siniestro ${claimId} tiene este score?`,
+      '¿Qué alertas principales explican el riesgo?',
+      '¿Hay narrativas similares o conexiones en el grafo?',
+      '¿Qué acción recomienda el motor para este caso?',
+    ]
+  }
+  return [
+    '¿Cuáles son los siniestros con mayor riesgo?',
+    '¿Qué proveedores concentran más alertas?',
+    '¿Qué ramos tienen más casos sospechosos?',
+    'Genera un resumen ejecutivo de casos críticos.',
+  ]
+}
 
 export function AIAssistant() {
   const { showChat, setShowChat, selectedClaimId, chatMessages, addChatMessage } = useAppState()
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const [quickQuestions, setQuickQuestions] = useState(fallbackQuickQuestions)
+  const [apiQuickQuestions, setApiQuickQuestions] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const quickQuestions = useMemo(() => {
+    const base = contextualQuickQuestions(selectedClaimId)
+    if (!apiQuickQuestions.length) return base
+    const merged = [...base]
+    for (const q of apiQuickQuestions) {
+      if (!merged.includes(q)) merged.push(q)
+    }
+    return merged.slice(0, 5)
+  }, [apiQuickQuestions, selectedClaimId])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [chatMessages])
+  }, [chatMessages, isTyping])
 
   useEffect(() => {
     if (!showChat) return
     void getQuickQuestions()
-      .then((questions) => {
-        if (questions.length) setQuickQuestions(questions.slice(0, 4))
-      })
-      .catch(() => setQuickQuestions(fallbackQuickQuestions))
+      .then((questions) => setApiQuickQuestions(questions.slice(0, 3)))
+      .catch(() => setApiQuickQuestions([]))
   }, [showChat])
 
   useEffect(() => {
@@ -38,21 +64,21 @@ export function AIAssistant() {
         id: Date.now().toString(),
         role: 'assistant',
         content: selectedClaimId
-          ? `Estoy conectado al agente antifraude. Puedo responder sobre el siniestro ${selectedClaimId}.`
-          : 'Estoy conectado al agente antifraude. Selecciona un siniestro o haz una pregunta general.',
-        timestamp: new Date()
+          ? `Conectado al agente antifraude. Puedo explicar el siniestro ${selectedClaimId}, sus alertas y patrones.`
+          : 'Conectado al agente antifraude. Selecciona un siniestro en el flujo o haz una pregunta general.',
+        timestamp: new Date(),
       })
     }
   }, [showChat, chatMessages.length, selectedClaimId, addChatMessage])
 
   const handleSend = async (text: string = input) => {
-    if (!text.trim()) return
+    if (!text.trim() || isTyping) return
 
     addChatMessage({
       id: Date.now().toString(),
       role: 'user',
       content: text,
-      timestamp: new Date()
+      timestamp: new Date(),
     })
 
     setInput('')
@@ -68,7 +94,7 @@ export function AIAssistant() {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: message,
-        timestamp: new Date()
+        timestamp: new Date(),
       })
     } catch (error) {
       const message = error instanceof ApiClientError
@@ -78,153 +104,175 @@ export function AIAssistant() {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: message,
-        timestamp: new Date()
+        timestamp: new Date(),
       })
     } finally {
       setIsTyping(false)
     }
   }
 
-  const handleQuickQuestion = (question: string) => {
-    handleSend(question)
-  }
-
   return (
     <>
-      {/* Floating Button */}
       <AnimatePresence>
         {!showChat && (
           <motion.button
+            type="button"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             onClick={() => setShowChat(true)}
-            className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg shadow-blue-500/30 flex items-center justify-center hover:bg-blue-500 transition-colors z-50"
+            className="fixed bottom-6 right-6 z-[100] flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-colors hover:opacity-90"
+            aria-label="Abrir asistente de riesgo"
           >
-            <MessageCircle className="w-6 h-6" />
+            <MessageCircle className="h-6 w-6" />
           </motion.button>
         )}
       </AnimatePresence>
 
-      {/* Chat Panel */}
       <AnimatePresence>
         {showChat && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            role="dialog"
+            aria-label="Asistente de riesgo"
+            initial={{ opacity: 0, y: 16, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-6 w-[380px] h-[500px] glass-panel rounded-2xl shadow-2xl shadow-black/40 border border-slate-700/50 flex flex-col z-50 overflow-hidden"
+            className={cn(
+              'fixed z-[100] flex flex-col overflow-hidden border border-border bg-card shadow-2xl',
+              'bottom-0 right-0 left-0 h-[min(85vh,720px)] rounded-t-2xl',
+              'sm:bottom-6 sm:left-auto sm:right-6 sm:h-[min(72vh,640px)] sm:w-[min(100%,420px)] sm:rounded-2xl',
+              'lg:w-[440px]',
+            )}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-slate-700/50">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Bot className="w-4 h-4 text-blue-400" />
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-[var(--primary-container)] px-4 py-3 text-white">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10">
+                  <Bot className="h-5 w-5" />
                 </div>
-                <span className="font-semibold text-white">Asistente de Riesgo</span>
+                <div className="min-w-0">
+                  <p className="truncate font-semibold">Asistente de Riesgo</p>
+                  {selectedClaimId && (
+                    <p className="label-mono truncate text-xs text-[var(--primary-fixed-dim)]">
+                      Caso {selectedClaimId}
+                    </p>
+                  )}
+                </div>
               </div>
               <button
+                type="button"
                 onClick={() => setShowChat(false)}
-                className="p-1.5 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-slate-200 transition-colors"
+                className="shrink-0 rounded-lg p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+                aria-label="Cerrar asistente"
               >
-                <X className="w-4 h-4" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {chatMessages.map((message) => (
-                <div
-                  key={message.id}
-                  className={cn(
-                    'flex gap-3',
-                    message.role === 'user' ? 'flex-row-reverse' : ''
-                  )}
-                >
-                  <div className={cn(
-                    'w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0',
-                    message.role === 'assistant' ? 'bg-blue-500/20' : 'bg-slate-700'
-                  )}>
-                    {message.role === 'assistant' ? (
-                      <Bot className="w-3.5 h-3.5 text-blue-400" />
-                    ) : (
-                      <User className="w-3.5 h-3.5 text-slate-300" />
-                    )}
-                  </div>
-                  <div className={cn(
-                    'max-w-[80%] rounded-xl px-3 py-2',
-                    message.role === 'assistant' 
-                      ? 'bg-slate-800/80 text-slate-200' 
-                      : 'bg-blue-600 text-white'
-                  )}>
-                    <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                      {message.content}
-                    </p>
-                  </div>
-                </div>
-              ))}
-
-              {isTyping && (
-                <div className="flex gap-3">
-                  <div className="w-7 h-7 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-3.5 h-3.5 text-blue-400" />
-                  </div>
-                  <div className="bg-slate-800/80 rounded-xl px-4 py-3">
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-2 h-2 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+            <div className="flex min-h-0 flex-1 flex-col">
+              <div className="min-h-0 flex-1 overflow-y-auto p-4 space-y-4 bg-[var(--surface-low)]">
+                {chatMessages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={cn('flex gap-2.5', message.role === 'user' ? 'flex-row-reverse' : '')}
+                  >
+                    <div
+                      className={cn(
+                        'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+                        message.role === 'assistant' ? 'bg-[var(--secondary-container)]' : 'bg-primary text-primary-foreground',
+                      )}
+                    >
+                      {message.role === 'assistant' ? (
+                        <Bot className="h-4 w-4 text-[var(--on-secondary-container)]" />
+                      ) : (
+                        <User className="h-4 w-4" />
+                      )}
+                    </div>
+                    <div
+                      className={cn(
+                        'max-w-[85%] rounded-lg px-3 py-2.5 text-sm leading-relaxed',
+                        message.role === 'assistant'
+                          ? 'border border-border bg-card text-foreground'
+                          : 'bg-primary text-primary-foreground',
+                      )}
+                    >
+                      <p className="whitespace-pre-wrap break-words">{message.content}</p>
                     </div>
                   </div>
-                </div>
-              )}
-
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Quick Questions */}
-            <div className="px-4 py-2 border-t border-slate-700/50">
-              <div className="flex flex-wrap gap-2">
-                {quickQuestions.map((q, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleQuickQuestion(q)}
-                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border border-slate-700"
-                  >
-                    {q}
-                  </button>
                 ))}
-              </div>
-            </div>
 
-            {/* Input */}
-            <div className="p-4 border-t border-slate-700/50">
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder="Escribe tu duda..."
-                  className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
-                />
-                <button
-                  onClick={() => handleSend()}
-                  disabled={!input.trim()}
-                  className={cn(
-                    'w-10 h-10 rounded-lg flex items-center justify-center transition-colors',
-                    input.trim()
-                      ? 'bg-blue-600 text-white hover:bg-blue-500'
-                      : 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                  )}
-                >
-                  <Send className="w-4 h-4" />
-                </button>
+                {isTyping && (
+                  <div className="flex gap-2.5">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--secondary-container)]">
+                      <Bot className="h-4 w-4 text-[var(--on-secondary-container)]" />
+                    </div>
+                    <div className="rounded-lg border border-border bg-card px-4 py-3">
+                      <div className="flex gap-1">
+                        <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" style={{ animationDelay: '0ms' }} />
+                        <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" style={{ animationDelay: '150ms' }} />
+                        <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" style={{ animationDelay: '300ms' }} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div ref={messagesEndRef} />
               </div>
-              <p className="text-[10px] text-slate-600 text-center mt-2">
-                Pregúntale al asistente
-              </p>
+
+              <div className="shrink-0 border-t border-border bg-card">
+                <div className="max-h-[140px] overflow-y-auto px-3 pt-3">
+                  <p className="label-mono mb-2 text-[10px] uppercase text-muted-foreground">Preguntas sugeridas</p>
+                  <div className="space-y-1.5">
+                    {quickQuestions.map((q) => (
+                      <button
+                        key={q}
+                        type="button"
+                        title={q}
+                        onClick={() => handleSend(q)}
+                        disabled={isTyping}
+                        className="w-full rounded-md border border-border bg-[var(--surface-low)] px-3 py-2 text-left text-xs leading-snug text-foreground transition-colors hover:border-primary hover:bg-[var(--surface-container)] disabled:opacity-50"
+                      >
+                        {shortenQuestion(q, 90)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="p-3">
+                  <div className="flex items-end gap-2">
+                    <textarea
+                      rows={2}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault()
+                          void handleSend()
+                        }
+                      }}
+                      placeholder="Escribe tu duda…"
+                      className="min-h-[44px] max-h-28 flex-1 resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void handleSend()}
+                      disabled={!input.trim() || isTyping}
+                      className={cn(
+                        'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-colors',
+                        input.trim() && !isTyping
+                          ? 'bg-primary text-primary-foreground hover:opacity-90'
+                          : 'cursor-not-allowed bg-muted text-muted-foreground',
+                      )}
+                      aria-label="Enviar mensaje"
+                    >
+                      <Send className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <p className="mt-2 text-center text-[10px] text-muted-foreground">
+                    Prioriza revisión humana; no acusa fraude automáticamente.
+                  </p>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}

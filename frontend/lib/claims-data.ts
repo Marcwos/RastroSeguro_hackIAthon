@@ -247,19 +247,6 @@ export const mockClaims: ClaimData[] = [
   }
 ]
 
-export const demoCases = [
-  { id: 'SIN-0112', label: 'Caso demo: Colisión Frontal Múltiple' },
-  { id: 'SIN-0045', label: 'Caso demo: Robo Total Sospechoso' },
-  { id: 'SIN-0201', label: 'Caso demo: Daño Menor Normal' },
-  { id: 'SIN-0330', label: 'Caso demo: Incendio Hogar' },
-  { id: 'SIN-0418', label: 'Caso demo: Hospitalización Normal' },
-  { id: 'SIN-0502', label: 'Caso demo: RC con Narrativa Similar' }
-]
-
-export function getClaimById(id: string): ClaimData | undefined {
-  return mockClaims.find(claim => claim.id_siniestro === id)
-}
-
 export function getRiskColor(nivel: string): string {
   switch (nivel?.toLowerCase()) {
     case 'bajo':
