@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useAppState } from '@/lib/app-context'
 import { formatCurrency } from '@/lib/claims-data'
-import { ArrowLeft, ArrowRight, CheckCircle2, FileText, Image as ImageIcon, Loader2, Map, MapPin, Navigation, ShieldCheck } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, FileText, Image as ImageIcon, Loader2, Map, MapPin, Navigation, ShieldCheck, XCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type MapPoint = { lat: number; lon: number; label: string }
@@ -33,6 +33,21 @@ function getMapPoint(city?: string | null): MapPoint {
   return CITY_COORDS[normalized] || { lat: -1.8312, lon: -78.1834, label: city || 'Ecuador' }
 }
 
+
+function yes(value: unknown) {
+  return ['si', 'sí', 'true', '1', 'yes', 'completo'].includes(String(value ?? '').trim().toLowerCase()) || value === true
+}
+
+function no(value: unknown) {
+  return ['no', 'false', '0', 'incompleto'].includes(String(value ?? '').trim().toLowerCase()) || value === false
+}
+
+function documentBadge(status: 'completo' | 'pendiente' | 'inconsistente') {
+  if (status === 'completo') return { Icon: CheckCircle2, label: 'Verified', className: 'bg-[var(--tertiary-fixed)] text-[var(--on-tertiary-fixed)]' }
+  if (status === 'inconsistente') return { Icon: XCircle, label: 'Inconsistente', className: 'bg-[var(--error-container)] text-[var(--on-error-container)]' }
+  return { Icon: AlertTriangle, label: 'Pendiente', className: 'bg-amber-100 text-amber-900' }
+}
+
 function buildOsmEmbedUrl(point: MapPoint) {
   const delta = 0.045
   const bbox = [point.lon - delta, point.lat - delta, point.lon + delta, point.lat + delta].join(',')
@@ -54,10 +69,13 @@ export function StepSummary() {
   const narrativa = selectedClaim.narrativa || selectedClaim.descripcion || selectedExplanation?.explicacion || 'El API entregó un resumen técnico del siniestro. Continúe al análisis para revisar señales explicables y priorización.'
   const mapPoint = getMapPoint(selectedClaim.ciudad)
   const osmUrl = buildOsmEmbedUrl(mapPoint)
+  const documentosCompletos = yes(selectedClaim.documentos_completos)
+  const documentosIncompletos = no(selectedClaim.documentos_completos)
+  const documentosInconsistentes = yes(selectedClaim.documentos_inconsistentes)
   const documentos = [
-    { nombre: 'Declaración del siniestro', tipo: 'declaracion', estado: 'completo' as const },
-    { nombre: 'Validación documental automática', tipo: 'informe', estado: selectedExplanation?.alertas?.length ? 'pendiente' as const : 'completo' as const },
-    { nombre: 'Trazabilidad de score IA', tipo: 'telemetria', estado: 'completo' as const },
+    { nombre: 'Expediente documental obligatorio', tipo: 'declaracion', estado: documentosIncompletos ? 'pendiente' as const : 'completo' as const, detalle: documentosCompletos ? 'Documentos mínimos marcados como completos por backend' : 'El backend detecta expediente documental incompleto' },
+    { nombre: 'Control de inconsistencias', tipo: 'informe', estado: documentosInconsistentes ? 'inconsistente' as const : 'completo' as const, detalle: documentosInconsistentes ? 'Fechas, valores o soportes requieren validación manual' : 'Sin inconsistencias documentales registradas' },
+    { nombre: 'Trazabilidad de score IA', tipo: 'telemetria', estado: 'completo' as const, detalle: 'Registro auditable de componentes y explicación del score' },
   ]
 
   return (
@@ -74,7 +92,7 @@ export function StepSummary() {
 
             <div className="institutional-card overflow-hidden"><div className="section-header flex items-center justify-between"><span>Narrativa del Evento</span><FileText className="h-4 w-4 text-muted-foreground" /></div><div className="p-6"><p className="border-l-4 border-border pl-4 text-base italic leading-relaxed">“{narrativa}”</p></div></div>
 
-            <div className="institutional-card overflow-hidden"><div className="section-header">Verificación de Documentación</div><div className="divide-y divide-border">{documentos.map((doc, i) => { const Icon = docIcon(doc.tipo); return <div key={i} className="flex items-center justify-between p-4 hover:bg-[var(--surface-low)]"><div className="flex items-center gap-4"><Icon className="h-5 w-5" /><div><p className="font-semibold">{doc.nombre}</p><p className="label-mono text-muted-foreground">{doc.tipo === 'telemetria' ? 'Registro de trazabilidad' : 'Soporte documental'}</p></div></div><span className={cn('flex items-center gap-1 px-2 py-1 label-mono-md font-bold uppercase', doc.estado === 'completo' ? 'bg-[var(--tertiary-fixed)] text-[var(--on-tertiary-fixed)]' : 'bg-[var(--error-container)] text-[var(--on-error-container)]')}><CheckCircle2 className="h-4 w-4" />{doc.estado === 'completo' ? 'Verified' : doc.estado}</span></div>})}</div></div>
+            <div className="institutional-card overflow-hidden"><div className="section-header flex items-center justify-between"><span>Verificación de Documentación</span><span>{documentosCompletos && !documentosInconsistentes ? 'Sin hallazgos críticos' : 'Requiere revisión'}</span></div><div className="divide-y divide-border">{documentos.map((doc, i) => { const Icon = docIcon(doc.tipo); const Badge = documentBadge(doc.estado); return <div key={i} className="flex items-center justify-between gap-4 p-4 hover:bg-[var(--surface-low)]"><div className="flex items-center gap-4"><Icon className="h-5 w-5 shrink-0" /><div><p className="font-semibold">{doc.nombre}</p><p className="label-mono text-muted-foreground">{doc.detalle}</p></div></div><span className={cn('flex shrink-0 items-center gap-1 px-2 py-1 label-mono-md font-bold uppercase', Badge.className)}><Badge.Icon className="h-4 w-4" />{Badge.label}</span></div>})}</div><div className="grid gap-3 border-t border-border bg-[var(--surface-low)] p-4 sm:grid-cols-2"><div><p className="label-mono text-muted-foreground">Documentos completos</p><p className="font-mono text-sm">{selectedClaim.documentos_completos ?? 'No informado'}</p></div><div><p className="label-mono text-muted-foreground">Inconsistencias</p><p className="font-mono text-sm">{selectedClaim.documentos_inconsistentes ?? 'No informado'}</p></div></div></div>
           </div>
 
           <aside className="col-span-12 space-y-6 lg:col-span-4">

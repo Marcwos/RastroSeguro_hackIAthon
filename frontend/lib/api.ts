@@ -37,6 +37,10 @@ export interface ClaimSummary {
   fecha_ocurrencia?: string | null
   fecha_reporte?: string | null
   dias_desde_inicio_poliza?: number | null
+  dias_desde_fin_poliza?: number | null
+  dias_entre_ocurrencia_reporte?: number | null
+  documentos_completos?: string | boolean | null
+  documentos_inconsistentes?: string | boolean | null
 }
 
 export interface ClaimExplanation {
