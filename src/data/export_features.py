@@ -8,7 +8,12 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.data.feature_engineering import MODEL_FEATURE_COLUMNS, build_feature_frame
+from src.data.feature_engineering import (
+    CATEGORICAL_FEATURE_COLUMNS,
+    MODEL_FEATURE_COLUMNS,
+    NUMERIC_FEATURE_COLUMNS,
+    build_feature_frame,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INPUT = ROOT / "data" / "synthetic" / "siniestros.csv"
@@ -23,6 +28,24 @@ def export_features(input_path: Path = DEFAULT_INPUT, output_path: Path = DEFAUL
     meta = {
         "rows": len(features),
         "feature_columns": MODEL_FEATURE_COLUMNS,
+        "numeric_features": NUMERIC_FEATURE_COLUMNS,
+        "categorical_features": CATEGORICAL_FEATURE_COLUMNS,
+        "transformations": {
+            "ratios": ["ratio_monto_suma_asegurada", "ratio_monto_estimado"],
+            "flags_temporales": ["poliza_cercana_inicio_flag", "poliza_cercana_fin_flag", "reporte_tardio_flag"],
+            "flags_monto_historial": [
+                "monto_atipico_flag",
+                "historial_alto_asegurado_flag",
+                "historial_alto_vehiculo_flag",
+            ],
+            "recurrencia": ["proveedor_recurrencia_count", "beneficiario_recurrencia_count"],
+            "ecuador_context": [
+                "supplier_risk_signal_score",
+                "lista_restrictiva_sercop_flag",
+                "supplier_risk_band_score",
+                "provincia",
+            ],
+        },
         "output": str(output_path),
     }
     meta_path = output_path.parent / "features_meta.json"

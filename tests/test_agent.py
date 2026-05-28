@@ -34,7 +34,13 @@ class AgentTest(unittest.TestCase):
         self.assertIn("SIN-0045", response["hint"])
 
     def test_missing_scored_file_returns_actionable_error(self):
-        response = answer_question("top 10 casos de mayor riesgo")
+        with patch(
+            "src.agent.tools._load_scored",
+            side_effect=FileNotFoundError(
+                "No se encontró data/processed/siniestros_scored.csv. Ejecuta python -m src.scoring.final_score"
+            ),
+        ):
+            response = answer_question("top 10 casos de mayor riesgo")
 
         self.assertFalse(response["ok"])
         self.assertEqual(response["intent"], "top_riesgo")

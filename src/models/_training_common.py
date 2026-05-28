@@ -95,6 +95,21 @@ def save_artifact(path: Path, model: Any, metrics: dict[str, Any], extra: dict[s
     joblib.dump(payload, path)
 
 
+def validate_artifact_contract(path: Path) -> tuple[bool, list[str]]:
+    errors: list[str] = []
+    if not path.exists():
+        return False, [f"missing artifact: {path}"]
+    artifact = joblib.load(path)
+    if not isinstance(artifact, dict):
+        return False, ["artifact is not a dict payload"]
+    for key in ("model", "feature_columns", "metrics"):
+        if key not in artifact:
+            errors.append(f"missing key {key}")
+    if artifact.get("feature_columns") != MODEL_FEATURE_COLUMNS:
+        errors.append("feature_columns are not aligned with MODEL_FEATURE_COLUMNS")
+    return not errors, errors
+
+
 def append_metrics_report(report_path: Path, section: str, metrics: dict[str, Any]) -> None:
     report_path.parent.mkdir(parents=True, exist_ok=True)
     if report_path.exists():

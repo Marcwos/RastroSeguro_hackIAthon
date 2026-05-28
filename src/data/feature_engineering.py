@@ -26,6 +26,18 @@ NUMERIC_FEATURE_COLUMNS = [
     "ocurrio_fin_semana_flag",
     "zona_alta_siniestralidad_flag",
     "conductor_recurrente_flag",
+    "poliza_cercana_inicio_flag",
+    "poliza_cercana_fin_flag",
+    "reporte_tardio_flag",
+    "monto_atipico_flag",
+    "historial_alto_asegurado_flag",
+    "historial_alto_vehiculo_flag",
+    "proveedor_recurrencia_count",
+    "beneficiario_recurrencia_count",
+    "monto_gap",
+    "supplier_risk_signal_score",
+    "lista_restrictiva_sercop_flag",
+    "supplier_risk_band_score",
 ]
 
 CATEGORICAL_FEATURE_COLUMNS = [
@@ -35,6 +47,7 @@ CATEGORICAL_FEATURE_COLUMNS = [
     "id_proveedor",
     "tipo_evento",
     "tipo_impacto",
+    "provincia",
 ]
 
 MODEL_FEATURE_COLUMNS = NUMERIC_FEATURE_COLUMNS + CATEGORICAL_FEATURE_COLUMNS
@@ -96,6 +109,7 @@ def enrich_base_columns(df: pd.DataFrame) -> pd.DataFrame:
     out["ratio_monto_estimado"] = (
         out["monto_reclamado"].astype(float) / out["monto_estimado"].astype(float).clip(lower=1)
     ).round(4)
+    out["monto_gap"] = (out["monto_reclamado"].astype(float) - out["monto_estimado"].astype(float)).round(2)
 
     if "documentos_completos" in out.columns:
         out["documentos_completos_flag"] = out["documentos_completos"].map(_bool_flag)
@@ -123,6 +137,45 @@ def enrich_base_columns(df: pd.DataFrame) -> pd.DataFrame:
 
     if "historial_siniestros_vehiculo" not in out.columns:
         out["historial_siniestros_vehiculo"] = 0
+    if "historial_siniestros_asegurado" not in out.columns:
+        out["historial_siniestros_asegurado"] = 0
+
+    out["poliza_cercana_inicio_flag"] = (out["dias_desde_inicio_poliza"].astype(float) <= 30).astype(int)
+    out["poliza_cercana_fin_flag"] = (out["dias_desde_fin_poliza"].astype(float) <= 30).astype(int)
+    out["reporte_tardio_flag"] = (out["dias_entre_ocurrencia_reporte"].astype(float) > 7).astype(int)
+    out["monto_atipico_flag"] = (out["ratio_monto_suma_asegurada"].astype(float) >= 0.9).astype(int)
+    out["historial_alto_asegurado_flag"] = (out["historial_siniestros_asegurado"].astype(float) >= 3).astype(int)
+    out["historial_alto_vehiculo_flag"] = (out["historial_siniestros_vehiculo"].astype(float) >= 3).astype(int)
+
+    provider_counts = out["id_proveedor"].astype(str).value_counts() if "id_proveedor" in out.columns else {}
+    beneficiary_counts = out["beneficiario"].astype(str).value_counts() if "beneficiario" in out.columns else {}
+    out["proveedor_recurrencia_count"] = (
+        out["id_proveedor"].astype(str).map(provider_counts).fillna(1).astype(float) if "id_proveedor" in out.columns else 1.0
+    )
+    out["beneficiario_recurrencia_count"] = (
+        out["beneficiario"].astype(str).map(beneficiary_counts).fillna(1).astype(float) if "beneficiario" in out.columns else 1.0
+    )
+
+    if "supplier_risk_signal_score" in out.columns:
+        out["supplier_risk_signal_score"] = pd.to_numeric(out["supplier_risk_signal_score"], errors="coerce").fillna(0.0)
+    else:
+        out["supplier_risk_signal_score"] = 0.0
+
+    if "lista_restrictiva_sercop" in out.columns:
+        out["lista_restrictiva_sercop_flag"] = out["lista_restrictiva_sercop"].map(_bool_flag)
+    else:
+        out["lista_restrictiva_sercop_flag"] = 0
+
+    band_map = {"verde": 0, "amarillo": 1, "rojo": 2}
+    if "supplier_risk_band" in out.columns:
+        out["supplier_risk_band_score"] = (
+            out["supplier_risk_band"].astype(str).str.lower().map(band_map).fillna(0).astype(int)
+        )
+    else:
+        out["supplier_risk_band_score"] = 0
+
+    if "provincia" not in out.columns:
+        out["provincia"] = "desconocido"
 
     for col in CATEGORICAL_FEATURE_COLUMNS:
         if col not in out.columns:

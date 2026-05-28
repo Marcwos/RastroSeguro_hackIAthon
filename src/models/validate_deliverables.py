@@ -8,6 +8,8 @@ from pathlib import Path
 import joblib
 import pandas as pd
 
+from src.data.ecuador_context import ECUADOR_EXTENSION_COLUMNS
+
 ROOT = Path(__file__).resolve().parents[2]
 DATASET_PATH = ROOT / "data" / "synthetic" / "siniestros.csv"
 FEATURES_PATH = ROOT / "data" / "processed" / "features.csv"
@@ -15,7 +17,9 @@ CLASSIFIER_PATH = ROOT / "models" / "fraud_classifier.joblib"
 ANOMALY_PATH = ROOT / "models" / "anomaly_detector.joblib"
 METRICS_PATH = ROOT / "reports" / "model_metrics.json"
 STAR_CASES_PATH = ROOT / "reports" / "casos_estrella.json"
+BENCHMARK_PATH = ROOT / "reports" / "benchmark_preguntas_pdf.json"
 SCORED_PATH = ROOT / "data" / "processed" / "siniestros_scored.csv"
+QA_PATH = ROOT / "data" / "synthetic" / "siniestros_qa.json"
 
 REQUIRED_DATASET_COLUMNS = [
     "id_siniestro",
@@ -67,6 +71,12 @@ def validate() -> dict:
     missing_cols = [c for c in REQUIRED_DATASET_COLUMNS if c not in df.columns]
     if missing_cols:
         errors.append(f"missing dataset columns: {missing_cols}")
+
+    missing_ecuador = [c for c in ECUADOR_EXTENSION_COLUMNS if c not in df.columns]
+    summary["ecuador_extension_columns_present"] = [c for c in ECUADOR_EXTENSION_COLUMNS if c in df.columns]
+    if missing_ecuador:
+        errors.append(f"missing ecuador extension columns: {missing_ecuador}")
+
     if df["id_siniestro"].duplicated().any():
         errors.append("duplicate id_siniestro")
     if df["id_siniestro"].isna().any():
@@ -88,6 +98,38 @@ def validate() -> dict:
     for required in (METRICS_PATH, STAR_CASES_PATH, SCORED_PATH):
         if not required.exists():
             errors.append(f"missing {required}")
+
+    if not QA_PATH.exists():
+        errors.append(f"missing {QA_PATH}")
+    else:
+        qa = json.loads(QA_PATH.read_text(encoding="utf-8"))
+        summary["qa_ok"] = bool(qa.get("ok"))
+        summary["ecuador_coverage"] = qa.get("ecuador_coverage", {})
+        coverage = qa.get("signal_coverage", {})
+        weak = [k for k, v in coverage.items() if float(v) < 0.01]
+        if weak:
+            errors.append(f"signal coverage too low: {weak}")
+        ecuador = qa.get("ecuador_coverage", {})
+        if ecuador.get("supplier_ruc_real_rate", 0) < 0.5:
+            errors.append("ecuador supplier_ruc_real_rate below 0.5")
+        if ecuador.get("lista_restrictiva_rate", 0) < 0.001:
+            errors.append("ecuador lista_restrictiva_rate below 0.001")
+
+    if STAR_CASES_PATH.exists():
+        payload = json.loads(STAR_CASES_PATH.read_text(encoding="utf-8"))
+        levels = {str(item.get("nivel_riesgo", "")).lower() for item in payload.get("cases", [])}
+        if "rojo" not in levels or "amarillo" not in levels:
+            errors.append("casos_estrella must include both Rojo and Amarillo")
+        summary["star_cases_count"] = int(payload.get("count", 0))
+
+    if not BENCHMARK_PATH.exists():
+        errors.append(f"missing {BENCHMARK_PATH}")
+    else:
+        bench = json.loads(BENCHMARK_PATH.read_text(encoding="utf-8"))
+        q_count = len(bench.get("questions", []))
+        summary["benchmark_questions"] = q_count
+        if q_count < 5:
+            errors.append("benchmark preguntas insuficiente (<5)")
 
     summary["ok"] = not errors
     summary["errors"] = errors

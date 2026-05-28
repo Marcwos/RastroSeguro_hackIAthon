@@ -1,0 +1,220 @@
+{
+  "questions": [
+    {
+      "question": "¿Cuáles son los 10 siniestros con mayor riesgo de posible fraude?",
+      "expected_output": [
+        {
+          "id_siniestro": "SIN-001178",
+          "score_final": 96.79,
+          "nivel_riesgo": "Rojo"
+        },
+        {
+          "id_siniestro": "SIN-001733",
+          "score_final": 96.52,
+          "nivel_riesgo": "Rojo"
+        },
+        {
+          "id_siniestro": "SIN-000227",
+          "score_final": 96.33,
+          "nivel_riesgo": "Rojo"
+        },
+        {
+          "id_siniestro": "SIN-001867",
+          "score_final": 96.13,
+          "nivel_riesgo": "Rojo"
+        },
+        {
+          "id_siniestro": "SIN-000007",
+          "score_final": 95.62,
+          "nivel_riesgo": "Rojo"
+        },
+        {
+          "id_siniestro": "SIN-001307",
+          "score_final": 95.62,
+          "nivel_riesgo": "Rojo"
+        },
+        {
+          "id_siniestro": "SIN-001511",
+          "score_final": 95.51,
+          "nivel_riesgo": "Rojo"
+        },
+        {
+          "id_siniestro": "SIN-001067",
+          "score_final": 95.42,
+          "nivel_riesgo": "Rojo"
+        },
+        {
+          "id_siniestro": "SIN-001811",
+          "score_final": 95.42,
+          "nivel_riesgo": "Rojo"
+        },
+        {
+          "id_siniestro": "SIN-000236",
+          "score_final": 95.36,
+          "nivel_riesgo": "Rojo"
+        }
+      ]
+    },
+    {
+      "question": "¿Qué proveedores concentran más alertas?",
+      "expected_output": [
+        {
+          "id_proveedor": "PROV-029151828100",
+          "alertas_rojas": 10
+        },
+        {
+          "id_proveedor": "PROV-079171917800",
+          "alertas_rojas": 10
+        },
+        {
+          "id_proveedor": "PROV-060195086800",
+          "alertas_rojas": 10
+        },
+        {
+          "id_proveedor": "PROV-179237002700",
+          "alertas_rojas": 10
+        },
+        {
+          "id_proveedor": "PROV-069176243200",
+          "alertas_rojas": 9
+        },
+        {
+          "id_proveedor": "PROV-110059718400",
+          "alertas_rojas": 9
+        },
+        {
+          "id_proveedor": "PROV-172003735500",
+          "alertas_rojas": 9
+        },
+        {
+          "id_proveedor": "PROV-170777309700",
+          "alertas_rojas": 9
+        },
+        {
+          "id_proveedor": "PROV-070504768600",
+          "alertas_rojas": 9
+        },
+        {
+          "id_proveedor": "PROV-171698975900",
+          "alertas_rojas": 9
+        }
+      ]
+    },
+    {
+      "question": "¿Qué ciudades presentan mayor concentración de alertas?",
+      "expected_output": [
+        {
+          "ciudad": "Guayaquil",
+          "casos": 667,
+          "score_promedio": 60.982263868065964
+        },
+        {
+          "ciudad": "Quito",
+          "casos": 667,
+          "score_promedio": 59.123523238380805
+        },
+        {
+          "ciudad": "Cuenca",
+          "casos": 333,
+          "score_promedio": 49.41723723723723
+        },
+        {
+          "ciudad": "Manta",
+          "casos": 333,
+          "score_promedio": 57.304114114114114
+        }
+      ]
+    },
+    {
+      "question": "¿Qué ramos tienen mayor porcentaje de casos sospechosos?",
+      "expected_output": [
+        {
+          "ramo": "generales",
+          "casos": 99,
+          "sospechosos": 99,
+          "pct_sospechosos": 100.0
+        },
+        {
+          "ramo": "hogar",
+          "casos": 331,
+          "sospechosos": 326,
+          "pct_sospechosos": 98.49
+        },
+        {
+          "ramo": "salud",
+          "casos": 298,
+          "sospechosos": 199,
+          "pct_sospechosos": 66.78
+        },
+        {
+          "ramo": "vehiculos",
+          "casos": 941,
+          "sospechosos": 938,
+          "pct_sospechosos": 99.68
+        },
+        {
+          "ramo": "vida",
+          "casos": 331,
+          "sospechosos": 328,
+          "pct_sospechosos": 99.09
+        }
+      ]
+    },
+    {
+      "question": "¿Qué documentos faltan en los casos críticos?",
+      "expected_output": [
+        {
+          "id_siniestro": "SIN-001178",
+          "nivel_riesgo": "Rojo",
+          "descripcion": "Reclamo recurrente con narrativa similar y proveedor observado en Quito."
+        },
+        {
+          "id_siniestro": "SIN-001733",
+          "nivel_riesgo": "Rojo",
+          "descripcion": "Reclamo recurrente con narrativa similar y proveedor observado en Guayaquil."
+        },
+        {
+          "id_siniestro": "SIN-000227",
+          "nivel_riesgo": "Rojo",
+          "descripcion": "Reporte de robo tardío con inconsistencias en factura y denuncia en Guayaquil."
+        },
+        {
+          "id_siniestro": "SIN-001867",
+          "nivel_riesgo": "Rojo",
+          "descripcion": "Reclamo recurrente con narrativa similar y proveedor observado en Guayaquil."
+        },
+        {
+          "id_siniestro": "SIN-000007",
+          "nivel_riesgo": "Rojo",
+          "descripcion": "Caso crítico demo 7: siniestro de alto riesgo con patrón repetido en Guayaquil."
+        },
+        {
+          "id_siniestro": "SIN-000377",
+          "nivel_riesgo": "Rojo",
+          "descripcion": "Reclamo recurrente con narrativa similar y proveedor observado en Guayaquil."
+        },
+        {
+          "id_siniestro": "SIN-000911",
+          "nivel_riesgo": "Rojo",
+          "descripcion": "Reporte de robo tardío con inconsistencias en factura y denuncia en Guayaquil."
+        },
+        {
+          "id_siniestro": "SIN-001229",
+          "nivel_riesgo": "Rojo",
+          "descripcion": "Vehículo impactado por tercero no identificado sin evidencia de cámaras en Guayaquil."
+        },
+        {
+          "id_siniestro": "SIN-001517",
+          "nivel_riesgo": "Rojo",
+          "descripcion": "Reclamo recurrente con narrativa similar y proveedor observado en Guayaquil."
+        },
+        {
+          "id_siniestro": "SIN-000203",
+          "nivel_riesgo": "Rojo",
+          "descripcion": "Reclamo recurrente con narrativa similar y proveedor observado en Guayaquil."
+        }
+      ]
+    }
+  ],
+  "rows_scored": 2000
+}
