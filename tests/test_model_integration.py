@@ -40,7 +40,12 @@ class ModelIntegrationTest(unittest.TestCase):
         self.assertEqual(anomaly_scores(FakeAnomaly(), records), [80.0, 20.0])
 
     def test_missing_artifacts_set_neutral_scores(self):
-        enriched = enrich_claims_with_model_scores(self.claims())
+        from pathlib import Path
+        enriched = enrich_claims_with_model_scores(
+            self.claims(),
+            classifier_path=Path("nonexistent_classifier.joblib"),
+            anomaly_path=Path("nonexistent_anomaly.joblib")
+        )
 
         self.assertEqual(enriched[0]["score_modelo"], 50.0)
         self.assertEqual(enriched[0]["score_anomalia"], 50.0)
