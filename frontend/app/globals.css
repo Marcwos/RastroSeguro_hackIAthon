@@ -1,0 +1,103 @@
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-sans/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/700.css';
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #f7f9fb;
+  --foreground: #191c1e;
+  --card: #ffffff;
+  --card-foreground: #191c1e;
+  --popover: #ffffff;
+  --popover-foreground: #191c1e;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #505f76;
+  --secondary-foreground: #ffffff;
+  --muted: #eceef0;
+  --muted-foreground: #45464d;
+  --accent: #d0e1fb;
+  --accent-foreground: #131b2e;
+  --destructive: #ba1a1a;
+  --destructive-foreground: #ffffff;
+  --border: #c6c6cd;
+  --input: #f2f4f6;
+  --ring: #565e74;
+  --radius: 0.25rem;
+
+  --surface: #f7f9fb;
+  --surface-lowest: #ffffff;
+  --surface-low: #f2f4f6;
+  --surface-container: #eceef0;
+  --surface-high: #e6e8ea;
+  --surface-highest: #e0e3e5;
+  --primary-container: #131b2e;
+  --primary-fixed: #dae2fd;
+  --primary-fixed-dim: #bec6e0;
+  --on-primary-container: #7c839b;
+  --secondary-container: #d0e1fb;
+  --on-secondary-container: #54647a;
+  --tertiary-fixed: #a6f2d1;
+  --tertiary-fixed-dim: #8bd6b6;
+  --on-tertiary-fixed: #002116;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+  --font-mono: var(--font-jetbrains);
+}
+
+@theme inline {
+  --font-sans: Inter, Inter, sans-serif;
+  --font-display: 'IBM Plex Sans', 'IBM Plex Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', 'JetBrains Mono', monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground; }
+}
+
+.institutional-card { background: var(--surface-lowest); border: 1px solid var(--border); border-radius: 0.25rem; }
+.section-header { background: var(--surface-high); border-bottom: 1px solid var(--border); padding: .5rem 1rem; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 16px; letter-spacing: .05em; font-weight: 700; text-transform: uppercase; }
+.label-mono { font-family: 'JetBrains Mono', monospace; font-size: 10px; line-height: 14px; letter-spacing: .05em; font-weight: 500; }
+.label-mono-md { font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 16px; letter-spacing: .05em; font-weight: 500; }
+.display-heading { font-family: 'IBM Plex Sans', sans-serif; font-weight: 600; letter-spacing: -0.02em; }
+.zebra tbody tr:nth-child(even) { background: rgba(242, 244, 246, .75); }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--surface-container); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+
+@keyframes aiPulse { 0%,100% { transform: scale(.95); opacity:.55 } 50% { transform: scale(1.08); opacity:.25 } }
+.ai-pulse { animation: aiPulse 3s cubic-bezier(.4,0,.6,1) infinite; }

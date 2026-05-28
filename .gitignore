@@ -26,3 +26,4 @@ data/processed/
 # Playwright & Screenshots
 .playwright-mcp/
 *.png
+

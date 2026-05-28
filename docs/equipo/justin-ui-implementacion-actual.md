@@ -1,470 +1,470 @@
-# Justin — Implementación actual de UI
+  # Justin — Implementación actual de UI
 
-## Objetivo de la interfaz
+  ## Objetivo de la interfaz
 
-La UI actual de RastroSeguro está planteada como una **presentación interactiva tipo slides** para explicar un análisis preliminar de riesgo sobre un siniestro.
+  La UI actual de RastroSeguro está planteada como una **presentación interactiva tipo slides** para explicar un análisis preliminar de riesgo sobre un siniestro.
 
-El foco ya no es un dashboard grande con muchas pantallas, sino un flujo compacto:
+  El foco ya no es un dashboard grande con muchas pantallas, sino un flujo compacto:
 
-```txt
-1. Cargar información del siniestro
-2. Resumir el caso cargado
-3. Mostrar análisis IA + score de riesgo
-```
+  ```txt
+  1. Cargar información del siniestro
+  2. Resumir el caso cargado
+  3. Mostrar análisis IA + score de riesgo
+  ```
 
-El mensaje central de la interfaz es:
+  El mensaje central de la interfaz es:
 
-> RastroSeguro no confirma fraude ni rechaza reclamos. Solo estima señales de riesgo para priorizar revisión humana.
+  > RastroSeguro no confirma fraude ni rechaza reclamos. Solo estima señales de riesgo para priorizar revisión humana.
 
----
+  ---
 
-## Stack usado
+  ## Stack usado
 
-```txt
-Python
-Streamlit
-Pandas
-CSS embebido en Streamlit
-Datos mock en CSV / DataFrame
-```
+  ```txt
+  Python
+  Streamlit
+  Pandas
+  CSS embebido en Streamlit
+  Datos mock en CSV / DataFrame
+  ```
 
-Archivos principales:
+  Archivos principales:
 
-```txt
-app/main.py
-app/components/layout.py
-app/components/data.py
-app/bootstrap.py
-.streamlit/config.toml
-requirements.txt
-```
+  ```txt
+  app/main.py
+  app/components/layout.py
+  app/components/data.py
+  app/bootstrap.py
+  .streamlit/config.toml
+  requirements.txt
+  ```
 
----
+  ---
 
-## Flujo visual actual
+  ## Flujo visual actual
 
-La aplicación principal vive en:
+  La aplicación principal vive en:
 
-```txt
-app/main.py
-```
+  ```txt
+  app/main.py
+  ```
 
-Actualmente usa `st.session_state` para controlar el slide activo:
+  Actualmente usa `st.session_state` para controlar el slide activo:
 
-```txt
-st.session_state.slide
-```
+  ```txt
+  st.session_state.slide
+  ```
 
-Slides definidos:
+  Slides definidos:
 
-```python
-slides = [
-    "Carga de información",
-    "Resumen del caso",
-    "Análisis IA",
-]
-```
+  ```python
+  slides = [
+      "Carga de información",
+      "Resumen del caso",
+      "Análisis IA",
+  ]
+  ```
 
-La navegación se hace con:
+  La navegación se hace con:
 
-```txt
-Anterior
-Siguiente
-```
+  ```txt
+  Anterior
+  Siguiente
+  ```
 
-Además hay una barra superior de progreso visual con:
+  Además hay una barra superior de progreso visual con:
 
-```txt
-Paso 1: Carga de información
-Paso 2: Resumen del caso
-Paso 3: Análisis IA
-```
+  ```txt
+  Paso 1: Carga de información
+  Paso 2: Resumen del caso
+  Paso 3: Análisis IA
+  ```
 
-Cada paso puede estar en estado:
+  Cada paso puede estar en estado:
 
-```txt
-Actual
-Listo
-Pendiente
-```
+  ```txt
+  Actual
+  Listo
+  Pendiente
+  ```
 
----
+  ---
 
-## Slide 1 — Carga de información
+  ## Slide 1 — Carga de información
 
-Objetivo:
+  Objetivo:
 
-```txt
-Recibir o seleccionar la información del siniestro que se va a analizar.
-```
+  ```txt
+  Recibir o seleccionar la información del siniestro que se va a analizar.
+  ```
 
-Elementos actuales:
+  Elementos actuales:
 
-- Selector de fuente:
-  - Caso demo
-  - Subir archivo
-- Selector de siniestro demo.
-- `st.file_uploader` para carga de archivo CSV.
-- Mensaje de confirmación:
+  - Selector de fuente:
+    - Caso demo
+    - Subir archivo
+  - Selector de siniestro demo.
+  - `st.file_uploader` para carga de archivo CSV.
+  - Mensaje de confirmación:
 
-```txt
-Información recibida para análisis preliminar.
-```
+  ```txt
+  Información recibida para análisis preliminar.
+  ```
 
-Texto guía:
+  Texto guía:
 
-```txt
-Se recibe información del siniestro, se valida estructura y se prepara para scoring.
-```
+  ```txt
+  Se recibe información del siniestro, se valida estructura y se prepara para scoring.
+  ```
 
-Este paso no acusa ni interpreta fraude. Solo prepara los datos.
+  Este paso no acusa ni interpreta fraude. Solo prepara los datos.
 
----
+  ---
 
-## Slide 2 — Resumen del caso cargado
+  ## Slide 2 — Resumen del caso cargado
 
-Objetivo:
+  Objetivo:
 
-```txt
-Mostrar una ficha clara del siniestro antes del análisis IA.
-```
+  ```txt
+  Mostrar una ficha clara del siniestro antes del análisis IA.
+  ```
 
-Métricas visibles:
+  Métricas visibles:
 
-- ID del siniestro.
-- Ramo.
-- Monto reclamado.
-- Suma asegurada.
-- Ciudad.
-- Proveedor.
-- Cobertura.
+  - ID del siniestro.
+  - Ramo.
+  - Monto reclamado.
+  - Suma asegurada.
+  - Ciudad.
+  - Proveedor.
+  - Cobertura.
 
-También se muestra:
+  También se muestra:
 
-- Estado documental.
-- Descripción resumida / explicación preliminar.
+  - Estado documental.
+  - Descripción resumida / explicación preliminar.
 
-La intención es que el jurado entienda rápidamente:
+  La intención es que el jurado entienda rápidamente:
 
-```txt
-Qué información entró al sistema.
-```
+  ```txt
+  Qué información entró al sistema.
+  ```
 
----
+  ---
 
-## Slide 3 — Análisis IA y score de riesgo
+  ## Slide 3 — Análisis IA y score de riesgo
 
-Objetivo:
+  Objetivo:
 
-```txt
-Mostrar el resultado del análisis IA de forma visual y explicable.
-```
+  ```txt
+  Mostrar el resultado del análisis IA de forma visual y explicable.
+  ```
 
-Elementos principales:
+  Elementos principales:
 
-- Score grande de 1 a 100.
-- Semáforo de nivel de riesgo.
-- Barra de progreso del score.
-- Acción sugerida.
-- Razones principales.
-- Desglose de score por componente.
-- Resumen para presentación.
+  - Score grande de 1 a 100.
+  - Semáforo de nivel de riesgo.
+  - Barra de progreso del score.
+  - Acción sugerida.
+  - Razones principales.
+  - Desglose de score por componente.
+  - Resumen para presentación.
 
-Componentes del score:
+  Componentes del score:
 
-```txt
-Reglas
-Modelo ML
-Anomalías
-NLP
-Grafo
-Categórico
-```
+  ```txt
+  Reglas
+  Modelo ML
+  Anomalías
+  NLP
+  Grafo
+  Categórico
+  ```
 
-Ejemplo de salida:
+  Ejemplo de salida:
 
-```txt
-87/100
-Nivel: Rojo
-Acción sugerida: Escalar a revisión antifraude especializada.
-```
+  ```txt
+  87/100
+  Nivel: Rojo
+  Acción sugerida: Escalar a revisión antifraude especializada.
+  ```
 
-Importante:
+  Importante:
 
-```txt
-El score no confirma fraude. Prioriza revisión humana.
-```
+  ```txt
+  El score no confirma fraude. Prioriza revisión humana.
+  ```
 
----
+  ---
 
-## Asistente IA flotante
+  ## Asistente IA flotante
 
-En el slide 3 existe un asistente contextual de IA.
+  En el slide 3 existe un asistente contextual de IA.
 
-Estado oculto:
+  Estado oculto:
 
-```txt
-Bolita flotante inferior centrada
-```
+  ```txt
+  Bolita flotante inferior centrada
+  ```
 
-Estado activo:
+  Estado activo:
 
-```txt
-Cuadro flotante de conversación IA sobre la bolita
-```
+  ```txt
+  Cuadro flotante de conversación IA sobre la bolita
+  ```
 
-La visibilidad se controla con:
+  La visibilidad se controla con:
 
-```txt
-st.session_state.show_chat
-```
+  ```txt
+  st.session_state.show_chat
+  ```
 
-Botón flotante:
+  Botón flotante:
 
-```txt
-key="chat_bubble_toggle"
-```
+  ```txt
+  key="chat_bubble_toggle"
+  ```
 
-Panel flotante:
+  Panel flotante:
 
-```txt
-key="chat_panel"
-```
+  ```txt
+  key="chat_panel"
+  ```
 
-El asistente permite:
+  El asistente permite:
 
-- Ver historial de conversación.
-- Escribir una pregunta.
-- Usar preguntas rápidas.
-- Enviar con botón `↑`.
-- Recibir respuestas contextuales del siniestro seleccionado.
+  - Ver historial de conversación.
+  - Escribir una pregunta.
+  - Usar preguntas rápidas.
+  - Enviar con botón `↑`.
+  - Recibir respuestas contextuales del siniestro seleccionado.
 
-Preguntas rápidas actuales:
+  Preguntas rápidas actuales:
 
-```txt
-¿Por qué este caso tiene ese score?
-¿Qué alerta pesa más?
-¿Qué debería revisar el analista?
-```
+  ```txt
+  ¿Por qué este caso tiene ese score?
+  ¿Qué alerta pesa más?
+  ¿Qué debería revisar el analista?
+  ```
 
-Las respuestas mock usan:
+  Las respuestas mock usan:
 
-- ID del siniestro.
-- Score final.
-- Alertas activadas.
-- Proveedor.
-- Monto reclamado.
-- Acción sugerida.
+  - ID del siniestro.
+  - Score final.
+  - Alertas activadas.
+  - Proveedor.
+  - Monto reclamado.
+  - Acción sugerida.
 
----
+  ---
 
-## Estado de sesión usado
+  ## Estado de sesión usado
 
-La UI usa `st.session_state` para mantener interacción:
+  La UI usa `st.session_state` para mantener interacción:
 
-```txt
-slide
-selected_claim_id
-chat_messages
-show_chat
-```
+  ```txt
+  slide
+  selected_claim_id
+  chat_messages
+  show_chat
+  ```
 
-Uso:
+  Uso:
 
-- `slide`: controla la diapositiva actual.
-- `selected_claim_id`: mantiene el caso seleccionado.
-- `chat_messages`: guarda historial del asistente.
-- `show_chat`: abre o cierra el chat flotante.
+  - `slide`: controla la diapositiva actual.
+  - `selected_claim_id`: mantiene el caso seleccionado.
+  - `chat_messages`: guarda historial del asistente.
+  - `show_chat`: abre o cierra el chat flotante.
 
----
+  ---
 
-## Datos actuales
+  ## Datos actuales
 
-Los datos mock están en:
+  Los datos mock están en:
 
-```txt
-app/components/data.py
-```
+  ```txt
+  app/components/data.py
+  ```
 
-El loader principal es:
+  El loader principal es:
 
-```python
-load_claims()
-```
+  ```python
+  load_claims()
+  ```
 
-Si existe CSV, carga:
+  Si existe CSV, carga:
 
-```txt
-data/synthetic/mock_siniestros_scored.csv
-```
+  ```txt
+  data/synthetic/mock_siniestros_scored.csv
+  ```
 
-Si no existe, genera un DataFrame mock con casos como:
+  Si no existe, genera un DataFrame mock con casos como:
 
-```txt
-SIN-0045
-SIN-0112
-SIN-0201
-SIN-0330
-SIN-0418
-SIN-0502
-```
+  ```txt
+  SIN-0045
+  SIN-0112
+  SIN-0201
+  SIN-0330
+  SIN-0418
+  SIN-0502
+  ```
 
-Columnas relevantes:
+  Columnas relevantes:
 
-```txt
-id_siniestro
-ramo
-cobertura
-ciudad
-id_proveedor
-monto_reclamado
-suma_asegurada
-score_reglas
-score_modelo
-score_anomalia
-score_nlp
-score_grafo
-score_categorico
-score_final
-nivel_riesgo
-alertas_activadas
-explicacion
-accion_sugerida
-```
+  ```txt
+  id_siniestro
+  ramo
+  cobertura
+  ciudad
+  id_proveedor
+  monto_reclamado
+  suma_asegurada
+  score_reglas
+  score_modelo
+  score_anomalia
+  score_nlp
+  score_grafo
+  score_categorico
+  score_final
+  nivel_riesgo
+  alertas_activadas
+  explicacion
+  accion_sugerida
+  ```
 
----
+  ---
 
-## Estilos visuales
+  ## Estilos visuales
 
-Los estilos están concentrados en:
+  Los estilos están concentrados en:
 
-```txt
-app/components/layout.py
-```
+  ```txt
+  app/components/layout.py
+  ```
 
-Componentes visuales:
+  Componentes visuales:
 
-- Header de página.
-- Badges de riesgo.
-- Tarjetas `wireframe_box`.
-- Progreso de pasos.
-- Estilos de slide.
-- Score grande.
-- Chat flotante.
-- Bolita flotante del asistente.
+  - Header de página.
+  - Badges de riesgo.
+  - Tarjetas `wireframe_box`.
+  - Progreso de pasos.
+  - Estilos de slide.
+  - Score grande.
+  - Chat flotante.
+  - Bolita flotante del asistente.
 
-Clases CSS principales:
+  Clases CSS principales:
 
-```txt
-rs-header
-rs-title
-rs-subtitle
-rs-badge
-rs-panel
-rs-slide-kicker
-rs-slide-title
-rs-slide-subtitle
-rs-progress-track
-rs-progress-fill
-rs-step-pill
-rs-score
-rs-floating-chat
-st-key-chat_bubble_toggle
-st-key-chat_panel
-```
+  ```txt
+  rs-header
+  rs-title
+  rs-subtitle
+  rs-badge
+  rs-panel
+  rs-slide-kicker
+  rs-slide-title
+  rs-slide-subtitle
+  rs-progress-track
+  rs-progress-fill
+  rs-step-pill
+  rs-score
+  rs-floating-chat
+  st-key-chat_bubble_toggle
+  st-key-chat_panel
+  ```
 
----
+  ---
 
-## Sidebar actual
+  ## Sidebar actual
 
-El sidebar se mantiene simple.
+  El sidebar se mantiene simple.
 
-Muestra:
+  Muestra:
 
-```txt
-RastroSeguro
-Evaluador preliminar de riesgo
-```
+  ```txt
+  RastroSeguro
+  Evaluador preliminar de riesgo
+  ```
 
-Flujo:
+  Flujo:
 
-```txt
-1. Cargar información
-2. Resumir el caso
-3. Calcular score IA
-```
+  ```txt
+  1. Cargar información
+  2. Resumir el caso
+  3. Calcular score IA
+  ```
 
-Principio ético:
+  Principio ético:
 
-```txt
-La IA alerta y explica.
-No acusa ni rechaza reclamos.
-```
+  ```txt
+  La IA alerta y explica.
+  No acusa ni rechaza reclamos.
+  ```
 
----
+  ---
 
-## Cómo ejecutar
+  ## Cómo ejecutar
 
-Desde la raíz del proyecto:
+  Desde la raíz del proyecto:
 
-```bash
-.venv/bin/streamlit run app/main.py
-```
+  ```bash
+  .venv/bin/streamlit run app/main.py
+  ```
 
-Si no existe el entorno virtual:
+  Si no existe el entorno virtual:
 
-```bash
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-.venv/bin/streamlit run app/main.py
-```
+  ```bash
+  python3 -m venv .venv
+  .venv/bin/pip install -r requirements.txt
+  .venv/bin/streamlit run app/main.py
+  ```
 
----
+  ---
 
-## Decisión actual de diseño
+  ## Decisión actual de diseño
 
-La UI actual se decidió como:
+  La UI actual se decidió como:
 
-```txt
-Evaluador de siniestro tipo presentación
-```
+  ```txt
+  Evaluador de siniestro tipo presentación
+  ```
 
-No como:
+  No como:
 
-```txt
-Dashboard administrativo completo
-```
+  ```txt
+  Dashboard administrativo completo
+  ```
 
-Razón:
+  Razón:
 
-- Es más claro para una demo.
-- Reduce el ruido visual.
-- Mantiene el foco en el caso evaluado.
-- Explica el score antes que mostrar demasiadas tablas.
-- Se alinea mejor con una presentación corta ante jurado.
+  - Es más claro para una demo.
+  - Reduce el ruido visual.
+  - Mantiene el foco en el caso evaluado.
+  - Explica el score antes que mostrar demasiadas tablas.
+  - Se alinea mejor con una presentación corta ante jurado.
 
----
+  ---
 
-## Pendientes recomendados
+  ## Pendientes recomendados
 
-1. Conectar el upload real con el pipeline de datos.
-2. Reemplazar respuestas mock del asistente por tools de Jeremy:
+  1. Conectar el upload real con el pipeline de datos.
+  2. Reemplazar respuestas mock del asistente por tools de Jeremy:
 
-```python
-explain_claim(id_siniestro)
-simulate_new_claim(claim_data)
-get_provider_risk_ranking()
-generate_executive_summary()
-```
+  ```python
+  explain_claim(id_siniestro)
+  simulate_new_claim(claim_data)
+  get_provider_risk_ranking()
+  generate_executive_summary()
+  ```
 
-3. Agregar visualización simple de evidencia si el CSV trae documentos.
-4. Preparar 2 o 3 casos estrella para demo:
+  3. Agregar visualización simple de evidencia si el CSV trae documentos.
+  4. Preparar 2 o 3 casos estrella para demo:
 
-```txt
-Rojo evidente
-Rojo no evidente
-Amarillo ético
-```
+  ```txt
+  Rojo evidente
+  Rojo no evidente
+  Amarillo ético
+  ```
 
-5. Pulir colores finales y espaciado según identidad visual del pitch.
+  5. Pulir colores finales y espaciado según identidad visual del pitch.
 

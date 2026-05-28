@@ -110,6 +110,8 @@ def inject_base_styles() -> None:
         section[data-testid="stSidebar"] {
             background: var(--rs-surface-container);
             border-right: 1px solid var(--rs-outline);
+            transition: transform 180ms ease, width 180ms ease, min-width 180ms ease;
+            display: none !important;
         }
         section[data-testid="stSidebar"] > div {
             background: var(--rs-surface-container);
@@ -117,6 +119,36 @@ def inject_base_styles() -> None:
         section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
         section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] div {
             color: var(--rs-on-surface);
+        }
+        section[data-testid="stMain"],
+        [data-testid="stMainBlockContainer"] {
+            margin-left: 0 !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            transition: margin-left 180ms ease, width 180ms ease;
+        }
+        .stApp:has(.rs-sidebar-open-marker) section[data-testid="stMain"],
+        .stApp:has(.rs-sidebar-open-marker) [data-testid="stMainBlockContainer"] {
+            margin-left: 300px !important;
+            width: calc(100vw - 300px) !important;
+            max-width: calc(100vw - 300px) !important;
+        }
+        .st-key-rs_custom_sidebar_panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 300px;
+            height: 100vh;
+            z-index: 2200;
+            padding: 72px 1rem 1rem;
+            background: var(--rs-surface-container);
+            border-right: 1px solid var(--rs-outline);
+            box-shadow: 24px 0 60px rgba(0, 0, 0, 0.28);
+            overflow: hidden;
+        }
+        .st-key-rs_custom_sidebar_panel > div,
+        .st-key-rs_custom_sidebar_panel [data-testid="stVerticalBlock"] {
+            height: 100%;
         }
 
         .block-container {
@@ -1382,15 +1414,18 @@ def _sidebar_nav_styles(active_step: int) -> str:
     return "".join(styles)
 
 
-def sidebar_branding(active_step: int = 0) -> None:
+def sidebar_branding(active_step: int = 0, visible: bool = True) -> None:
     inject_base_styles()
+    if not visible:
+        return
+
     steps = [
         {"label": "Carga", "icon": "upload_file", "index": 0},
         {"label": "Resumen", "icon": "analytics", "index": 1},
         {"label": "Análisis IA", "icon": "psychology", "index": 2},
     ]
 
-    with st.sidebar:
+    with st.container(key="rs_custom_sidebar_panel"):
         st.markdown(f"<style>{_sidebar_nav_styles(active_step)}</style>", unsafe_allow_html=True)
         st.markdown(
             """

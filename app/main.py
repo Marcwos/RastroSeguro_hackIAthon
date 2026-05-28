@@ -95,35 +95,10 @@ if st.button(
     st.session_state.sidebar_visible = not st.session_state.sidebar_visible
     st.rerun()
 
-if not st.session_state.sidebar_visible:
-    st.markdown(
-        """
-        <style>
-        section[data-testid="stSidebar"] {
-            transform: translateX(-310px) !important;
-            width: 0 !important;
-            min-width: 0 !important;
-            max-width: 0 !important;
-            overflow: hidden !important;
-            border-right: 0 !important;
-            transition: transform 180ms ease, width 180ms ease;
-        }
-        section[data-testid="stMain"] {
-            margin-left: 0 !important;
-            width: 100vw !important;
-            max-width: 100vw !important;
-        }
-        [data-testid="stMainBlockContainer"] {
-            margin-left: 0 !important;
-            width: 100vw !important;
-            max-width: 100vw !important;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+if st.session_state.sidebar_visible:
+    st.markdown('<span class="rs-sidebar-open-marker"></span>', unsafe_allow_html=True)
 
-sidebar_branding(active_step=CURRENT_SLIDE)
+sidebar_branding(active_step=CURRENT_SLIDE, visible=st.session_state.sidebar_visible)
 top_app_bar(current_step=CURRENT_SLIDE)
 
 # Get current claim data
