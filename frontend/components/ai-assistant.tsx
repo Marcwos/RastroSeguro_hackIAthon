@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useAppState } from '@/lib/app-context'
 import { ApiClientError, askAgent, getQuickQuestions } from '@/lib/api'
-import { MessageCircle, X, Send, Bot, User } from 'lucide-react'
+import { MessageCircle, X, Send, Bot, User, Plus, SlidersHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -11,6 +11,18 @@ function shortenQuestion(text: string, max = 72): string {
   const trimmed = text.trim()
   if (trimmed.length <= max) return trimmed
   return `${trimmed.slice(0, max - 1)}…`
+}
+
+
+function normalizeAssistantText(text: string): string {
+  return text
+    .replace(/^#{1,6}\s*/gm, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/__(.*?)__/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^\s*[-*]\s+/gm, '• ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
 }
 
 function contextualQuickQuestions(claimId: string | null): string[] {
@@ -89,7 +101,8 @@ export function AIAssistant() {
         ? `${text}\n\nContexto: siniestro ${selectedClaimId}.`
         : text
       const response = await askAgent(contextualQuestion)
-      const message = response.message || 'El agente respondió sin texto, pero la consulta fue procesada.'
+      const rawMessage = response.message || 'El agente respondió sin texto, pero la consulta fue procesada.'
+      const message = normalizeAssistantText(rawMessage)
       addChatMessage({
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -117,14 +130,20 @@ export function AIAssistant() {
         {!showChat && (
           <motion.button
             type="button"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
+            initial={{ y: 12, opacity: 0, scale: 0.95 }}
+            animate={{
+              y: 0,
+              opacity: 1,
+              scale: [1, 1.06, 1],
+              boxShadow: ['0 0 0 0 rgba(59,130,246,0.35)', '0 0 0 12px rgba(59,130,246,0)', '0 0 0 0 rgba(59,130,246,0)'],
+            }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 1.2 }}
+            exit={{ y: 12, opacity: 0 }}
             onClick={() => setShowChat(true)}
-            className="fixed bottom-6 right-6 z-[100] flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-colors hover:opacity-90"
+            className="fixed bottom-5 left-1/2 z-[100] flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border border-primary/40 bg-primary text-primary-foreground shadow-lg"
             aria-label="Abrir asistente de riesgo"
           >
-            <MessageCircle className="h-6 w-6" />
+            <MessageCircle className="h-5 w-5" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -139,21 +158,19 @@ export function AIAssistant() {
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: 0.2 }}
             className={cn(
-              'fixed z-[100] flex flex-col overflow-hidden border border-border bg-card shadow-2xl',
-              'bottom-0 right-0 left-0 h-[min(85vh,720px)] rounded-t-2xl',
-              'sm:bottom-6 sm:left-auto sm:right-6 sm:h-[min(72vh,640px)] sm:w-[min(100%,420px)] sm:rounded-2xl',
-              'lg:w-[440px]',
+              'fixed bottom-20 left-1/2 z-[100] flex -translate-x-1/2 flex-col overflow-hidden border border-border bg-card shadow-2xl',
+              'h-[min(62vh,520px)] w-[min(94vw,560px)] rounded-2xl',
             )}
           >
-            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-[var(--primary-container)] px-4 py-3 text-white">
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-[var(--surface-container)] px-4 py-3 text-foreground">
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10">
-                  <Bot className="h-5 w-5" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--secondary-container)]">
+                  <Bot className="h-5 w-5 text-[var(--on-secondary-container)]" />
                 </div>
                 <div className="min-w-0">
                   <p className="truncate font-semibold">Asistente de Riesgo</p>
                   {selectedClaimId && (
-                    <p className="label-mono truncate text-xs text-[var(--primary-fixed-dim)]">
+                    <p className="label-mono truncate text-xs text-muted-foreground">
                       Caso {selectedClaimId}
                     </p>
                   )}
@@ -162,7 +179,7 @@ export function AIAssistant() {
               <button
                 type="button"
                 onClick={() => setShowChat(false)}
-                className="shrink-0 rounded-lg p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+                className="shrink-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-[var(--surface-high)] hover:text-foreground"
                 aria-label="Cerrar asistente"
               >
                 <X className="h-5 w-5" />
@@ -220,26 +237,25 @@ export function AIAssistant() {
               </div>
 
               <div className="shrink-0 border-t border-border bg-card">
-                <div className="max-h-[140px] overflow-y-auto px-3 pt-3">
-                  <p className="label-mono mb-2 text-[10px] uppercase text-muted-foreground">Preguntas sugeridas</p>
-                  <div className="space-y-1.5">
-                    {quickQuestions.map((q) => (
+                <div className="max-h-[78px] overflow-y-auto px-3 pt-3">
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {quickQuestions.slice(0, 3).map((q) => (
                       <button
                         key={q}
                         type="button"
                         title={q}
                         onClick={() => handleSend(q)}
                         disabled={isTyping}
-                        className="w-full rounded-md border border-border bg-[var(--surface-low)] px-3 py-2 text-left text-xs leading-snug text-foreground transition-colors hover:border-primary hover:bg-[var(--surface-container)] disabled:opacity-50"
+                        className="shrink-0 rounded-full border border-border bg-[var(--surface-low)] px-3 py-1.5 text-xs text-foreground transition-colors hover:border-primary disabled:opacity-50"
                       >
-                        {shortenQuestion(q, 90)}
+                        {shortenQuestion(q, 42)}
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div className="p-3">
-                  <div className="flex items-end gap-2">
+                  <div className="rounded-2xl border border-border bg-[var(--surface-low)] px-3 py-3">
                     <textarea
                       rows={2}
                       value={input}
@@ -250,23 +266,36 @@ export function AIAssistant() {
                           void handleSend()
                         }
                       }}
-                      placeholder="Escribe tu duda…"
-                      className="min-h-[44px] max-h-28 flex-1 resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+                      placeholder="¿Qué puedo ayudarte a resolver?"
+                      className="min-h-[42px] max-h-24 w-full resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                     />
-                    <button
-                      type="button"
-                      onClick={() => void handleSend()}
-                      disabled={!input.trim() || isTyping}
-                      className={cn(
-                        'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-colors',
-                        input.trim() && !isTyping
-                          ? 'bg-primary text-primary-foreground hover:opacity-90'
-                          : 'cursor-not-allowed bg-muted text-muted-foreground',
-                      )}
-                      aria-label="Enviar mensaje"
-                    >
-                      <Send className="h-4 w-4" />
-                    </button>
+
+                    <div className="mt-2 flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        <button type="button" aria-label="Agregar" className="rounded-md p-2 text-muted-foreground hover:bg-[var(--surface-high)] hover:text-foreground">
+                          <Plus className="h-4 w-4" />
+                        </button>
+                        <button type="button" aria-label="Opciones" className="rounded-md p-2 text-muted-foreground hover:bg-[var(--surface-high)] hover:text-foreground">
+                          <SlidersHorizontal className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-full border border-border bg-background px-2.5 py-1 text-[11px] text-muted-foreground">Rastro IA</span>
+                        <button
+                          type="button"
+                          onClick={() => void handleSend()}
+                          disabled={!input.trim() || isTyping}
+                          className={cn(
+                            'flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-foreground transition-colors hover:bg-[var(--surface-high)]',
+                            (!input.trim() || isTyping) && 'cursor-not-allowed opacity-50',
+                          )}
+                          aria-label="Enviar mensaje"
+                        >
+                          <Send className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   <p className="mt-2 text-center text-[10px] text-muted-foreground">
                     Prioriza revisión humana; no acusa fraude automáticamente.

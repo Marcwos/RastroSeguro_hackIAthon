@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { useAppState } from '@/lib/app-context'
-import { Upload, FileCheck2, BrainCircuit, Shield, Terminal, LockKeyhole } from 'lucide-react'
+import { Upload, FileCheck2, BrainCircuit, Share2, Shield, Terminal, LockKeyhole } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { step: 1, label: 'Information Upload', icon: Upload },
   { step: 2, label: 'Case Summary', icon: FileCheck2 },
   { step: 3, label: 'Risk Analysis', icon: BrainCircuit },
+  { step: 4, label: 'Graph Intelligence', icon: Share2 },
 ]
 
 export function Sidebar() {

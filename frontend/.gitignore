@@ -14,3 +14,7 @@ node_modules
 .next/
 *.tsbuildinfo
 .DS_Store
+
+next.config.mjs
+package-lock.json
+package.json

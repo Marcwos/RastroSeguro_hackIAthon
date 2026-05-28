@@ -39,7 +39,7 @@ export const mockClaims: ClaimData[] = [
     id_siniestro: 'SIN-0112',
     ramo: 'Automóvil',
     cobertura: 'Todo Riesgo',
-    ciudad: 'Medellín',
+    ciudad: 'Quito',
     id_proveedor: 'PROV-0045',
     monto_reclamado: 12500,
     suma_asegurada: 15000,
@@ -69,7 +69,7 @@ export const mockClaims: ClaimData[] = [
       { nombre: 'Telemetría_GPS.log', tipo: 'telemetria', estado: 'completo' }
     ],
     ubicacion: {
-      sector: 'Sector El Poblado, Medellín',
+      sector: 'La Carolina, Quito',
       confirmada: true
     },
     telemetria: true
@@ -78,7 +78,7 @@ export const mockClaims: ClaimData[] = [
     id_siniestro: 'SIN-0045',
     ramo: 'Automóvil',
     cobertura: 'Robo Total',
-    ciudad: 'Bogotá',
+    ciudad: 'Guayaquil',
     id_proveedor: 'PROV-0012',
     monto_reclamado: 45000,
     suma_asegurada: 48000,
@@ -107,7 +107,7 @@ export const mockClaims: ClaimData[] = [
       { nombre: 'Denuncia_Policial.pdf', tipo: 'denuncia', estado: 'pendiente' }
     ],
     ubicacion: {
-      sector: 'Chapinero, Bogotá',
+      sector: 'Urdesa, Guayaquil',
       confirmada: false
     },
     telemetria: false
@@ -116,7 +116,7 @@ export const mockClaims: ClaimData[] = [
     id_siniestro: 'SIN-0201',
     ramo: 'Automóvil',
     cobertura: 'Daños Propios',
-    ciudad: 'Cali',
+    ciudad: 'Cuenca',
     id_proveedor: 'PROV-0078',
     monto_reclamado: 3200,
     suma_asegurada: 22000,
@@ -141,7 +141,7 @@ export const mockClaims: ClaimData[] = [
       { nombre: 'Video_CCTV.mp4', tipo: 'video', estado: 'completo' }
     ],
     ubicacion: {
-      sector: 'Centro Comercial Unicentro, Cali',
+      sector: 'Centro Histórico, Cuenca',
       confirmada: true
     },
     telemetria: true
@@ -150,7 +150,7 @@ export const mockClaims: ClaimData[] = [
     id_siniestro: 'SIN-0330',
     ramo: 'Hogar',
     cobertura: 'Incendio',
-    ciudad: 'Barranquilla',
+    ciudad: 'Manta',
     id_proveedor: 'PROV-0091',
     monto_reclamado: 28000,
     suma_asegurada: 30000,
@@ -183,7 +183,7 @@ export const mockClaims: ClaimData[] = [
     id_siniestro: 'SIN-0418',
     ramo: 'Salud',
     cobertura: 'Hospitalización',
-    ciudad: 'Medellín',
+    ciudad: 'Quito',
     id_proveedor: 'CLIN-0023',
     monto_reclamado: 8500,
     suma_asegurada: 50000,
@@ -212,7 +212,7 @@ export const mockClaims: ClaimData[] = [
     id_siniestro: 'SIN-0502',
     ramo: 'Automóvil',
     cobertura: 'Responsabilidad Civil',
-    ciudad: 'Bogotá',
+    ciudad: 'Guayaquil',
     id_proveedor: 'PROV-0045',
     monto_reclamado: 15000,
     suma_asegurada: 20000,
@@ -241,7 +241,7 @@ export const mockClaims: ClaimData[] = [
       { nombre: 'Fotos_Daños.jpg', tipo: 'foto', estado: 'completo' }
     ],
     ubicacion: {
-      sector: 'Usaquén, Bogotá',
+      sector: 'Samborondón, Guayaquil',
       confirmada: false
     }
   }
@@ -287,7 +287,7 @@ export function getRiskLabel(nivel: string): string {
 
 export function formatCurrency(amount: number | null | undefined): string {
   if (amount == null || Number.isNaN(Number(amount))) return 'No disponible'
-  return new Intl.NumberFormat('es-CO', {
+  return new Intl.NumberFormat('es-EC', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,

@@ -6,6 +6,7 @@ import { Header } from '@/components/header'
 import { StepUpload } from '@/components/steps/step-upload'
 import { StepSummary } from '@/components/steps/step-summary'
 import { StepAnalysis } from '@/components/steps/step-analysis'
+import { StepIntelligence } from '@/components/steps/step-intelligence'
 import { AIAssistant } from '@/components/ai-assistant'
 
 function MainContent() {
@@ -20,6 +21,7 @@ function MainContent() {
           {currentStep === 1 && <StepUpload />}
           {currentStep === 2 && <StepSummary />}
           {currentStep === 3 && <StepAnalysis />}
+          {currentStep === 4 && <StepIntelligence />}
         </main>
       </div>
       <AIAssistant />
