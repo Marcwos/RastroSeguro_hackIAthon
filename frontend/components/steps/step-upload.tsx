@@ -119,24 +119,23 @@ export function StepUpload() {
             </div>
             <div className="text-center">
               <h3 className="font-display text-xl font-semibold">Carga de Datos Institucional</h3>
-              <p className="text-sm text-muted-foreground">Arrastre un archivo CSV o haga clic para explorarlo desde su equipo.</p>
-              <p className="label-mono mt-1 text-muted-foreground">Formato permitido: .csv (Máx 50MB)</p>
-            </div>
-          </label>
-
-          {status === 'valid' && uploadedFile && (
-            <div className="institutional-card col-span-12 flex items-center justify-between bg-[var(--surface-container)] p-4 lg:col-span-8">
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="label-mono-md font-bold uppercase">Archivo cargado</p>
+              {uploadedFile ? (
+                <div className="mt-2 flex flex-col items-center gap-1">
+                  <span className="inline-flex items-center gap-2 label-mono-md font-bold uppercase text-green-700">
+                    <CheckCircle2 className="h-4 w-4" /> Archivo cargado
+                  </span>
                   <p className="text-sm text-muted-foreground">
                     {uploadedFile.name} ({Math.round(uploadedFile.size / 1024)} KB)
                   </p>
                 </div>
-              </div>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground">Arrastre un archivo CSV o haga clic para explorarlo desde su equipo.</p>
+                  <p className="label-mono mt-1 text-muted-foreground">Formato permitido: .csv (Máx 50MB)</p>
+                </>
+              )}
             </div>
-          )}
+          </label>
 
           <div className="col-span-12 flex flex-col justify-between bg-[var(--primary-container)] p-8 text-white lg:col-span-4">
             <Gavel className="h-8 w-8 text-[var(--primary-fixed-dim)]" />

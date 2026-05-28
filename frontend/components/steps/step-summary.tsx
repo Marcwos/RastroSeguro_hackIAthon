@@ -6,6 +6,39 @@ import { formatCurrency } from '@/lib/claims-data'
 import { ArrowLeft, ArrowRight, CheckCircle2, FileText, Image as ImageIcon, Loader2, Map, MapPin, Navigation, ShieldCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+type MapPoint = { lat: number; lon: number; label: string }
+
+const CITY_COORDS: Record<string, MapPoint> = {
+  quito: { lat: -0.1807, lon: -78.4678, label: 'Quito' },
+  guayaquil: { lat: -2.1709, lon: -79.9224, label: 'Guayaquil' },
+  cuenca: { lat: -2.9006, lon: -79.0045, label: 'Cuenca' },
+  manta: { lat: -0.9677, lon: -80.7089, label: 'Manta' },
+  ambato: { lat: -1.2543, lon: -78.6229, label: 'Ambato' },
+  loja: { lat: -3.9931, lon: -79.2042, label: 'Loja' },
+  machala: { lat: -3.2581, lon: -79.9554, label: 'Machala' },
+  esmeraldas: { lat: 0.9682, lon: -79.6517, label: 'Esmeraldas' },
+  ibarra: { lat: 0.3517, lon: -78.1223, label: 'Ibarra' },
+  riobamba: { lat: -1.6636, lon: -78.6546, label: 'Riobamba' },
+  latacunga: { lat: -0.9316, lon: -78.6155, label: 'Latacunga' },
+  portoviejo: { lat: -1.0546, lon: -80.4545, label: 'Portoviejo' },
+  'santo domingo': { lat: -0.253, lon: -79.1754, label: 'Santo Domingo' },
+}
+
+function getMapPoint(city?: string | null): MapPoint {
+  const normalized = String(city || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+  return CITY_COORDS[normalized] || { lat: -1.8312, lon: -78.1834, label: city || 'Ecuador' }
+}
+
+function buildOsmEmbedUrl(point: MapPoint) {
+  const delta = 0.045
+  const bbox = [point.lon - delta, point.lat - delta, point.lon + delta, point.lat + delta].join(',')
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${point.lat},${point.lon}`
+}
+
 export function StepSummary() {
   const { selectedClaim, selectedClaimId, selectedExplanation, isLoadingExplanation, loadClaimExplanation, setCurrentStep } = useAppState()
   const [processing, setProcessing] = useState(false)
@@ -19,6 +52,8 @@ export function StepSummary() {
   const next = () => { setProcessing(true); setTimeout(() => { setProcessing(false); setCurrentStep(3) }, 600) }
   const docIcon = (tipo: string) => tipo === 'foto' || tipo === 'video' ? ImageIcon : tipo === 'telemetria' ? Navigation : FileText
   const narrativa = selectedClaim.narrativa || selectedClaim.descripcion || selectedExplanation?.explicacion || 'El API entregó un resumen técnico del siniestro. Continúe al análisis para revisar señales explicables y priorización.'
+  const mapPoint = getMapPoint(selectedClaim.ciudad)
+  const osmUrl = buildOsmEmbedUrl(mapPoint)
   const documentos = [
     { nombre: 'Declaración del siniestro', tipo: 'declaracion', estado: 'completo' as const },
     { nombre: 'Validación documental automática', tipo: 'informe', estado: selectedExplanation?.alertas?.length ? 'pendiente' as const : 'completo' as const },
@@ -44,7 +79,27 @@ export function StepSummary() {
 
           <aside className="col-span-12 space-y-6 lg:col-span-4">
             <div className="border border-primary bg-[var(--primary-container)] p-6 text-white"><h3 className="label-mono-md font-bold uppercase tracking-widest text-[var(--on-primary-container)]">Analysis Readiness</h3><div className="mt-4"><div className="flex items-end justify-between"><span className="font-display text-3xl font-semibold">{isLoadingExplanation ? 'Syncing' : 'Ready'}</span><span className="label-mono-md text-[var(--tertiary-fixed)]">API Connected</span></div><div className="mt-2 h-2 bg-[var(--on-primary-container)]"><div className="h-full bg-[var(--tertiary-fixed-dim)]" style={{ width: selectedExplanation ? '100%' : '75%' }} /></div></div><p className="mt-4 text-sm text-[var(--on-primary-container)]">La información mínima del caso está completa. La explicación trazable se consulta directamente desde el motor antifraude.</p><button onClick={next} className="mt-6 flex w-full items-center justify-center gap-2 bg-white py-3 label-mono-md font-bold uppercase text-primary hover:bg-[var(--surface-high)]">{processing ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Proceed to Risk Analysis'}<ArrowRight className="h-4 w-4" /></button></div>
-            <div className="institutional-card overflow-hidden"><div className="section-header flex items-center gap-2"><Map className="h-4 w-4" />Contexto Geográfico</div><div className="relative aspect-square bg-[var(--surface-container)] grayscale"><div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#4b5563_1px,transparent_1px)] [background-size:18px_18px] opacity-40" /><svg className="absolute inset-0 h-full w-full" viewBox="0 0 300 300"><path d="M20 210 C75 170 85 90 150 120 S225 90 280 40" fill="none" stroke="#191c1e" strokeWidth="1" opacity=".5"/><path d="M60 280 C105 220 150 210 245 250" fill="none" stroke="#191c1e" strokeWidth="1" opacity=".4"/></svg><div className="absolute inset-0 flex items-center justify-center"><span className="h-8 w-8 rounded-full border-4 border-white bg-destructive" /></div></div><div className="bg-[var(--surface-low)] p-4"><p className="label-mono uppercase text-muted-foreground">Sector</p><p className="label-mono-md font-mono">{selectedClaim.ciudad || 'Ubicación no informada'}</p></div></div>
+            <div className="institutional-card overflow-hidden">
+              <div className="section-header flex items-center gap-2"><Map className="h-4 w-4" />Contexto Geográfico</div>
+              <div className="relative aspect-square overflow-hidden bg-[var(--surface-container)]">
+                <iframe
+                  title={`Mapa del siniestro ${selectedClaim.id_siniestro}`}
+                  src={osmUrl}
+                  className="h-full w-full border-0 grayscale-[.35]"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+                <div className="pointer-events-none absolute left-3 top-3 border border-border bg-white/95 px-3 py-2 shadow-sm">
+                  <p className="label-mono uppercase text-muted-foreground">Zona estimada</p>
+                  <p className="label-mono-md font-bold">{mapPoint.label}</p>
+                </div>
+              </div>
+              <div className="bg-[var(--surface-low)] p-4">
+                <p className="label-mono uppercase text-muted-foreground">Sector del siniestro</p>
+                <p className="label-mono-md font-mono">{mapPoint.label}, Ecuador</p>
+                <p className="mt-1 text-xs text-muted-foreground">Mapa referencial basado en la ciudad registrada del caso.</p>
+              </div>
+            </div>
           </aside>
         </div>
         <footer className="flex justify-between border-t border-border pt-6"><button onClick={() => setCurrentStep(1)} className="flex items-center gap-2 px-4 py-2 label-mono-md text-muted-foreground hover:text-primary"><ArrowLeft className="h-4 w-4" />Anterior</button><div className="flex items-center gap-2 text-[var(--on-tertiary-fixed)]"><ShieldCheck className="h-4 w-4" /><span className="label-mono">Validación auditable: no decide pagos ni rechazos.</span></div><button onClick={next} className="flex items-center gap-2 bg-primary px-6 py-2 label-mono-md text-white">Siguiente<ArrowRight className="h-4 w-4" /></button></footer>

@@ -40,7 +40,7 @@ export interface ChatMessage {
 const AppContext = createContext<AppState | undefined>(undefined)
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [currentStep, setCurrentStep] = useState(1)
+  const [currentStep, setCurrentStep] = useState(0)
   const [claims, setClaims] = useState<ClaimSummary[]>([])
   const [selectedClaimId, setSelectedClaimIdState] = useState<string | null>(null)
   const [selectedExplanation, setSelectedExplanation] = useState<ClaimExplanation | null>(null)
