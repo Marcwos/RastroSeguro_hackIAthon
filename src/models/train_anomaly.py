@@ -1,0 +1,81 @@
+"""Train IsolationForest anomaly detector."""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+import numpy as np
+from sklearn.ensemble import IsolationForest
+from sklearn.pipeline import Pipeline
+
+from src.models._training_common import (
+    DEFAULT_DATASET,
+    MODELS_DIR,
+    REPORTS_DIR,
+    append_metrics_report,
+    build_preprocessor,
+    load_training_frame,
+    save_artifact,
+)
+
+ANOMALY_PATH = MODELS_DIR / "anomaly_detector.joblib"
+METRICS_PATH = REPORTS_DIR / "model_metrics.json"
+
+
+def train_anomaly(dataset_path: Path = DEFAULT_DATASET, seed: int = 42) -> Path:
+    df = load_training_frame(dataset_path)
+    x = df.drop(columns=["etiqueta_fraude_simulada"], errors="ignore")
+
+    model = Pipeline(
+        steps=[
+            ("preprocess", build_preprocessor()),
+            (
+                "iso",
+                IsolationForest(
+                    n_estimators=200,
+                    contamination=max(0.02, float(df["etiqueta_fraude_simulada"].mean())),
+                    random_state=seed,
+                    n_jobs=-1,
+                ),
+            ),
+        ]
+    )
+    model.fit(x)
+    preds = model.predict(x)
+    anomaly_rate = round(float((preds == -1).mean()), 4)
+
+    # Weak proxy validation: overlap between anomalies and simulated fraud label.
+    if "etiqueta_fraude_simulada" in df.columns:
+        y = df["etiqueta_fraude_simulada"].astype(int).to_numpy()
+        overlap = float(((preds == -1) & (y == 1)).sum() / max(1, (preds == -1).sum()))
+    else:
+        overlap = 0.0
+
+    metrics = {
+        "anomaly_rate": anomaly_rate,
+        "fraud_overlap_in_anomalies": round(overlap, 4),
+        "rows": len(df),
+    }
+
+    save_artifact(ANOMALY_PATH, model, metrics, extra={"model_type": "IsolationForest"})
+    append_metrics_report(METRICS_PATH, "anomaly_detector", metrics)
+    return ANOMALY_PATH
+
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description="Entrena models/anomaly_detector.joblib")
+    p.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
+    p.add_argument("--seed", type=int, default=42)
+    return p.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    path = train_anomaly(args.dataset, seed=args.seed)
+    print(json.dumps({"artifact": str(path), "status": "ok"}, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()
