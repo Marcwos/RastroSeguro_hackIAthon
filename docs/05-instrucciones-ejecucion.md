@@ -82,3 +82,31 @@ Antes de integrar cambios, confirmar:
 - [ ] Las alertas son explicables.
 - [ ] La app carga sin errores.
 - [ ] No se subieron credenciales ni datos reales.
+
+
+## Puente API para Next.js
+
+Instalar dependencias con uv:
+
+```bash
+uv venv
+uv pip install -r requirements.txt
+```
+
+Ejecutar API:
+
+```bash
+uv run uvicorn api.main:app --reload --port 8000
+```
+
+Validar:
+
+```bash
+curl http://localhost:8000/api/health
+```
+
+El frontend Next.js debe usar:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```

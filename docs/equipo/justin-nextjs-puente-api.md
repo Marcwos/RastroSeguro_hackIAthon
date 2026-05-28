@@ -2,6 +2,24 @@
 
 Este documento define cómo dividimos el trabajo para migrar la interfaz de Streamlit a Next.js sin romper el cerebro de RastroSeguro.
 
+## Estado actual
+
+El puente API ya está implementado en `api/` con FastAPI y contrato estándar `{ ok, data, error }`.
+
+Para correrlo localmente:
+
+```bash
+uv run uvicorn api.main:app --reload --port 8000
+```
+
+Healthcheck:
+
+```bash
+curl http://localhost:8000/api/health
+```
+
+---
+
 ## Decisión
 
 - **Justin** construye el frontend en Next.js.
@@ -304,6 +322,14 @@ Uso en Next:
 ---
 
 ### 8. Agente antifraude
+
+Preguntas rápidas:
+
+```txt
+GET /api/agent/quick-questions
+```
+
+Pregunta libre:
 
 ```txt
 POST /api/agent/ask
