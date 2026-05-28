@@ -1,6 +1,6 @@
 # RastroSeguro
 
-Plataforma de inteligencia artificial explicable para **priorizar siniestros con señales de posible fraude** en seguros vehiculares y multi-ramo.
+Plataforma de inteligencia artificial explicable para **priorizar siniestros con señales de posible fraude** en seguros multi-ramo.
 
 Proyecto del equipo para el **hackIAthon 2026 — Reto Aseguradora del Sur**.
 
@@ -8,57 +8,46 @@ Proyecto del equipo para el **hackIAthon 2026 — Reto Aseguradora del Sur**.
 
 ---
 
-## Documentación
-
-Toda la documentación del proyecto está en [`docs/`](./docs/).
-
-Lectura recomendada para el equipo:
-
-1. [Guía general del equipo](./docs/01-guia-general-equipo.md)
-2. [Contratos de integración](./docs/02-contratos-integracion.md)
-3. [Arquitectura y pipeline](./docs/03-arquitectura-pipeline.md)
-4. [Demo y vistas](./docs/04-demo-y-vistas.md)
-5. [Instrucciones de ejecución](./docs/05-instrucciones-ejecucion.md)
-6. [Modelado dataset para Supabase](./docs/06-modelado-dataset-supabase.md)
-
-Documentos por integrante:
-
-- [Carlos — Datos y modelos](./docs/equipo/carlos-datos-modelos.md)
-- [Jeremy — Scoring y agente](./docs/equipo/jeremy-scoring-agente.md)
-- [Justin — Dashboard y demo](./docs/equipo/justin-dashboard-demo.md)
-
-Documentos base:
-
-- [Especificación completa del reto](./docs/reto-aseguradora-del-sur.md)
-- [Planteamiento técnico RastroSeguro](./docs/planteamiento-tecnico-rastoseguro.md)
-- [Organización original del equipo](./docs/organizacion-equipo.md)
-- [Inventario fuentes Ecuador (scraping/API)](./docs/inventario-fuentes-ecuador.md)
-
----
-
-## Decisión actual de alcance
-
-```txt
-Funcionalidades avanzadas: sí.
-Demasiadas vistas independientes: no.
-```
-
-La app se organizará en secciones fuertes: dashboard, revisión de siniestros, inteligencia antifraude, agente/simulador y reporte/demo.
-
----
-
 ## Estado del proyecto
 
-En fase de organización e inicio de implementación. La prioridad actual es respetar contratos de integración para que Carlos, Jeremy y Justin puedan trabajar en paralelo.
+Implementación funcional con cumplimiento del PDF del reto:
+
+- Dataset sintético + tablas complementarias (pólizas, asegurados, proveedores, documentos)
+- Contexto Ecuador (SERCOP/OCDS/ECU911/INEC)
+- Score híbrido: reglas + ML + anomalías + NLP + grafo
+- Agente con 12 preguntas del PDF
+- Dashboard Streamlit + validación reproducible
+
+---
+
+## Corrida limpia (entregables Carlos)
+
+```bash
+py -3 -m src.models.run_carlos_pipeline --rows 25000 --seed 42 --scoring-rows 2000
+py -3 -m src.models.validate_deliverables
+py -3 -m unittest tests.test_model_integration tests.test_jeremy_core tests.test_agent tests.test_branch_rules
+```
+
+Demo UI:
+
+```bash
+streamlit run app/main.py
+```
+
+---
+
+## Documentación
+
+| Documento | Contenido |
+|---|---|
+| [Contratos de integración](docs/02-contratos-integracion.md) | Carlos ↔ Jeremy ↔ Justin |
+| [Reglas de negocio](docs/reglas_negocio.md) | RF-01…RF-07 y matriz PDF |
+| [Modelo de datos](docs/modelo_datos.md) | Tablas y relaciones |
+| [Limitaciones](docs/limitaciones.md) | Ética y alcance |
+| [Reto PDF (referencia)](docs/reto-aseguradora-del-sur.md) | Especificación completa |
 
 ---
 
 ## Equipo
 
-Proyecto desarrollado por **Carlos, Justin y Jeremy** para el hackIAthon 2026.
-
----
-
-## Licencia
-
-Por definir.
+Carlos (datos/modelos), Jeremy (scoring/agente), Justin (dashboard/demo) — hackIAthon 2026.

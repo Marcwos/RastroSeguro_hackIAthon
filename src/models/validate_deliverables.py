@@ -9,6 +9,7 @@ import joblib
 import pandas as pd
 
 from src.data.ecuador_context import ECUADOR_EXTENSION_COLUMNS
+from src.data.generate_synthetic_data import PDF_EXTENSION_COLUMNS
 
 ROOT = Path(__file__).resolve().parents[2]
 DATASET_PATH = ROOT / "data" / "synthetic" / "siniestros.csv"
@@ -20,6 +21,18 @@ STAR_CASES_PATH = ROOT / "reports" / "casos_estrella.json"
 BENCHMARK_PATH = ROOT / "reports" / "benchmark_preguntas_pdf.json"
 SCORED_PATH = ROOT / "data" / "processed" / "siniestros_scored.csv"
 QA_PATH = ROOT / "data" / "synthetic" / "siniestros_qa.json"
+SYNTHETIC_DIR = ROOT / "data" / "synthetic"
+DOCS_DIR = ROOT / "docs"
+NOTEBOOKS_DIR = ROOT / "notebooks"
+
+PDF_DATASET_COLUMNS = PDF_EXTENSION_COLUMNS
+COMPLEMENTARY_TABLES = ["polizas.csv", "asegurados.csv", "proveedores.csv", "documentos.csv", "dataset_manifest.json"]
+REQUIRED_DOCS = ["reglas_negocio.md", "modelo_datos.md", "limitaciones.md"]
+REQUIRED_NOTEBOOKS = [
+    "01_exploracion_datos.ipynb",
+    "02_modelo_fraude.ipynb",
+    "03_evaluacion_modelo.ipynb",
+]
 
 REQUIRED_DATASET_COLUMNS = [
     "id_siniestro",
@@ -77,6 +90,29 @@ def validate() -> dict:
     if missing_ecuador:
         errors.append(f"missing ecuador extension columns: {missing_ecuador}")
 
+    missing_pdf = [c for c in PDF_DATASET_COLUMNS if c not in df.columns]
+    summary["pdf_extension_columns_present"] = [c for c in PDF_DATASET_COLUMNS if c in df.columns]
+    if missing_pdf:
+        errors.append(f"missing pdf extension columns: {missing_pdf}")
+
+    for table in COMPLEMENTARY_TABLES:
+        path = SYNTHETIC_DIR / table
+        if not path.exists():
+            errors.append(f"missing complementary table {path}")
+        elif path.suffix == ".csv":
+            rows = len(pd.read_csv(path))
+            summary[f"rows_{table.replace('.csv', '')}"] = rows
+            if rows < 1:
+                errors.append(f"empty complementary table {table}")
+
+    for doc in REQUIRED_DOCS:
+        if not (DOCS_DIR / doc).exists():
+            errors.append(f"missing doc {doc}")
+
+    for nb in REQUIRED_NOTEBOOKS:
+        if not (NOTEBOOKS_DIR / nb).exists():
+            errors.append(f"missing notebook {nb}")
+
     if df["id_siniestro"].duplicated().any():
         errors.append("duplicate id_siniestro")
     if df["id_siniestro"].isna().any():
@@ -128,8 +164,8 @@ def validate() -> dict:
         bench = json.loads(BENCHMARK_PATH.read_text(encoding="utf-8"))
         q_count = len(bench.get("questions", []))
         summary["benchmark_questions"] = q_count
-        if q_count < 5:
-            errors.append("benchmark preguntas insuficiente (<5)")
+        if q_count < 12:
+            errors.append("benchmark preguntas insuficiente (<12)")
 
     summary["ok"] = not errors
     summary["errors"] = errors

@@ -2,13 +2,23 @@
   "count": 12,
   "cases": [
     {
+      "id_siniestro": "SIN-000227",
+      "ramo": "vehiculos",
+      "ciudad": "Guayaquil",
+      "nivel_riesgo": "Rojo",
+      "score_final": 96.4,
+      "monto_reclamado": 5155.93,
+      "explicacion_demo": "El siniestro SIN-000227 fue clasificado como Rojo porque acumula señales de riesgo: Se registran inconsistencias documentales que requieren revisión.; El relato no es coherente con el tipo de impacto declarado.; El asegurado registra 3 siniestros previos.; Se detectó narrativa similar a otros reclamos del portafolio.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
+      "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
+    },
+    {
       "id_siniestro": "SIN-001178",
       "ramo": "vehiculos",
       "ciudad": "Quito",
       "nivel_riesgo": "Rojo",
-      "score_final": 96.79,
+      "score_final": 96.22,
       "monto_reclamado": 2985.68,
-      "explicacion_demo": "El siniestro SIN-001178 fue clasificado como Rojo porque acumula señales de riesgo: Se registran inconsistencias documentales que requieren revisión.; El asegurado registra 4 siniestros previos.; El conductor aparece asociado a múltiples siniestros.; El caso está asociado a un proveedor recurrente en casos observados.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
+      "explicacion_demo": "El siniestro SIN-001178 fue clasificado como Rojo porque acumula señales de riesgo: Se registran inconsistencias documentales que requieren revisión.; El relato no es coherente con el tipo de impacto declarado.; El asegurado registra 4 siniestros previos.; Se detectó narrativa similar a otros reclamos del portafolio.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
       "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
     },
     {
@@ -16,19 +26,9 @@
       "ramo": "vehiculos",
       "ciudad": "Guayaquil",
       "nivel_riesgo": "Rojo",
-      "score_final": 96.52,
+      "score_final": 96.11,
       "monto_reclamado": 3016.21,
-      "explicacion_demo": "El siniestro SIN-001733 fue clasificado como Rojo porque acumula señales de riesgo: Se registran inconsistencias documentales que requieren revisión.; El monto reclamado representa el 110% de la suma asegurada.; El caso está asociado a un proveedor recurrente en casos observados.; El caso está asociado a un beneficiario recurrente en casos observados.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
-      "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
-    },
-    {
-      "id_siniestro": "SIN-000227",
-      "ramo": "vehiculos",
-      "ciudad": "Guayaquil",
-      "nivel_riesgo": "Rojo",
-      "score_final": 96.33,
-      "monto_reclamado": 5155.93,
-      "explicacion_demo": "El siniestro SIN-000227 fue clasificado como Rojo porque acumula señales de riesgo: Se registran inconsistencias documentales que requieren revisión.; El asegurado registra 3 siniestros previos.; El conductor aparece asociado a múltiples siniestros.; El caso está asociado a un proveedor recurrente en casos observados.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
+      "explicacion_demo": "El siniestro SIN-001733 fue clasificado como Rojo porque acumula señales de riesgo: Se registran inconsistencias documentales que requieren revisión.; El relato no es coherente con el tipo de impacto declarado.; Se detectó narrativa similar a otros reclamos del portafolio.; El monto reclamado representa el 110% de la suma asegurada.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
       "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
     },
     {
@@ -36,89 +36,89 @@
       "ramo": "vehiculos",
       "ciudad": "Guayaquil",
       "nivel_riesgo": "Rojo",
-      "score_final": 96.13,
+      "score_final": 95.98,
       "monto_reclamado": 16195.74,
-      "explicacion_demo": "El siniestro SIN-001867 fue clasificado como Rojo porque acumula señales de riesgo: Se registran inconsistencias documentales que requieren revisión.; El conductor aparece asociado a múltiples siniestros.; El monto reclamado representa el 99% de la suma asegurada.; El caso está asociado a un proveedor recurrente en casos observados.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
+      "explicacion_demo": "El siniestro SIN-001867 fue clasificado como Rojo porque acumula señales de riesgo: Robo con monto reclamado cercano a la suma asegurada (posible pérdida total).; Se registran inconsistencias documentales que requieren revisión.; El proveedor coincide con la lista restrictiva SERCOP.; El proveedor o beneficiario coincide con la lista restrictiva SERCOP.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
       "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
     },
     {
-      "id_siniestro": "SIN-000007",
+      "id_siniestro": "SIN-001015",
       "ramo": "vehiculos",
       "ciudad": "Guayaquil",
       "nivel_riesgo": "Rojo",
-      "score_final": 95.62,
-      "monto_reclamado": 16863.9,
-      "explicacion_demo": "El siniestro SIN-000007 fue clasificado como Rojo porque acumula señales de riesgo: El siniestro ocurrió 1 días después del inicio de la póliza.; Se registran inconsistencias documentales que requieren revisión.; El evento de robo ocurrió 1 días después del inicio de la póliza.; El asegurado registra 3 siniestros previos.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
+      "score_final": 95.49,
+      "monto_reclamado": 18673.95,
+      "explicacion_demo": "El siniestro SIN-001015 fue clasificado como Rojo porque acumula señales de riesgo: Robo con monto reclamado cercano a la suma asegurada (posible pérdida total).; Se registran inconsistencias documentales que requieren revisión.; El proveedor coincide con la lista restrictiva SERCOP.; El proveedor o beneficiario coincide con la lista restrictiva SERCOP.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
       "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
     },
     {
-      "id_siniestro": "SIN-001307",
+      "id_siniestro": "SIN-000377",
       "ramo": "vehiculos",
       "ciudad": "Guayaquil",
       "nivel_riesgo": "Rojo",
-      "score_final": 95.62,
-      "monto_reclamado": 5476.57,
-      "explicacion_demo": "El siniestro SIN-001307 fue clasificado como Rojo porque acumula señales de riesgo: El asegurado registra 4 siniestros previos.; El conductor aparece asociado a múltiples siniestros.; El monto reclamado representa el 98% de la suma asegurada.; El caso está asociado a un proveedor recurrente en casos observados.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
+      "score_final": 95.46,
+      "monto_reclamado": 6604.8,
+      "explicacion_demo": "El siniestro SIN-000377 fue clasificado como Rojo porque acumula señales de riesgo: Se registran inconsistencias documentales que requieren revisión.; El relato no es coherente con el tipo de impacto declarado.; El asegurado registra 3 siniestros previos.; Se detectó narrativa similar a otros reclamos del portafolio.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
       "accion_sugerida": "Escalar a revisión antifraude especializada antes de continuar el flujo."
     },
     {
-      "id_siniestro": "SIN-000892",
-      "ramo": "hogar",
-      "ciudad": "Manta",
-      "nivel_riesgo": "Amarillo",
-      "score_final": 74.79,
-      "monto_reclamado": 10616.46,
-      "explicacion_demo": "El siniestro SIN-000892 fue clasificado como Amarillo porque acumula señales de riesgo: El asegurado registra 3 siniestros previos.; El caso está asociado a un proveedor recurrente en casos observados.; El caso está asociado a un beneficiario recurrente en casos observados.; El reclamo de hogar no registra inspección realizada.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
-      "accion_sugerida": "Solicitar revisión documental antes de continuar el flujo."
-    },
-    {
-      "id_siniestro": "SIN-000088",
-      "ramo": "hogar",
-      "ciudad": "Manta",
-      "nivel_riesgo": "Amarillo",
-      "score_final": 74.63,
-      "monto_reclamado": 11248.72,
-      "explicacion_demo": "El siniestro SIN-000088 fue clasificado como Amarillo porque acumula señales de riesgo: El caso está asociado a un proveedor recurrente en casos observados.; El caso está asociado a un beneficiario recurrente en casos observados.; El siniestro fue reportado 9 días después de la ocurrencia.; El reclamo de hogar no registra inspección realizada.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
-      "accion_sugerida": "Solicitar revisión documental antes de continuar el flujo."
-    },
-    {
-      "id_siniestro": "SIN-001870",
-      "ramo": "hogar",
-      "ciudad": "Manta",
-      "nivel_riesgo": "Amarillo",
-      "score_final": 74.62,
-      "monto_reclamado": 7697.96,
-      "explicacion_demo": "El siniestro SIN-001870 fue clasificado como Amarillo porque acumula señales de riesgo: El monto reclamado representa el 109% de la suma asegurada.; El caso está asociado a un proveedor recurrente en casos observados.; El caso está asociado a un beneficiario recurrente en casos observados.; El reclamo de hogar no registra inspección realizada.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
-      "accion_sugerida": "Solicitar revisión documental antes de continuar el flujo."
-    },
-    {
-      "id_siniestro": "SIN-000495",
+      "id_siniestro": "SIN-000279",
       "ramo": "salud",
       "ciudad": "Cuenca",
       "nivel_riesgo": "Amarillo",
-      "score_final": 74.58,
-      "monto_reclamado": 1088.53,
-      "explicacion_demo": "El siniestro SIN-000495 fue clasificado como Amarillo porque acumula señales de riesgo: El asegurado registra 3 siniestros previos.; El monto reclamado representa el 105% de la suma asegurada.; El caso está asociado a un proveedor recurrente en casos observados.; El caso está asociado a un beneficiario recurrente en casos observados.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
+      "score_final": 69.96,
+      "monto_reclamado": 649.8,
+      "explicacion_demo": "El siniestro SIN-000279 fue clasificado como Amarillo porque acumula señales de riesgo: El asegurado registra 4 siniestros previos.; Se detectó narrativa similar a otros reclamos del portafolio.; El caso está asociado a un proveedor recurrente en casos observados.; El caso está asociado a un beneficiario recurrente en casos observados.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
       "accion_sugerida": "Solicitar revisión documental antes de continuar el flujo."
     },
     {
-      "id_siniestro": "SIN-000651",
+      "id_siniestro": "SIN-001005",
       "ramo": "salud",
       "ciudad": "Cuenca",
       "nivel_riesgo": "Amarillo",
-      "score_final": 74.57,
-      "monto_reclamado": 816.91,
-      "explicacion_demo": "El siniestro SIN-000651 fue clasificado como Amarillo porque acumula señales de riesgo: El asegurado registra 3 siniestros previos.; El caso está asociado a un proveedor recurrente en casos observados.; El caso está asociado a un beneficiario recurrente en casos observados.; El siniestro fue reportado 12 días después de la ocurrencia.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
+      "score_final": 63.28,
+      "monto_reclamado": 835.22,
+      "explicacion_demo": "El siniestro SIN-001005 fue clasificado como Amarillo porque acumula señales de riesgo: El asegurado registra 3 siniestros previos.; Se detectó narrativa similar a otros reclamos del portafolio.; El caso está asociado a un proveedor recurrente en casos observados.; El caso está asociado a un beneficiario recurrente en casos observados.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
       "accion_sugerida": "Solicitar revisión documental antes de continuar el flujo."
     },
     {
-      "id_siniestro": "SIN-001552",
-      "ramo": "hogar",
-      "ciudad": "Manta",
+      "id_siniestro": "SIN-001449",
+      "ramo": "salud",
+      "ciudad": "Cuenca",
       "nivel_riesgo": "Amarillo",
-      "score_final": 74.27,
-      "monto_reclamado": 12050.41,
-      "explicacion_demo": "El siniestro SIN-001552 fue clasificado como Amarillo porque acumula señales de riesgo: El siniestro ocurrió 8 días después del inicio de la póliza.; El monto reclamado representa el 100% de la suma asegurada.; El caso está asociado a un proveedor recurrente en casos observados.; El caso está asociado a un beneficiario recurrente en casos observados.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
+      "score_final": 63.18,
+      "monto_reclamado": 841.88,
+      "explicacion_demo": "El siniestro SIN-001449 fue clasificado como Amarillo porque acumula señales de riesgo: Se detectó narrativa similar a otros reclamos del portafolio.; El caso está asociado a un proveedor recurrente en casos observados.; El caso está asociado a un beneficiario recurrente en casos observados.; El siniestro fue reportado 13 días después de la ocurrencia.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
+      "accion_sugerida": "Solicitar revisión documental antes de continuar el flujo."
+    },
+    {
+      "id_siniestro": "SIN-001765",
+      "ramo": "vehiculos",
+      "ciudad": "Guayaquil",
+      "nivel_riesgo": "Amarillo",
+      "score_final": 63.05,
+      "monto_reclamado": 19815.35,
+      "explicacion_demo": "El siniestro SIN-001765 fue clasificado como Amarillo porque acumula señales de riesgo: El relato no es coherente con el tipo de impacto declarado.; Se detectó narrativa similar a otros reclamos del portafolio.; El caso está asociado a un proveedor recurrente en casos observados.; El caso está asociado a un beneficiario recurrente en casos observados.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
+      "accion_sugerida": "Solicitar revisión documental antes de continuar el flujo."
+    },
+    {
+      "id_siniestro": "SIN-000867",
+      "ramo": "salud",
+      "ciudad": "Cuenca",
+      "nivel_riesgo": "Amarillo",
+      "score_final": 63.0,
+      "monto_reclamado": 988.87,
+      "explicacion_demo": "El siniestro SIN-000867 fue clasificado como Amarillo porque acumula señales de riesgo: El asegurado registra 3 siniestros previos.; Se detectó narrativa similar a otros reclamos del portafolio.; El caso está asociado a un proveedor recurrente en casos observados.; El caso está asociado a un beneficiario recurrente en casos observados.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
+      "accion_sugerida": "Solicitar revisión documental antes de continuar el flujo."
+    },
+    {
+      "id_siniestro": "SIN-000621",
+      "ramo": "generales",
+      "ciudad": "Cuenca",
+      "nivel_riesgo": "Amarillo",
+      "score_final": 62.31,
+      "monto_reclamado": 1168.65,
+      "explicacion_demo": "El siniestro SIN-000621 fue clasificado como Amarillo porque acumula señales de riesgo: El relato no es coherente con el tipo de impacto declarado.; Se detectó narrativa similar a otros reclamos del portafolio.; El monto reclamado representa el 98% de la suma asegurada.; El caso está asociado a un proveedor recurrente en casos observados.. El resultado es una priorización para revisión humana, no una acusación de fraude.",
       "accion_sugerida": "Solicitar revisión documental antes de continuar el flujo."
     }
   ]

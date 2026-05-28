@@ -63,54 +63,18 @@ def _recurrent_party_rules(claim: Claim) -> list[RuleResult]:
 
 
 def _sercop_sanctions_rule(claim: Claim) -> list[RuleResult]:
-    from pathlib import Path
-    import csv
-
-    # Path to Carlos' newly extracted SERCOP CSV
-    sercop_path = Path("data/raw/ecuador/sercop_sanciones_2021_2026.csv")
-    if not sercop_path.exists():
-        return []
-
-    provider_id = str(claim.get("id_proveedor", "")).strip()
-    if not provider_id:
-        return []
-
-    try:
-        # Load sanctioned RUCs from the CSV
-        sanctioned_rucs: dict[str, dict[str, str]] = {}
-        with sercop_path.open(encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                ruc = str(row.get("ruc", "")).strip()
-                if ruc:
-                    sanctioned_rucs[ruc] = row
-
-        # Check if claimant's provider matches any RUC in the SERCOP database
-        if provider_id in sanctioned_rucs:
-            record = sanctioned_rucs[provider_id]
-            reason = record.get("motivo_corto", "Sancionado por SERCOP")
-            tipo = record.get("tipo_sancion", "Sanción")
-            plazo = record.get("plazo_dias", "")
-            msg = f"El proveedor {provider_id} está oficialmente sancionado por SERCOP. Motivo: {reason}."
-            if plazo:
-                msg += f" Plazo de inhabilitación: {plazo} días."
-
-            return [RuleResult(
-                code="RB-012",
-                name="Proveedor sancionado por SERCOP",
-                points=10,  # Critical point weight since it is a real-world legal sanction!
-                severity="critica",
-                message=msg,
-                evidence={
-                    "id_proveedor": provider_id,
-                    "sercop_motivo": reason,
-                    "sercop_tipo": tipo,
-                    "sercop_plazo_dias": plazo,
-                    "sercop_fecha_emision": record.get("fecha_emision", ""),
-                },
-                category="legal",
-            )]
-    except Exception:
-        return []
-
+    if as_bool(claim.get("lista_restrictiva_sercop")):
+        return [RuleResult(
+            code="RB-012",
+            name="Proveedor en lista restrictiva SERCOP",
+            points=10,
+            severity="critica",
+            message="El proveedor coincide con la lista restrictiva SERCOP.",
+            evidence={
+                "supplier_ruc": claim.get("supplier_ruc"),
+                "lista_restrictiva_sercop": True,
+            },
+            category="legal",
+            pdf_ref="RF-03",
+        )]
     return []

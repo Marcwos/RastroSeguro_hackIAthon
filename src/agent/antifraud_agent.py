@@ -68,6 +68,16 @@ def _dispatch(intent: str, claim_id: str | None, limit: int, question: str) -> A
         return error(intent, "Para simular necesito recibir los datos del nuevo siniestro desde el formulario de Justin.")
     if intent == "documentacion":
         return search_docs(question)
+    if intent == "recomendar_revision":
+        return tools.recommend_review_order(limit=limit)
+    if intent == "frecuencia_asegurados":
+        return tools.get_insured_claim_frequency(limit=limit)
+    if intent == "montos_atipicos":
+        return tools.get_atypical_amount_claims(limit=limit)
+    if intent == "borde_vigencia":
+        return tools.get_policy_start_border_cases(limit=limit)
+    if intent == "patrones_repetidos":
+        return tools.get_repeated_patterns(limit=limit)
     return tools.get_top_risky_claims(limit=limit)
 
 
@@ -83,6 +93,11 @@ def _message_for(intent: str) -> str:
         "narrativas_similares": "Narrativas similares detectadas para el siniestro solicitado.",
         "conexiones_grafo": "Conexiones y entidades recurrentes del siniestro solicitado.",
         "documentacion": "Respuesta basada en documentación interna del proyecto.",
+        "recomendar_revision": "Casos recomendados para revisión prioritaria.",
+        "frecuencia_asegurados": "Asegurados con mayor frecuencia de reclamos.",
+        "montos_atipicos": "Casos con montos atípicos frente a la suma asegurada.",
+        "borde_vigencia": "Siniestros ocurridos cerca del inicio de la póliza.",
+        "patrones_repetidos": "Patrones recurrentes en reclamos sospechosos.",
     }
     return messages.get(intent, "Respuesta generada desde herramientas verificables.")
 

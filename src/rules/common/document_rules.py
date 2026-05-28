@@ -33,6 +33,7 @@ def evaluate_document_rules(claim: Claim) -> list[RuleResult]:
             message="Se registran inconsistencias documentales que requieren revisión.",
             evidence={"documentos_inconsistentes": claim.get("documentos_inconsistentes")},
             category="documentos",
+            pdf_ref="RF-02",
         ))
 
     return results

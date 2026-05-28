@@ -19,9 +19,10 @@ class RuleResult:
     message: str
     evidence: dict[str, Any] = field(default_factory=dict)
     category: str = "general"
+    pdf_ref: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        payload = {
             "code": self.code,
             "name": self.name,
             "points": round(float(self.points), 2),
@@ -30,3 +31,6 @@ class RuleResult:
             "evidence": self.evidence,
             "category": self.category,
         }
+        if self.pdf_ref:
+            payload["pdf_ref"] = self.pdf_ref
+        return payload

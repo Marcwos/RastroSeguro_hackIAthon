@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from src.data.export_complementary_tables import export_complementary_tables
 from src.data.export_features import DEFAULT_OUTPUT as FEATURES_PATH
 from src.data.export_features import export_features
 from src.data.generate_synthetic_data import generate_dataset, validate_dataset
@@ -108,6 +109,8 @@ def run_all(rows: int = 25000, seed: int = 42, scoring_rows: int = 3000) -> dict
     qa_path = SINIESTROS_PATH.parent / "siniestros_qa.json"
     qa_path.write_text(json.dumps(qa_dataset, ensure_ascii=False, indent=2), encoding="utf-8")
 
+    complementary_paths = export_complementary_tables(SINIESTROS_PATH)
+
     features_path = export_features()
     classifier_path = train_classifier()
     anomaly_path = train_anomaly()
@@ -130,6 +133,7 @@ def run_all(rows: int = 25000, seed: int = 42, scoring_rows: int = 3000) -> dict
         "dataset_qa": qa_dataset,
         "scoring_rows": scoring_rows,
         "ecuador_lineage": df["data_source_lineage"].iloc[0] if "data_source_lineage" in df.columns and len(df) else "",
+        "complementary_tables": complementary_paths,
     }
 
 

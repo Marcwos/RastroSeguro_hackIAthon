@@ -105,4 +105,30 @@ def evaluate_vehicle_rules(claim: Claim) -> list[RuleResult]:
             category="vehiculos",
         ))
 
+    cobertura = str(claim.get("cobertura", "")).lower()
+    if cobertura == "rc" and int(_num(claim.get("historial_siniestros_vehiculo"))) >= 2:
+        results.append(RuleResult(
+            code="RV-008",
+            name="Alta frecuencia de reclamos solo RC",
+            points=6,
+            severity="alta",
+            message="El vehículo registra múltiples siniestros de responsabilidad civil.",
+            evidence={"historial_siniestros_vehiculo": claim.get("historial_siniestros_vehiculo")},
+            category="vehiculos",
+        ))
+
+    if "robo" in cobertura:
+        dias_reporte = int(_num(claim.get("dias_entre_ocurrencia_reporte")))
+        if dias_reporte > 2:
+            points = 8 if dias_reporte > 2 else 4
+            results.append(RuleResult(
+                code="RV-009",
+                name="Demora en denuncia de robo (>48h)",
+                points=points,
+                severity="alta" if dias_reporte > 2 else "media",
+                message=f"La denuncia de robo se realizó {dias_reporte} días después del evento.",
+                evidence={"dias_entre_ocurrencia_reporte": dias_reporte, "cobertura": cobertura},
+                category="vehiculos",
+            ))
+
     return results

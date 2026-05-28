@@ -114,3 +114,63 @@ def get_graph_connections(id_siniestro: str, data_path: Path = OUTPUT_PATH) -> d
 
 def compare_branches(data_path: Path = OUTPUT_PATH) -> list[dict[str, Any]]:
     return get_risk_by_branch(data_path=data_path)
+
+
+def get_insured_claim_frequency(limit: int = 10, data_path: Path = OUTPUT_PATH) -> list[dict[str, Any]]:
+    df = _load_scored(data_path)
+    grouped = df.groupby("id_asegurado", dropna=False).agg(
+        total_reclamos=("id_siniestro", "count"),
+        score_promedio=("score_final", "mean"),
+        casos_rojos=("nivel_riesgo", lambda s: int((s.astype(str).str.lower() == "rojo").sum())),
+    ).reset_index()
+    grouped["score_promedio"] = grouped["score_promedio"].round(2)
+    return grouped.sort_values(["total_reclamos", "casos_rojos"], ascending=False).head(limit).to_dict("records")
+
+
+def get_atypical_amount_claims(limit: int = 10, data_path: Path = OUTPUT_PATH) -> list[dict[str, Any]]:
+    df = _load_scored(data_path)
+    if "suma_asegurada" not in df.columns:
+        return []
+    ratio = df["monto_reclamado"].astype(float) / df["suma_asegurada"].astype(float).clip(lower=1)
+    mask = ratio >= 0.9
+    cols = [c for c in ["id_siniestro", "ramo", "monto_reclamado", "suma_asegurada", "score_final", "nivel_riesgo"] if c in df.columns]
+    out = df.loc[mask, cols].copy()
+    out["ratio_monto_suma"] = ratio[mask].round(4)
+    return out.sort_values("score_final", ascending=False).head(limit).to_dict("records")
+
+
+def get_policy_start_border_cases(limit: int = 10, data_path: Path = OUTPUT_PATH) -> list[dict[str, Any]]:
+    df = _load_scored(data_path)
+    if "dias_desde_inicio_poliza" not in df.columns:
+        return []
+    mask = df["dias_desde_inicio_poliza"].astype(int) <= 30
+    cols = [c for c in ["id_siniestro", "ramo", "dias_desde_inicio_poliza", "score_final", "nivel_riesgo", "fecha_ocurrencia"] if c in df.columns]
+    return df.loc[mask].sort_values("score_final", ascending=False).head(limit)[cols].to_dict("records")
+
+
+def get_repeated_patterns(limit: int = 10, data_path: Path = OUTPUT_PATH) -> list[dict[str, Any]]:
+    df = _load_scored(data_path)
+    patterns: list[dict[str, Any]] = []
+    if "alerta_narrativa" in df.columns:
+        narr = df[df["alerta_narrativa"].astype(str).str.lower().isin({"true", "1", "yes"})]
+        if len(narr):
+            patterns.append({"patron": "narrativas_similares", "casos": int(len(narr))})
+    if "alerta_red" in df.columns:
+        red = df[df["alerta_red"].astype(str).str.lower().isin({"true", "1", "yes"})]
+        if len(red):
+            patterns.append({"patron": "entidades_recurrentes", "casos": int(len(red))})
+    if "lista_restrictiva_sercop" in df.columns:
+        sercop = df[df["lista_restrictiva_sercop"].astype(bool)]
+        if len(sercop):
+            patterns.append({"patron": "lista_restrictiva_sercop", "casos": int(len(sercop))})
+    provider = (
+        df.groupby("id_proveedor")
+        .size()
+        .reset_index(name="casos")
+        .sort_values("casos", ascending=False)
+        .head(limit)
+    )
+    for _, row in provider.iterrows():
+        if row["casos"] >= 5:
+            patterns.append({"patron": "proveedor_recurrente", "id_proveedor": row["id_proveedor"], "casos": int(row["casos"])})
+    return patterns[:limit]

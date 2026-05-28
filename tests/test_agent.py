@@ -46,6 +46,30 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(response["intent"], "top_riesgo")
         self.assertIn("data/processed/siniestros_scored.csv", response["hint"])
 
+    def test_agent_routes_pdf_questions(self):
+        fake_df = __import__("pandas").DataFrame(
+            [
+                {
+                    "id_siniestro": "SIN-0001",
+                    "id_asegurado": "ASEG-1",
+                    "id_proveedor": "PROV-1",
+                    "ramo": "vehiculos",
+                    "ciudad": "Quito",
+                    "monto_reclamado": 9000,
+                    "suma_asegurada": 10000,
+                    "score_final": 90,
+                    "nivel_riesgo": "Rojo",
+                    "documentos_completos": "No",
+                    "dias_desde_inicio_poliza": 5,
+                    "accion_sugerida": "Revisar",
+                }
+            ]
+        )
+        with patch("src.agent.tools._load_scored", return_value=fake_df):
+            response = answer_question("¿Qué asegurados tienen mayor frecuencia de reclamos?")
+        self.assertTrue(response["ok"])
+        self.assertEqual(response["intent"], "frecuencia_asegurados")
+
     def test_agent_wraps_tool_success(self):
         with patch("src.agent.tools.get_provider_risk_ranking", return_value=[{"id_proveedor": "PROV-1"}]) as tool:
             response = answer_question("top 3 proveedores")

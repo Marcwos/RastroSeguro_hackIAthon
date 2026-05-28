@@ -64,7 +64,17 @@ CONTRACT_COLUMNS = [
     "conductor_recurrente",
 ]
 
-OUTPUT_COLUMNS = CONTRACT_COLUMNS + [c for c in ECUADOR_EXTENSION_COLUMNS if c not in CONTRACT_COLUMNS]
+PDF_EXTENSION_COLUMNS = [
+    "monto_pagado",
+    "estado",
+    "sucursal",
+    "chasis_hash",
+    "motor_hash",
+]
+
+OUTPUT_COLUMNS = CONTRACT_COLUMNS + PDF_EXTENSION_COLUMNS + [
+    c for c in ECUADOR_EXTENSION_COLUMNS if c not in CONTRACT_COLUMNS
+]
 
 SIGNAL_COLUMNS = {
     "borde_vigencia": "signal_borde_vigencia",
@@ -105,9 +115,21 @@ def _from_canonical(df: pd.DataFrame) -> pd.DataFrame:
         lambda v: str(v).strip().lower() in {"no", "false", "0"}
     )
 
+    if "monto_pagado" in df.columns:
+        out["monto_pagado"] = pd.to_numeric(df["monto_pagado"], errors="coerce").fillna(0).round(2)
+    else:
+        out["monto_pagado"] = (out["monto_estimado"].astype(float) * 0.5).round(2)
+    if "estado" in df.columns:
+        out["estado"] = df["estado"].fillna("Reserva")
+    else:
+        out["estado"] = "Reserva"
+    out["sucursal"] = out.get("sucursal", out["ciudad"])
+
     is_vehicle = out["ramo"].astype(str).str.lower() == "vehiculos"
     out["id_vehiculo"] = out["id_asegurado"].where(is_vehicle, "")
     out["placa_hash"] = out["id_siniestro"].str[-6:].where(is_vehicle, "")
+    out["chasis_hash"] = out["id_siniestro"].str[-8:].where(is_vehicle, "")
+    out["motor_hash"] = out["id_siniestro"].str[-10:-4].where(is_vehicle, "")
     out["marca"] = "Toyota"
     out["modelo"] = "Corolla"
     out["anio"] = 2018
@@ -256,7 +278,10 @@ def _generate_fresh(rows: int, seed: int) -> pd.DataFrame:
         ff = fo + timedelta(days=dias_fin)
         fr = fo + timedelta(days=dias_reporte)
         monto = round(max(300, rng.gauss(6000, 4000)), 2)
+        monto_est = round(monto * rng.uniform(0.8, 1.05), 2)
         suma = round(monto * rng.uniform(1.1, 2.0), 2)
+        monto_pagado = round(monto_est * rng.uniform(0.0, 1.0), 2)
+        estados = ["Reserva", "Liquidado", "Pago Parcial", "Pago Total", "Negativa"]
         historial = max(0, int(rng.gauss(1.0, 1.2)))
         fraude = 1 if (dias_ini <= 15 and monto > suma * 0.9) or historial >= 3 else int(rng.random() < 0.08)
         docs_ok = fraude == 0 or rng.random() > 0.4
@@ -268,6 +293,9 @@ def _generate_fresh(rows: int, seed: int) -> pd.DataFrame:
                 "ramo": ramo,
                 "cobertura": cobertura,
                 "ciudad": ciudad,
+                "sucursal": ciudad,
+                "monto_pagado": monto_pagado,
+                "estado": rng.choice(estados),
                 "id_proveedor": f"PROV-{rng.randint(1, 200):03d}",
                 "beneficiario": f"Taller/Clinica {rng.randint(1, 80)}",
                 "fecha_inicio_poliza": fi.date().isoformat(),
@@ -275,7 +303,7 @@ def _generate_fresh(rows: int, seed: int) -> pd.DataFrame:
                 "fecha_ocurrencia": fo.date().isoformat(),
                 "fecha_reporte": fr.date().isoformat(),
                 "monto_reclamado": monto,
-                "monto_estimado": round(monto * rng.uniform(0.8, 1.05), 2),
+                "monto_estimado": monto_est,
                 "suma_asegurada": suma,
                 "descripcion": f"Siniestro {cobertura} en {ciudad} para revisión antifraude.",
                 "documentos_completos": "Sí" if docs_ok else "No",
@@ -287,6 +315,8 @@ def _generate_fresh(rows: int, seed: int) -> pd.DataFrame:
                 "dias_entre_ocurrencia_reporte": dias_reporte,
                 "id_vehiculo": f"VEH-{rng.randint(1, 4000):05d}" if ramo == "vehiculos" else "",
                 "placa_hash": f"PL{i % 10000:04d}" if ramo == "vehiculos" else "",
+                "chasis_hash": f"CH{i % 10000:04d}" if ramo == "vehiculos" else "",
+                "motor_hash": f"MO{i % 10000:04d}" if ramo == "vehiculos" else "",
                 "marca": "Toyota" if ramo == "vehiculos" else "",
                 "modelo": "Corolla" if ramo == "vehiculos" else "",
                 "anio": 2018 if ramo == "vehiculos" else None,
@@ -322,6 +352,11 @@ def validate_dataset(df: pd.DataFrame) -> dict:
         "ramo",
         "fecha_ocurrencia",
         "monto_reclamado",
+        "monto_pagado",
+        "estado",
+        "sucursal",
+        "chasis_hash",
+        "motor_hash",
         "etiqueta_fraude_simulada",
     ]
     for col in required:

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any, Callable
 
 from src.rules.base_rules import evaluate_base_rules
+from src.rules.critical_rules import evaluate_critical_rules
 from src.rules.general_rules import evaluate_general_rules
 from src.rules.health_rules import evaluate_health_rules
 from src.rules.home_rules import evaluate_home_rules
@@ -39,6 +40,7 @@ BRANCH_RULES: dict[str, list[RuleEvaluator]] = {
 def evaluate_rules(claim: Claim) -> list[RuleResult]:
     """Evaluate base and branch-specific rules for a claim."""
     results = evaluate_base_rules(claim)
+    results.extend(evaluate_critical_rules(claim))
     branch = str(claim.get("ramo", "")).strip().lower()
     for evaluator in BRANCH_RULES.get(branch, []):
         results.extend(evaluator(claim))
