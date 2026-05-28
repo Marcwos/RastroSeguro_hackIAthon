@@ -152,3 +152,25 @@ def ecuador_coverage_metrics(df: pd.DataFrame) -> dict[str, float]:
         "ecu911_provincia_rate": round(float(df.get("provincia", pd.Series(dtype=str)).notna().mean()), 4),
         "lineage_with_sercop_rate": round(float(lineage.str.contains("sercop").mean()), 4),
     }
+
+
+def ecuador_source_usage_metrics(df: pd.DataFrame) -> dict[str, float]:
+    """Track practical usage rates for each Ecuador source signal."""
+    if len(df) == 0:
+        return {
+            "sercop_usage_rate": 0.0,
+            "ocds_usage_rate": 0.0,
+            "ecu911_usage_rate": 0.0,
+            "inec_usage_rate": 0.0,
+        }
+    lineage = df.get("data_source_lineage", pd.Series(dtype=str)).astype(str)
+    supplier_score = pd.to_numeric(df.get("supplier_risk_signal_score", 0), errors="coerce").fillna(0)
+    provincia = df.get("provincia", pd.Series(dtype=str)).astype(str)
+    return {
+        "sercop_usage_rate": round(
+            float((df.get("lista_restrictiva_sercop", False).astype(bool) | lineage.str.contains("sercop")).mean()), 4
+        ),
+        "ocds_usage_rate": round(float((supplier_score > 0).mean()), 4),
+        "ecu911_usage_rate": round(float((provincia.str.len() > 0).mean()), 4),
+        "inec_usage_rate": round(float(lineage.str.contains("inec").mean()), 4),
+    }

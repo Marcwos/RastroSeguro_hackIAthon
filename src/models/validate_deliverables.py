@@ -134,6 +134,10 @@ def validate() -> dict:
     for required in (METRICS_PATH, STAR_CASES_PATH, SCORED_PATH):
         if not required.exists():
             errors.append(f"missing {required}")
+    if SCORED_PATH.exists():
+        sdf = pd.read_csv(SCORED_PATH, nrows=50)
+        if "rule_trace" not in sdf.columns:
+            errors.append("missing rule_trace in siniestros_scored.csv")
 
     if not QA_PATH.exists():
         errors.append(f"missing {QA_PATH}")
@@ -150,6 +154,16 @@ def validate() -> dict:
             errors.append("ecuador supplier_ruc_real_rate below 0.5")
         if ecuador.get("lista_restrictiva_rate", 0) < 0.001:
             errors.append("ecuador lista_restrictiva_rate below 0.001")
+        source_usage = qa.get("ecuador_source_usage", {})
+        summary["ecuador_source_usage"] = source_usage
+        if source_usage.get("sercop_usage_rate", 0) < 0.95:
+            errors.append("ecuador sercop_usage_rate below 0.95")
+        if source_usage.get("ocds_usage_rate", 0) < 0.5:
+            errors.append("ecuador ocds_usage_rate below 0.5")
+        if source_usage.get("ecu911_usage_rate", 0) < 0.95:
+            errors.append("ecuador ecu911_usage_rate below 0.95")
+        if source_usage.get("inec_usage_rate", 0) < 0.95:
+            errors.append("ecuador inec_usage_rate below 0.95")
 
     if STAR_CASES_PATH.exists():
         payload = json.loads(STAR_CASES_PATH.read_text(encoding="utf-8"))

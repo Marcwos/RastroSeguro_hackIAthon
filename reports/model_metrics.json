@@ -1,10 +1,10 @@
 {
   "fraud_classifier": {
     "accuracy": 0.9978,
-    "precision": 0.9984,
-    "recall": 0.993,
+    "precision": 1.0,
+    "recall": 0.9915,
     "f1": 0.9957,
-    "auc": 0.9999,
+    "auc": 1.0,
     "train_rows": 20000,
     "test_rows": 5000,
     "positive_rate": 0.2579,
@@ -14,15 +14,15 @@
         51,
         61
       ],
-      "f1_mean": 0.9893,
-      "f1_min": 0.9884,
-      "f1_max": 0.99,
+      "f1_mean": 0.9899,
+      "f1_min": 0.988,
+      "f1_max": 0.9914,
       "auc_mean": 0.9998
     }
   },
   "anomaly_detector": {
     "anomaly_rate": 0.2579,
-    "fraud_overlap_in_anomalies": 0.5373,
+    "fraud_overlap_in_anomalies": 0.5541,
     "rows": 25000,
     "stability": {
       "seeds": [
@@ -33,7 +33,7 @@
       "anomaly_rate_mean": 0.2579,
       "anomaly_rate_min": 0.2579,
       "anomaly_rate_max": 0.2579,
-      "overlap_mean": 0.5397
+      "overlap_mean": 0.524
     }
   }
 }

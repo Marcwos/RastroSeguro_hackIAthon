@@ -53,7 +53,7 @@ def _recurrent_party_rules(claim: Claim) -> list[RuleResult]:
             results.append(RuleResult(
                 code=code,
                 name=name,
-                points=6,
+                points=3,
                 severity="alta",
                 message=f"El caso está asociado a un {name.lower()} en casos observados.",
                 evidence={field: claim.get(field)},

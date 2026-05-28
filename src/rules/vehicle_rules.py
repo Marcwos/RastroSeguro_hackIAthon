@@ -87,7 +87,7 @@ def evaluate_vehicle_rules(claim: Claim) -> list[RuleResult]:
         results.append(RuleResult(
             code="RV-006",
             name="Conductor recurrente",
-            points=8,
+            points=4,
             severity="alta",
             message="El conductor aparece asociado a múltiples siniestros.",
             evidence={"conductor_recurrente": claim.get("conductor_recurrente")},
@@ -119,13 +119,13 @@ def evaluate_vehicle_rules(claim: Claim) -> list[RuleResult]:
 
     if "robo" in cobertura:
         dias_reporte = int(_num(claim.get("dias_entre_ocurrencia_reporte")))
-        if dias_reporte > 2:
-            points = 8 if dias_reporte > 2 else 4
+        if dias_reporte > 4:
+            points = 6
             results.append(RuleResult(
                 code="RV-009",
                 name="Demora en denuncia de robo (>48h)",
                 points=points,
-                severity="alta" if dias_reporte > 2 else "media",
+                severity="alta",
                 message=f"La denuncia de robo se realizó {dias_reporte} días después del evento.",
                 evidence={"dias_entre_ocurrencia_reporte": dias_reporte, "cobertura": cobertura},
                 category="vehiculos",

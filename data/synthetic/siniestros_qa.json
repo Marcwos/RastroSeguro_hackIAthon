@@ -39,6 +39,12 @@
     "ecu911_provincia_rate": 1.0,
     "lineage_with_sercop_rate": 1.0
   },
+  "ecuador_source_usage": {
+    "sercop_usage_rate": 1.0,
+    "ocds_usage_rate": 1.0,
+    "ecu911_usage_rate": 1.0,
+    "inec_usage_rate": 1.0
+  },
   "ok": true,
   "issues": []
 }

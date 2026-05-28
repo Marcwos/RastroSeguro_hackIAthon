@@ -9,10 +9,18 @@ from src.rules.models import RuleResult
 
 Claim = dict[str, Any]
 
+FRENTE = "de frente"
+DETRAS = "por detrás"
+
 _IMPACT_KEYWORDS = {
-    "frontal": ["frontal", "de frente", "encounter"],
-    "posterior": ["posterior", "por detrás", "alcance"],
+    "frontal": ["frontal", FRENTE, "encounter"],
+    "posterior": ["posterior", DETRAS, "alcance"],
     "lateral": ["lateral", "costado", "interseccion"],
+}
+_IMPACT_CONTRADICTIONS = {
+    "frontal": ["posterior", DETRAS, "choque por alcance"],
+    "posterior": ["frontal", FRENTE, "impacto frontal"],
+    "lateral": ["frontal", "posterior", FRENTE, DETRAS],
 }
 
 
@@ -70,12 +78,13 @@ def _rf03_lista_restrictiva(claim: Claim) -> list[RuleResult]:
 def _rf04_dinamica_imposible(claim: Claim) -> list[RuleResult]:
     impacto = str(claim.get("tipo_impacto", "")).lower()
     descripcion = str(claim.get("descripcion", "")).lower()
+    tipo_evento = str(claim.get("tipo_evento", claim.get("cobertura", ""))).lower()
     if not impacto or impacto not in _IMPACT_KEYWORDS:
         return []
-    keywords = _IMPACT_KEYWORDS[impacto]
-    if any(kw in descripcion for kw in keywords):
+    if all(token not in tipo_evento for token in ("choque", "accidente", "colision")):
         return []
-    if len(descripcion.split()) < 6:
+    contradictions = _IMPACT_CONTRADICTIONS.get(impacto, [])
+    if not any(kw in descripcion for kw in contradictions):
         return []
     return [RuleResult(
         code="RF-04",
@@ -133,7 +142,7 @@ def _rf06_demora_robo(claim: Claim) -> list[RuleResult]:
 
 
 def _rf07_narrativa_clonada(claim: Claim) -> list[RuleResult]:
-    if as_bool(claim.get("alerta_narrativa")):
+    if as_bool(claim.get("alerta_narrativa")) and str(claim.get("nivel_alerta_nlp", "")).lower() in {"alta", "high"}:
         return [RuleResult(
             code="RF-07",
             name="Narrativa idéntica o clonada",

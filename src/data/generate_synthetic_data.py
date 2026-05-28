@@ -13,6 +13,7 @@ import pandas as pd
 from src.data.ecuador_context import (
     ECUADOR_EXTENSION_COLUMNS,
     ecuador_coverage_metrics,
+    ecuador_source_usage_metrics,
     enrich_with_ecuador_context,
     load_restricted_rucs,
 )
@@ -366,6 +367,7 @@ def validate_dataset(df: pd.DataFrame) -> dict:
             issues.append(f"nulos en {col}")
     coverage = _signal_coverage(df)
     ecuador_coverage = ecuador_coverage_metrics(df)
+    source_usage = ecuador_source_usage_metrics(df)
     by_ramo = df["ramo"].value_counts(normalize=True).round(4).to_dict()
     by_city = df["ciudad"].value_counts(normalize=True).round(4).head(10).to_dict()
     by_provincia = (
@@ -382,6 +384,7 @@ def validate_dataset(df: pd.DataFrame) -> dict:
         "distribution_by_provincia_top10": by_provincia,
         "signal_coverage": coverage,
         "ecuador_coverage": ecuador_coverage,
+        "ecuador_source_usage": source_usage,
         "ok": not issues,
         "issues": issues,
     }
@@ -401,12 +404,22 @@ def validate_dataset(df: pd.DataFrame) -> dict:
     if weak_ecuador:
         qa["ok"] = False
         qa["issues"].append(f"cobertura Ecuador insuficiente: {weak_ecuador}")
+    source_floors = {
+        "sercop_usage_rate": 0.95,
+        "ocds_usage_rate": 0.5,
+        "ecu911_usage_rate": 0.95,
+        "inec_usage_rate": 0.95,
+    }
+    weak_sources = [k for k, floor in source_floors.items() if source_usage.get(k, 0.0) < floor]
+    if weak_sources:
+        qa["ok"] = False
+        qa["issues"].append(f"uso de fuentes Ecuador insuficiente: {weak_sources}")
     return qa
 
 
 def _signal_coverage(df: pd.DataFrame) -> dict[str, float]:
     if len(df) == 0:
-        return {name: 0.0 for name in SIGNAL_COLUMNS}
+        return dict.fromkeys(SIGNAL_COLUMNS, 0.0)
 
     provider_counts = df["id_proveedor"].value_counts()
     beneficiary_counts = df["beneficiario"].value_counts()

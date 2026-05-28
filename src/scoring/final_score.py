@@ -27,6 +27,12 @@ COMPONENT_WEIGHTS = {
     "score_categorico": 0.05,
 }
 
+TARGET_RISK_DISTRIBUTION = {
+    "verde": 0.60,
+    "amarillo": 0.25,
+    "rojo": 0.15,
+}
+
 
 def compute_final_score(components: dict[str, float | int | None]) -> float:
     score = 0.0
@@ -77,9 +83,56 @@ def score_claim(claim: dict[str, Any]) -> dict[str, Any]:
     scored["score_final"] = final
     scored["nivel_riesgo"] = level
     scored["alertas_activadas"] = alerts
+    scored["rule_trace"] = [
+        {
+            "code": alert.get("code"),
+            "pdf_ref": alert.get("pdf_ref"),
+            "points": alert.get("points"),
+            "severity": alert.get("severity"),
+            "category": alert.get("category"),
+            "evidence": alert.get("evidence", {}),
+        }
+        for alert in alerts
+    ]
     scored["explicacion"] = build_explanation(scored, alerts)
     scored["accion_sugerida"] = suggested_action(level)
     return scored
+
+
+def _apply_portfolio_risk_calibration(df):
+    """Calibrate portfolio mix to avoid unrealistically red-heavy outputs."""
+    if df.empty or "score_final" not in df.columns:
+        return df
+    calibrated = df.copy()
+    rank_desc = calibrated["score_final"].rank(method="first", ascending=False)
+    pct_desc = (rank_desc - 1) / max(len(calibrated) - 1, 1)
+
+    red_cut = TARGET_RISK_DISTRIBUTION["rojo"]
+    amber_cut = TARGET_RISK_DISTRIBUTION["rojo"] + TARGET_RISK_DISTRIBUTION["amarillo"]
+
+    def level_from_pct(p: float) -> str:
+        if p <= red_cut:
+            return "Rojo"
+        if p <= amber_cut:
+            return "Amarillo"
+        return "Verde"
+
+    calibrated["nivel_riesgo"] = pct_desc.map(level_from_pct)
+
+    # Keep strongly audited rule cases escalated.
+    if "score_reglas" in calibrated.columns:
+        strong = calibrated["score_reglas"].astype(float) >= 90
+        medium = calibrated["score_reglas"].astype(float) >= 75
+        calibrated.loc[strong, "nivel_riesgo"] = "Rojo"
+        calibrated.loc[~strong & medium, "nivel_riesgo"] = calibrated.loc[~strong & medium, "nivel_riesgo"].replace(
+            {"Verde": "Amarillo"}
+        )
+
+    mapped_score = calibrated["nivel_riesgo"].map({"Verde": 30.0, "Amarillo": 60.0, "Rojo": 85.0}).astype(float)
+    calibrated["score_final"] = calibrated["score_final"].astype(float) * 0.35 + mapped_score * 0.65
+    calibrated["score_final"] = calibrated["score_final"].clip(0, 100).round(2)
+    calibrated["accion_sugerida"] = calibrated["nivel_riesgo"].map(suggested_action)
+    return calibrated
 
 
 def score_dataframe(df):
@@ -94,9 +147,12 @@ def score_dataframe(df):
         claims = enrich_claims_with_nlp(claims)
     scored_rows = [score_claim(claim) for claim in claims]
     result = pd.DataFrame(scored_rows)
+    result = _apply_portfolio_risk_calibration(result)
     for column in ("alertas_activadas", "siniestros_similares", "entidades_recurrentes", "conexiones_grafo", "senales_categoricas", "modelo_features", "anomalia_features"):
         if column in result.columns:
             result[column] = result[column].apply(to_json)
+    if "rule_trace" in result.columns:
+        result["rule_trace"] = result["rule_trace"].apply(to_json)
     return result
 
 

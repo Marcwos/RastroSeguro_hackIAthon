@@ -13,6 +13,9 @@ def build_executive_report(claims: list[dict[str, Any]], top_limit: int = 10) ->
     counts = risk_counts(claims)
     red = counts["Rojo"]
     total_amount = round(sum(float(claim.get("monto_reclamado", 0) or 0) for claim in claims), 2)
+    pct_verde = round((counts["Verde"] / total) * 100, 2) if total else 0
+    pct_amarillo = round((counts["Amarillo"] / total) * 100, 2) if total else 0
+    pct_rojo = round((counts["Rojo"] / total) * 100, 2) if total else 0
 
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -22,6 +25,11 @@ def build_executive_report(claims: list[dict[str, Any]], top_limit: int = 10) ->
             "casos_amarillos": counts["Amarillo"],
             "casos_rojos": red,
             "porcentaje_rojo": round((red / total) * 100, 2) if total else 0,
+            "mix_riesgo_pct": {
+                "verde": pct_verde,
+                "amarillo": pct_amarillo,
+                "rojo": pct_rojo,
+            },
             "monto_total_reclamado": total_amount,
             "monto_reclamado_casos_rojos": exposed_amount(claims, "Rojo"),
         },
