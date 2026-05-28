@@ -1,60 +1,53 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { useAppState, ChatMessage } from '@/lib/app-context'
+import { useAppState } from '@/lib/app-context'
+import { ApiClientError, askAgent, getQuickQuestions } from '@/lib/api'
 import { MessageCircle, X, Send, Bot, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const quickQuestions = [
+const fallbackQuickQuestions = [
   '¿Por qué este caso tiene ese score?',
-  'Ver relaciones del caso'
+  'Ver relaciones del caso',
 ]
 
-function generateAIResponse(question: string, claim: any): string {
-  const q = question.toLowerCase()
-  
-  if (q.includes('score') || q.includes('por qué')) {
-    return `Revisé las señales disponibles del caso. El score de ${claim.score_final}/100 se debe a:\n\n• **Reglas**: ${claim.score_reglas} pts - ${claim.alertas_activadas[0] || 'Reglas de negocio aplicadas'}\n• **Monto y comportamiento**: ${claim.score_modelo} pts - Patrón de comportamiento inusual\n• **Narrativa**: ${claim.score_nlp} pts - Análisis de narrativa\n• **Relaciones**: ${claim.score_relaciones} pts - Conexiones con entidades de riesgo\n\nLa acción recomendada es: ${claim.accion_sugerida}`
-  }
-  
-  if (q.includes('relaciones') || q.includes('relaciones')) {
-    return `El análisis de relaciones revela:\n\n• El proveedor ${claim.id_proveedor} está conectado a ${Math.ceil(claim.score_relaciones / 5)} casos previos de alto riesgo\n• La ciudad ${claim.ciudad} tiene concentración moderada de alertas\n• El patrón de conexión sugiere revisar casos relacionados\n\nRecomiendo verificar el historial del proveedor.`
-  }
-  
-  if (q.includes('alerta') || q.includes('revisar')) {
-    return `Las alertas principales para este caso son:\n\n${claim.alertas_activadas.map((a: string, i: number) => `${i + 1}. ${a}`).join('\n')}\n\nEl analista debería priorizar: ${claim.accion_sugerida}`
-  }
-  
-  return `Basándome en el análisis del siniestro ${claim.id_siniestro}:\n\n${claim.explicacion}\n\n¿En qué sección del score te gustaría profundizar?`
-}
-
 export function AIAssistant() {
-  const { showChat, setShowChat, selectedClaim, chatMessages, addChatMessage } = useAppState()
+  const { showChat, setShowChat, selectedClaimId, chatMessages, addChatMessage } = useAppState()
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [quickQuestions, setQuickQuestions] = useState(fallbackQuickQuestions)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [chatMessages])
 
-  // Add initial message when opening for the first time
   useEffect(() => {
-    if (showChat && chatMessages.length === 0 && selectedClaim) {
+    if (!showChat) return
+    void getQuickQuestions()
+      .then((questions) => {
+        if (questions.length) setQuickQuestions(questions.slice(0, 4))
+      })
+      .catch(() => setQuickQuestions(fallbackQuickQuestions))
+  }, [showChat])
+
+  useEffect(() => {
+    if (showChat && chatMessages.length === 0) {
       addChatMessage({
         id: Date.now().toString(),
         role: 'assistant',
-        content: `Revisé las señales disponibles del caso. ¿En qué sección del score te gustaría profundizar?`,
+        content: selectedClaimId
+          ? `Estoy conectado al agente antifraude. Puedo responder sobre el siniestro ${selectedClaimId}.`
+          : 'Estoy conectado al agente antifraude. Selecciona un siniestro o haz una pregunta general.',
         timestamp: new Date()
       })
     }
-  }, [showChat, chatMessages.length, selectedClaim, addChatMessage])
+  }, [showChat, chatMessages.length, selectedClaimId, addChatMessage])
 
-  const handleSend = (text: string = input) => {
-    if (!text.trim() || !selectedClaim) return
+  const handleSend = async (text: string = input) => {
+    if (!text.trim()) return
 
-    // Add user message
     addChatMessage({
       id: Date.now().toString(),
       role: 'user',
@@ -65,17 +58,31 @@ export function AIAssistant() {
     setInput('')
     setIsTyping(true)
 
-    // Simulate AI response
-    setTimeout(() => {
-      const response = generateAIResponse(text, selectedClaim)
+    try {
+      const contextualQuestion = selectedClaimId
+        ? `${text}\n\nContexto: siniestro ${selectedClaimId}.`
+        : text
+      const response = await askAgent(contextualQuestion)
+      const message = response.message || 'El agente respondió sin texto, pero la consulta fue procesada.'
       addChatMessage({
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response,
+        content: message,
         timestamp: new Date()
       })
+    } catch (error) {
+      const message = error instanceof ApiClientError
+        ? `${error.message}${error.hint ? `\n\n${error.hint}` : ''}`
+        : 'No se pudo consultar al agente antifraude.'
+      addChatMessage({
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: message,
+        timestamp: new Date()
+      })
+    } finally {
       setIsTyping(false)
-    }, 1000 + Math.random() * 500)
+    }
   }
 
   const handleQuickQuestion = (question: string) => {

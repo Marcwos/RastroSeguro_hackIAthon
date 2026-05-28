@@ -261,14 +261,18 @@ export function getClaimById(id: string): ClaimData | undefined {
 }
 
 export function getRiskColor(nivel: string): string {
-  switch (nivel) {
+  switch (nivel?.toLowerCase()) {
     case 'bajo':
+    case 'verde':
       return '#10b981'
     case 'medio':
+    case 'amarillo':
       return '#f59e0b'
     case 'alto':
       return '#ef4444'
     case 'critico':
+    case 'crítico':
+    case 'rojo':
       return '#dc2626'
     default:
       return '#6b7280'
@@ -276,21 +280,26 @@ export function getRiskColor(nivel: string): string {
 }
 
 export function getRiskLabel(nivel: string): string {
-  switch (nivel) {
+  switch (nivel?.toLowerCase()) {
     case 'bajo':
+    case 'verde':
       return 'Bajo'
     case 'medio':
+    case 'amarillo':
       return 'Medio'
     case 'alto':
       return 'Alto'
     case 'critico':
+    case 'crítico':
+    case 'rojo':
       return 'Crítico'
     default:
-      return 'Desconocido'
+      return nivel || 'Desconocido'
   }
 }
 
-export function formatCurrency(amount: number): string {
+export function formatCurrency(amount: number | null | undefined): string {
+  if (amount == null || Number.isNaN(Number(amount))) return 'No disponible'
   return new Intl.NumberFormat('es-CO', {
     style: 'currency',
     currency: 'USD',
