@@ -42,6 +42,9 @@ const REVIEW_FIELDS: Array<{ key: keyof ExtractedClaimDraft; label: string; requ
   { key: 'descripcion', label: 'Descripción', type: 'textarea' },
 ]
 
+const MAX_UPLOAD_MB = 5
+const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024
+
 function extensionOf(file: File) {
   return extensionOfName(file.name)
 }
@@ -138,6 +141,18 @@ export function StepUpload() {
     const extension = extensionOf(file)
     setLocalError(null)
     setLocalHint(null)
+
+    // Step 1 is online claim reception, not bulk dataset ingestion. Large files
+    // trigger a full-portfolio re-score (O(N²) NLP) that pegs the worker and the
+    // platform recycles the container. Reject big files client-side with a clear
+    // hint instead of letting the request time out.
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setLocalError(`El archivo (${Math.round(file.size / (1024 * 1024))} MB) supera el máximo de ${MAX_UPLOAD_MB} MB para evaluación en línea.`)
+      setLocalHint('Sube un lote más pequeño. Para el dataset completo usa el pipeline offline.')
+      setStatus('idle')
+      return
+    }
+
     resetReview()
     setUploadedFile(file)
     setCsvHeaders([])
@@ -534,7 +549,7 @@ export function StepUpload() {
               ) : (
                 <>
                   <p className="text-sm leading-relaxed text-muted-foreground">Arrastre el archivo o haga clic para explorarlo desde su equipo.</p>
-                  <p className="label-mono mt-1 text-muted-foreground">Formatos: archivo de datos, PDF o texto (máx. 50 MB)</p>
+                  <p className="label-mono mt-1 text-muted-foreground">Formatos: archivo de datos, PDF o texto (máx. {MAX_UPLOAD_MB} MB)</p>
                 </>
               )}
             </div>
