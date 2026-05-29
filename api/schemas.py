@@ -2,10 +2,30 @@
 
 from __future__ import annotations
 
+import math
 from typing import Literal
 from typing import Any
 
 from pydantic import BaseModel, Field
+
+
+def json_safe(value: Any) -> Any:
+    """Recursively replace NaN/Infinity floats with None.
+
+    Pandas marks missing numeric cells as float('nan'); Starlette's JSONResponse
+    serializes with allow_nan=False, so any NaN/Inf reaching the wire raises
+    'Out of range float values are not JSON compliant' and the request 500s.
+    Applied at the envelope so every response (run_endpoint and direct
+    success()/failure() callers like the agent) is covered. numpy float64 is a
+    float subclass, so it is caught too.
+    """
+    if isinstance(value, float):
+        return None if (math.isnan(value) or math.isinf(value)) else value
+    if isinstance(value, dict):
+        return {key: json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [json_safe(item) for item in value]
+    return value
 
 
 class ErrorDetail(BaseModel):
@@ -60,7 +80,7 @@ class ReportResponseFormat(BaseModel):
 
 
 def success(data: Any) -> dict[str, Any]:
-    return {"ok": True, "data": data, "error": None}
+    return {"ok": True, "data": json_safe(data), "error": None}
 
 
 def failure(message: str, hint: str | None = None, details: Any | None = None) -> dict[str, Any]:
@@ -70,6 +90,6 @@ def failure(message: str, hint: str | None = None, details: Any | None = None) -
         "error": {
             "message": message,
             "hint": hint,
-            "details": details,
+            "details": json_safe(details),
         },
     }

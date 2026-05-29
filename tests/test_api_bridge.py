@@ -117,6 +117,7 @@ class ApiBridgeTest(unittest.TestCase):
             history=None,
             selected_claim_id=None,
             runtime="classic",
+            user_role="analyst",
         )
         payload = response.json()
         self.assertTrue(payload["ok"])
