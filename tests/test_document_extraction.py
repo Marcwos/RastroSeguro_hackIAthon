@@ -101,24 +101,27 @@ class DocumentExtractionTest(unittest.TestCase):
         self.assertIn("extracci", str(ctx.exception).lower())
         self.assertIn("OPENAI_API_KEY", str(ctx.exception))
 
-    def test_confirmation_calls_run_scoring(self):
-        with patch("api.routes.claims.run_scoring") as scoring:
-            scoring.return_value = "data/processed/siniestros_scored.csv"
-            with patch("pandas.read_csv") as read_csv:
-                read_csv.return_value = [1]
-                response = asyncio.run(confirm_extracted_document(ConfirmExtractedDocumentRequest(
-                    document_id="DOC-1",
-                    filename="claim.txt",
-                    claim={
-                        "id_siniestro": "SIN-DOC-002",
-                        "ramo": "vehiculos",
-                        "fecha_ocurrencia": "2026-05-01",
-                        "fecha_reporte": "2026-05-02",
-                        "monto_reclamado": 1000,
-                    },
-                )))
+    def test_confirmation_rescore_with_population(self):
+        with patch("api.routes.claims._rescore_with_population") as rescore:
+            rescore.return_value = (Path("data/processed/siniestros_scored.csv"), 62, 1)
+            response = asyncio.run(confirm_extracted_document(ConfirmExtractedDocumentRequest(
+                document_id="DOC-1",
+                filename="claim.txt",
+                claim={
+                    "id_siniestro": "SIN-DOC-002",
+                    "ramo": "vehiculos",
+                    "fecha_ocurrencia": "2026-05-01",
+                    "fecha_reporte": "2026-05-02",
+                    "monto_reclamado": 1000,
+                },
+            )))
         self.assertTrue(response["ok"])
-        scoring.assert_called_once()
+        rescore.assert_called_once()
+        # The confirmed claim must be the one appended for re-scoring.
+        appended = rescore.call_args.args[0]
+        self.assertEqual(appended[0]["id_siniestro"], "SIN-DOC-002")
+        self.assertEqual(response["data"]["rows_processed"], 62)
+        self.assertEqual(response["data"]["rows_added"], 1)
 
 
 if __name__ == "__main__":

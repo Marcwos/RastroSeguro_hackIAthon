@@ -9,3 +9,8 @@ uvicorn[standard]>=0.30.0
 gunicorn>=22.0.0
 httpx>=0.27.0
 python-multipart>=0.0.9
+# Pure-Python PDF text extraction. Fallback used when the poppler `pdftotext`
+# binary is absent (e.g. Azure App Service / Oryx, which installs pip deps but
+# no apt packages). Without this, scanned-or-digital PDFs collapse to the
+# latin-1 junk fallback and extraction quality drops to ~20% in production.
+pypdf>=4.2.0
