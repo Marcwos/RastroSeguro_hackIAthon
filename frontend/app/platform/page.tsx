@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { AppProvider, useAppState } from '@/lib/app-context'
 import { Sidebar } from '@/components/sidebar'
 import { Header } from '@/components/header'
@@ -32,9 +32,21 @@ const CHAT_WIDTH_STORAGE_KEY = 'rastroseguro-chat-width'
 const CHAT_WIDTH_MIN = 320
 const CHAT_WIDTH_MAX = 720
 const CHAT_WIDTH_DEFAULT = 380
+// Left rail (lg:ml-64 = 16rem) plus the breathing room the main column must keep
+// so the chat can never crush the workflow view on narrow desktops.
+const DESKTOP_RAIL = 256
+const MAIN_MIN_WIDTH = 400
 
-function clampChatWidth(width: number): number {
-  return Math.min(CHAT_WIDTH_MAX, Math.max(CHAT_WIDTH_MIN, width))
+// Clamp the chat width to the viewport: never below the readable minimum, never
+// so wide that the main column drops under MAIN_MIN_WIDTH. Falls back to the
+// fixed ceiling when the viewport is unknown (SSR / first paint).
+function clampChatWidth(width: number, viewportWidth?: number): number {
+  let max = CHAT_WIDTH_MAX
+  if (viewportWidth && viewportWidth > 0) {
+    const available = viewportWidth - DESKTOP_RAIL - MAIN_MIN_WIDTH
+    max = Math.min(CHAT_WIDTH_MAX, Math.max(CHAT_WIDTH_MIN, available))
+  }
+  return Math.min(max, Math.max(CHAT_WIDTH_MIN, width))
 }
 
 function MainContent() {
@@ -99,18 +111,37 @@ function MainContent() {
 
   const [chatWidth, setChatWidth] = useState(CHAT_WIDTH_DEFAULT)
   const [isResizingChat, setIsResizingChat] = useState(false)
-  const chatWidthRef = useRef(chatWidth)
-  chatWidthRef.current = chatWidth
 
-  // Restore the user's preferred chat width once on mount.
+  // Restore the user's preferred chat width once on mount, clamped to the
+  // current viewport so a width saved on a wide screen can't crush a laptop.
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem(CHAT_WIDTH_STORAGE_KEY)
-      if (saved) setChatWidth(clampChatWidth(Number(saved)))
+      if (saved) setChatWidth(clampChatWidth(Number(saved), window.innerWidth))
     } catch {
       // Ignore storage restrictions.
     }
   }, [])
+
+  // Re-clamp when the viewport shrinks (resize / orientation change) so the
+  // main column always keeps its minimum.
+  useEffect(() => {
+    const onResize = () => setChatWidth((w) => clampChatWidth(w, window.innerWidth))
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  // Persist width changes (covers keyboard nudges; drag also saves on release).
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      try {
+        window.localStorage.setItem(CHAT_WIDTH_STORAGE_KEY, String(chatWidth))
+      } catch {
+        // Ignore storage restrictions.
+      }
+    }, 250)
+    return () => window.clearTimeout(id)
+  }, [chatWidth])
 
   // Drag the left border of the chat panel to resize it. The panel is anchored
   // to the right edge of the viewport, so width = viewport width - pointer X.
@@ -120,7 +151,7 @@ function MainContent() {
     document.body.style.userSelect = 'none'
     document.body.style.cursor = 'col-resize'
     const onMove = (e: PointerEvent) => {
-      setChatWidth(clampChatWidth(window.innerWidth - e.clientX))
+      setChatWidth(clampChatWidth(window.innerWidth - e.clientX, window.innerWidth))
     }
     const onUp = () => {
       setIsResizingChat(false)
@@ -128,11 +159,6 @@ function MainContent() {
       document.body.style.cursor = ''
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', onUp)
-      try {
-        window.localStorage.setItem(CHAT_WIDTH_STORAGE_KEY, String(chatWidthRef.current))
-      } catch {
-        // Ignore storage restrictions.
-      }
     }
     window.addEventListener('pointermove', onMove)
     window.addEventListener('pointerup', onUp)
@@ -172,9 +198,21 @@ function MainContent() {
                 role="separator"
                 aria-orientation="vertical"
                 aria-label="Redimensionar asistente"
+                aria-valuenow={Math.round(chatWidth)}
+                aria-valuemin={CHAT_WIDTH_MIN}
+                aria-valuemax={CHAT_WIDTH_MAX}
+                tabIndex={0}
                 onPointerDown={startChatResize}
+                onKeyDown={(e) => {
+                  // Arrow keys nudge; wider chat = smaller X, so Left grows it.
+                  if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault()
+                    const delta = e.key === 'ArrowLeft' ? 24 : -24
+                    setChatWidth((w) => clampChatWidth(w + delta, window.innerWidth))
+                  }
+                }}
                 className={cn(
-                  'group absolute left-0 top-0 z-20 flex h-full w-2 -translate-x-1/2 cursor-col-resize items-center justify-center',
+                  'focus-ring group absolute left-0 top-0 z-20 flex h-full w-2 -translate-x-1/2 cursor-col-resize items-center justify-center',
                 )}
               >
                 <span
