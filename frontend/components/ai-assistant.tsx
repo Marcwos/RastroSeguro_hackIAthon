@@ -162,6 +162,7 @@ export function AIAssistant() {
       .catch(() => {
         setThreadId(null)
         setSections([])
+        replaceChatMessages([])
       })
   }, [showChat, threadId, userId, replaceChatMessages])
 

@@ -261,6 +261,28 @@ class ApiBridgeTest(unittest.TestCase):
         self.assertTrue(all(message["section_id"] for message in second["history"]))
         self.assertEqual(second["sections"][0]["title"], "Caso SIN-0045")
 
+    def test_agent_chat_persist_false_does_not_store_turn_or_sections(self):
+        agent_response = {
+            "ok": True,
+            "intent": "top_riesgo",
+            "message": "Respuesta temporal",
+            "data": [],
+            "source": "tools",
+            "runtime": {"requested": "classic", "active": "classic", "status": "ok"},
+            "context": {"resolved_claim_id": None},
+            "llm": {"status": "disabled_by_config"},
+        }
+        with patch("api.routes.agent.answer_question", return_value=agent_response):
+            response = self.client.post(
+                "/api/agent/chat",
+                json={"user_id": "analyst-a", "message": "top casos", "persist": False},
+            )
+
+        payload = response.json()
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["data"]["history"], [])
+        self.assertEqual(payload["data"]["sections"], [])
+
     def test_agent_domain_error_becomes_api_error_with_details(self):
         agent_response = {"ok": False, "message": "Falta id", "hint": "Usa SIN-0045"}
         with patch("api.routes.agent.answer_question", return_value=agent_response):

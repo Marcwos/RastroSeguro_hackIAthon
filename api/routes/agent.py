@@ -89,14 +89,15 @@ def chat_agent(payload: AgentChatRequest):
         assistant_source = reply.get("source", "agent")
         context = reply.get("context") or {}
         resolved_claim_id = context.get("resolved_claim_id") or extract_claim_id(payload.message)
-        section = store.choose_section(
-            thread,
-            user_id=user_id,
-            intent=reply.get("intent"),
-            claim_id=resolved_claim_id,
-            message=payload.message,
-        )
+        section = None
         if payload.persist:
+            section = store.choose_section(
+                thread,
+                user_id=user_id,
+                intent=reply.get("intent"),
+                claim_id=resolved_claim_id,
+                message=payload.message,
+            )
             store.assign_latest_user_message_to_section(
                 thread_id,
                 user_id=user_id,
@@ -119,21 +120,24 @@ def chat_agent(payload: AgentChatRequest):
             )
 
         selected_claim_id = payload.selected_claim_id or thread["context"].get("selected_claim_id")
-        updated_thread = store.update_context(
-            thread_id,
-            user_id=user_id,
-            selected_claim_id=selected_claim_id,
-            last_claim_id=resolved_claim_id,
-            last_intent=reply.get("intent"),
-            current_section_id=section["section_id"],
-            runtime=(reply.get("runtime") or {}).get("active"),
-            state={
-                "last_ok": bool(reply.get("ok")),
-                "last_source": assistant_source,
-                "section_intent": reply.get("intent"),
-                "section_claim_id": resolved_claim_id,
-            },
-        )
+        if payload.persist:
+            updated_thread = store.update_context(
+                thread_id,
+                user_id=user_id,
+                selected_claim_id=selected_claim_id,
+                last_claim_id=resolved_claim_id,
+                last_intent=reply.get("intent"),
+                current_section_id=section["section_id"] if section else None,
+                runtime=(reply.get("runtime") or {}).get("active"),
+                state={
+                    "last_ok": bool(reply.get("ok")),
+                    "last_source": assistant_source,
+                    "section_intent": reply.get("intent"),
+                    "section_claim_id": resolved_claim_id,
+                },
+            )
+        else:
+            updated_thread = thread
 
         return {
             "thread_id": thread_id,
