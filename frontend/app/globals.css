@@ -153,7 +153,14 @@
 
 @layer base {
   * { @apply border-border outline-ring/50; }
+  html { color-scheme: light; }
+  html.dark { color-scheme: dark; }
   body { @apply bg-background text-foreground font-sans text-base leading-relaxed antialiased; }
+  a,
+  button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 .institutional-card {
@@ -199,15 +206,157 @@
 .display-heading {
   font-family: 'IBM Plex Sans', sans-serif;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   line-height: 1.15;
   color: var(--foreground);
+}
+
+.landing-hero-title {
+  color: #ffffff;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.04;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.28);
 }
 
 .text-readable {
   color: color-mix(in srgb, var(--foreground) 92%, transparent);
   line-height: 1.625;
   max-width: 65ch;
+}
+
+.landing-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.landing-hero-shell::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+}
+
+.landing-mesh {
+  background:
+    linear-gradient(90deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.9) 58%, rgba(15, 23, 42, 0.82)),
+    radial-gradient(circle at 8% 10%, rgba(147, 197, 253, 0.08), transparent 28%),
+    radial-gradient(circle at 78% 22%, rgba(74, 222, 128, 0.08), transparent 24%),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.04), transparent 35%);
+}
+
+.landing-noise {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.22) 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+
+.landing-grid-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid color-mix(in srgb, var(--foreground) 14%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--surface-lowest) 95%, transparent), color-mix(in srgb, var(--surface-container) 72%, transparent));
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.landing-tag,
+.landing-inline-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.landing-tag {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f4f7ff;
+  padding: 0.5rem 0.7rem;
+}
+
+.landing-inline-chip {
+  background: var(--surface-low);
+  color: var(--muted-foreground);
+  padding: 0.45rem 0.7rem;
+}
+
+.landing-metric-value {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.landing-spotlight {
+  box-shadow:
+    0 16px 40px rgba(15, 23, 42, 0.18),
+    0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.landing-hero-shell ::selection {
+  background: rgba(148, 163, 184, 0.28);
+  color: #ffffff;
+}
+
+.landing-panel,
+.landing-workflow-card,
+.landing-signal-card,
+.landing-node,
+.landing-metric-card {
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease,
+    background-color 220ms ease;
+}
+
+.landing-panel:hover,
+.landing-workflow-card:hover,
+.landing-signal-card:hover,
+.landing-node:hover,
+.landing-metric-card:hover {
+  transform: translateY(-3px);
+}
+
+.landing-panel:hover,
+.landing-workflow-card:hover,
+.landing-signal-card:hover,
+.landing-metric-card:hover {
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.09);
+}
+
+.landing-node:hover {
+  box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.06);
+}
+
+@keyframes landingReveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing-reveal {
+  animation: landingReveal 700ms cubic-bezier(.22, 1, .36, 1) both;
 }
 
 .zebra tbody tr:nth-child(even) { background: color-mix(in srgb, var(--surface-low) 85%, transparent); }
@@ -303,6 +452,16 @@
   .upload-shimmer,
   .upload-progress {
     animation: none;
+  }
+  .landing-reveal {
+    animation: none;
+  }
+  .landing-panel:hover,
+  .landing-workflow-card:hover,
+  .landing-signal-card:hover,
+  .landing-node:hover,
+  .landing-metric-card:hover {
+    transform: none;
   }
   .upload-progress {
     width: 60%;
