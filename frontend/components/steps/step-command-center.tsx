@@ -718,11 +718,11 @@ export function StepCommandCenter() {
             </div>
 
 
-            {!isAnalyst && (
+            {(
               <div className="institutional-card overflow-hidden">
                 <div className="section-header flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
-                  <span className="flex items-center gap-2"><Inbox className="h-4 w-4" />Análisis cerrados por el analista</span>
-                  <span>Guardados en este navegador para revisión ejecutiva</span>
+                  <span className="flex items-center gap-2"><Inbox className="h-4 w-4" />{isAnalyst ? 'Mis siniestros analizados' : 'Análisis cerrados por el analista'}</span>
+                  <span>{isAnalyst ? 'Guardados en este navegador · clic para reabrir el reporte' : 'Guardados en este navegador para revisión ejecutiva'}</span>
                 </div>
                 {savedAnalysisRows.length ? (
                   <div className="grid gap-3 p-3 lg:grid-cols-3">
@@ -761,7 +761,7 @@ export function StepCommandCenter() {
                           {saved.topAlerts.length ? (
                             <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">Señales: {saved.topAlerts.slice(0, 2).join(' · ')}</p>
                           ) : null}
-                          <p className="mt-auto pt-3 text-xs font-semibold text-primary opacity-90 group-hover:underline">Abrir reporte ejecutivo →</p>
+                          <p className="mt-auto pt-3 text-xs font-semibold text-primary opacity-90 group-hover:underline">{isAnalyst ? 'Abrir reporte →' : 'Abrir reporte ejecutivo →'}</p>
                         </button>
                       )
                     })}
@@ -795,14 +795,16 @@ export function StepCommandCenter() {
                             <div><span className="label-mono block">Puntaje</span>{claim?.score_final != null ? `${Math.round(num(claim.score_final))}/100` : '—'}</div>
                           </div>
                           {submitted.filename ? <p className="mt-3 truncate text-[11px] text-muted-foreground">Origen: {submitted.filename}</p> : null}
-                          <p className="mt-3 text-xs font-semibold text-primary opacity-90 group-hover:underline">Abrir reporte ejecutivo →</p>
+                          <p className="mt-3 text-xs font-semibold text-primary opacity-90 group-hover:underline">{isAnalyst ? 'Abrir reporte →' : 'Abrir reporte ejecutivo →'}</p>
                         </button>
                       )
                     })}
                   </div>
                 ) : (
                   <div className="p-4 text-sm text-muted-foreground">
-                    Todavía no hay análisis cerrados por el analista en este navegador. Cuando el analista use “Guardar y cerrar” en Resultado y motivos, aparecerán aquí con resumen, recomendación y señales clave.
+                    {isAnalyst
+                      ? 'Aún no has cerrado análisis en este navegador. Cuando uses “Guardar y cerrar” en Resultado y motivos, el siniestro quedará aquí con su resumen, recomendación y señales clave.'
+                      : 'Todavía no hay análisis cerrados por el analista en este navegador. Cuando el analista use “Guardar y cerrar” en Resultado y motivos, aparecerán aquí con resumen, recomendación y señales clave.'}
                   </div>
                 )}
               </div>
