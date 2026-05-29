@@ -12,6 +12,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 
 const THREAD_STORAGE_KEY = 'rastroseguro-agent-thread-id'
 const USER_STORAGE_KEY = 'rastroseguro-agent-user-id'
+const DEVICE_STORAGE_KEY = 'rastroseguro-agent-device-id'
 
 function shortenQuestion(text: string, max = 72): string {
   const trimmed = text.trim()
@@ -57,16 +58,30 @@ function toUiMessage(message: AgentChatMessage) {
   } as const
 }
 
-function ensureLocalUserId(): string {
+function ensureLocalDeviceId(): string {
   try {
-    const saved = window.localStorage.getItem(USER_STORAGE_KEY)
-    if (saved) return saved
+    const saved = window.localStorage.getItem(DEVICE_STORAGE_KEY) || window.localStorage.getItem(USER_STORAGE_KEY)
+    if (saved) {
+      window.localStorage.setItem(DEVICE_STORAGE_KEY, saved)
+      return saved
+    }
     const generated = crypto.randomUUID()
-    window.localStorage.setItem(USER_STORAGE_KEY, generated)
+    window.localStorage.setItem(DEVICE_STORAGE_KEY, generated)
     return generated
   } catch {
     return 'anonymous'
   }
+}
+
+function scopedChatUserId(deviceId: string, role: 'analyst' | 'executive' | null): string {
+  if (!role) return deviceId || 'anonymous'
+  return `${deviceId || 'anonymous'}:${role}`
+}
+
+function roleLabel(role: 'analyst' | 'executive' | null): string {
+  if (role === 'analyst') return 'Analista'
+  if (role === 'executive') return 'Ejecutivo'
+  return 'Usuario'
 }
 
 type AssistantVariant = 'sidebar' | 'floating'
@@ -99,31 +114,40 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
   const stepContext = getStepContext(currentStep)
 
   const quickQuestions = useMemo(() => {
-    const base = getStepQuickQuestions(currentStep, selectedClaimId)
+    const base = userRole === 'executive'
+      ? [
+          'Genera un resumen ejecutivo de casos críticos.',
+          '¿Cuál es el impacto de negocio del top 10% priorizado?',
+          '¿Qué proveedores o ramos concentran más exposición?',
+          '¿Qué decisión recomienda para priorizar revisión?',
+        ]
+      : getStepQuickQuestions(currentStep, selectedClaimId)
     if (!apiQuickQuestions.length) return base
     const merged = [...base]
     for (const q of apiQuickQuestions) {
       if (!merged.includes(q)) merged.push(q)
     }
     return merged.slice(0, 5)
-  }, [apiQuickQuestions, currentStep, selectedClaimId])
+  }, [apiQuickQuestions, currentStep, selectedClaimId, userRole])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [chatMessages, isTyping])
 
   useEffect(() => {
-    const resolvedUserId = ensureLocalUserId()
+    const resolvedUserId = scopedChatUserId(ensureLocalDeviceId(), userRole)
     setUserId(resolvedUserId)
+    setSections([])
+    setSessions([])
+    setShowSessionHistory(false)
+    lastGuideStepRef.current = null
+    replaceChatMessages([])
     try {
-      const savedThreadId = window.localStorage.getItem(`${THREAD_STORAGE_KEY}:${resolvedUserId}`)
-      if (savedThreadId) {
-        setThreadId(savedThreadId)
-      }
+      setThreadId(window.localStorage.getItem(`${THREAD_STORAGE_KEY}:${resolvedUserId}`))
     } catch {
       setThreadId(null)
     }
-  }, [])
+  }, [userRole, replaceChatMessages])
 
   useEffect(() => {
     try {
@@ -145,11 +169,11 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
 
   useEffect(() => {
     if (!showChat) return
-    void getQuickQuestions()
+    void getQuickQuestions(userRole || 'analyst')
       .then((questions) => setApiQuickQuestions(questions.slice(0, 3)))
       .catch(() => setApiQuickQuestions([]))
     refreshSessions()
-  }, [showChat, userId])
+  }, [showChat, userId, userRole])
 
   useEffect(() => {
     if (!showChat || !threadId) return
@@ -267,6 +291,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
         threadId,
         selectedClaimId,
         runtime: 'classic',
+        userRole,
         uiContext: { step: currentStep, step_title: stepContext.title },
       })
       setThreadId(session.thread_id)
@@ -331,7 +356,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
             <Bot className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <p className="truncate font-semibold">Asistente</p>
+            <p className="truncate font-semibold">Asistente · {roleLabel(userRole)}</p>
             <p className="label-mono truncate text-xs text-muted-foreground">
               Paso {currentStep > 0 ? currentStep : 'inicio'} · {stepContext.title}
               {selectedClaimId ? ` · ${selectedClaimId}` : ''}

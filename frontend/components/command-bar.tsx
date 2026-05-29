@@ -22,7 +22,7 @@ const EXPLORE_PROMPTS = [
 ]
 
 export function CommandBar() {
-  const { showCommandBar, setShowCommandBar, selectedClaimId, setSelectedClaimId, setCurrentStep } = useAppState()
+  const { showCommandBar, setShowCommandBar, selectedClaimId, setSelectedClaimId, setCurrentStep, userRole } = useAppState()
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [response, setResponse] = useState<AgentResponse | null>(null)
@@ -35,11 +35,11 @@ export function CommandBar() {
   useEffect(() => {
     if (!showCommandBar) return
     const id = window.setTimeout(() => inputRef.current?.focus(), 60)
-    void getQuickQuestions()
+    void getQuickQuestions(userRole || 'analyst')
       .then((q) => setApiPrompts(q.slice(0, 3)))
       .catch(() => setApiPrompts([]))
     return () => window.clearTimeout(id)
-  }, [showCommandBar])
+  }, [showCommandBar, userRole])
 
   const close = useCallback(() => setShowCommandBar(false), [setShowCommandBar])
 
@@ -52,7 +52,7 @@ export function CommandBar() {
       setLastQuestion(question)
       try {
         const contextual = selectedClaimId ? `${question}\n\nContexto: siniestro ${selectedClaimId}.` : question
-        const result = await askAgent(contextual)
+        const result = await askAgent(contextual, undefined, userRole || 'analyst')
         setResponse(result)
       } catch (err) {
         setResponse(null)
@@ -65,7 +65,7 @@ export function CommandBar() {
         setIsLoading(false)
       }
     },
-    [isLoading, selectedClaimId],
+    [isLoading, selectedClaimId, userRole],
   )
 
   const handleOpenClaim = useCallback(

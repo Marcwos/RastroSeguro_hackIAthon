@@ -339,8 +339,8 @@ export function getClaimExplanation(idSiniestro: string) {
   return apiRequest<ClaimExplanation>(`/api/claims/${encodeURIComponent(idSiniestro)}/explanation`)
 }
 
-export function getQuickQuestions() {
-  return apiRequest<string[]>('/api/agent/quick-questions')
+export function getQuickQuestions(userRole: 'analyst' | 'executive' = 'analyst') {
+  return apiRequest<string[]>(`/api/agent/quick-questions?user_role=${encodeURIComponent(userRole)}`)
 }
 
 export interface ChatTurn {
@@ -407,10 +407,10 @@ export interface AgentChatSession extends AgentChatThread {
   reply: AgentResponse
 }
 
-export function askAgent(question: string, history?: ChatTurn[]) {
+export function askAgent(question: string, history?: ChatTurn[], userRole: 'analyst' | 'executive' = 'analyst') {
   return apiRequest<AgentResponse>('/api/agent/ask', {
     method: 'POST',
-    body: JSON.stringify(history && history.length ? { question, history } : { question }),
+    body: JSON.stringify(history && history.length ? { question, history, user_role: userRole } : { question, user_role: userRole }),
   })
 }
 
@@ -432,6 +432,7 @@ export function chatAgent(payload: {
   threadId?: string | null
   selectedClaimId?: string | null
   runtime?: 'classic' | 'langgraph'
+  userRole?: 'analyst' | 'executive' | null
   uiContext?: { step?: number; step_title?: string } | null
 }) {
   return apiRequest<AgentChatSession>('/api/agent/chat', {
@@ -442,6 +443,7 @@ export function chatAgent(payload: {
       thread_id: payload.threadId || null,
       selected_claim_id: payload.selectedClaimId || null,
       runtime: payload.runtime || 'classic',
+      user_role: payload.userRole || 'analyst',
       ui_context: payload.uiContext || null,
     }),
   })

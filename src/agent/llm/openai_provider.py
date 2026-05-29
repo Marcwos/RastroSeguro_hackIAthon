@@ -24,7 +24,7 @@ class OpenAIProvider:
         payload = {
             "model": self.settings.model,
             "instructions": SYSTEM_INSTRUCTIONS,
-            "input": build_user_input(request.intent, request.data, request.question, request.history),
+            "input": build_user_input(request.intent, request.data, request.question, request.history, request.user_role),
             "max_output_tokens": self.settings.max_output_tokens,
             "store": False,
         }

@@ -30,6 +30,7 @@ class AgentAskRequest(BaseModel):
     history: list[ChatTurn] | None = None
     selected_claim_id: str | None = None
     runtime: Literal["classic", "langgraph"] = "classic"
+    user_role: Literal["analyst", "executive"] = "analyst"
 
 
 class AgentChatRequest(BaseModel):
@@ -39,6 +40,7 @@ class AgentChatRequest(BaseModel):
     selected_claim_id: str | None = None
     role: Literal["user"] = "user"
     runtime: Literal["classic", "langgraph"] = "classic"
+    user_role: Literal["analyst", "executive"] = "analyst"
     persist: bool = True
     ui_context: dict[str, Any] | None = None
 

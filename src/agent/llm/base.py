@@ -14,6 +14,7 @@ class LLMRequest:
     data: Any
     question: str
     history: Any = None
+    user_role: str = "analyst"
 
 
 @dataclass(frozen=True)

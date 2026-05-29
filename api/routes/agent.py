@@ -19,8 +19,8 @@ def _chat_store() -> ChatHistoryStore:
 
 
 @router.get("/quick-questions")
-def quick_questions() -> dict:
-    return success(get_quick_questions())
+def quick_questions(user_role: str = Query(default="analyst")) -> dict:
+    return success(get_quick_questions(user_role=user_role))
 
 
 @router.post("/ask")
@@ -31,6 +31,7 @@ def ask_agent(payload: AgentAskRequest):
         history=history,
         selected_claim_id=payload.selected_claim_id,
         runtime=payload.runtime,
+        user_role=payload.user_role,
     )
     if response.get("ok") is False:
         return JSONResponse(
@@ -64,6 +65,7 @@ def chat_agent(payload: AgentChatRequest):
             user_id=user_id,
             selected_claim_id=payload.selected_claim_id,
             runtime=payload.runtime,
+            user_role=payload.user_role,
         )
         thread_id = thread["thread_id"]
         history = thread["history"]
@@ -84,6 +86,7 @@ def chat_agent(payload: AgentChatRequest):
             selected_claim_id=payload.selected_claim_id or thread["context"].get("last_claim_id"),
             thread_id=thread_id,
             runtime=payload.runtime,
+            user_role=payload.user_role,
         )
 
         assistant_source = reply.get("source", "agent")
@@ -123,6 +126,7 @@ def chat_agent(payload: AgentChatRequest):
         thread_state: dict = {
             "last_ok": bool(reply.get("ok")),
             "last_source": assistant_source,
+            "user_role": payload.user_role,
             "section_intent": reply.get("intent"),
             "section_claim_id": resolved_claim_id,
         }

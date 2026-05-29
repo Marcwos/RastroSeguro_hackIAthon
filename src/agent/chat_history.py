@@ -135,13 +135,14 @@ class ChatHistoryStore:
         selected_claim_id: str | None = None,
         runtime: str = "classic",
         title: str | None = None,
+        user_role: str = "analyst",
     ) -> dict[str, Any]:
         now = _utc_now()
         resolved_thread_id = thread_id or str(uuid4())
         resolved_user_id = user_id or DEFAULT_USER_ID
         with closing(self._connect()) as connection, connection:
             existing = connection.execute(
-                "SELECT thread_id, user_id FROM agent_threads WHERE thread_id = ?",
+                "SELECT thread_id, user_id, state_json FROM agent_threads WHERE thread_id = ?",
                 (resolved_thread_id,),
             ).fetchone()
             if existing is not None and existing["user_id"] != resolved_user_id:
@@ -162,17 +163,22 @@ class ChatHistoryStore:
                         now,
                         selected_claim_id,
                         runtime,
-                        _json_dump({}),
+                        _json_dump({"user_role": user_role}),
                     ),
                 )
             else:
+                next_state = _json_load(row["state_json"], {})
+                next_state["user_role"] = user_role
                 connection.execute(
                     """
                     UPDATE agent_threads
-                    SET updated_at = ?, selected_claim_id = COALESCE(?, selected_claim_id), runtime = ?
+                    SET updated_at = ?,
+                        selected_claim_id = COALESCE(?, selected_claim_id),
+                        runtime = ?,
+                        state_json = ?
                     WHERE thread_id = ? AND user_id = ?
                     """,
-                    (now, selected_claim_id, runtime, resolved_thread_id, resolved_user_id),
+                    (now, selected_claim_id, runtime, _json_dump(next_state), resolved_thread_id, resolved_user_id),
                 )
         return self.get_thread(resolved_thread_id, user_id=resolved_user_id)
 

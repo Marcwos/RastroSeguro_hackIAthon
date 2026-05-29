@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-QUICK_QUESTIONS = [
+ANALYST_QUICK_QUESTIONS = [
     "¿Cuáles son los 10 siniestros con mayor riesgo de posible fraude?",
     "¿Por qué el siniestro SIN-001 fue marcado como alto riesgo?",
     "Genera expediente antifraude del siniestro SIN-001.",
@@ -22,15 +22,30 @@ QUICK_QUESTIONS = [
 ]
 
 
-def get_quick_questions() -> list[str]:
+EXECUTIVE_QUICK_QUESTIONS = [
+    "Genera un resumen ejecutivo de los casos críticos.",
+    "¿Cuál es el impacto de negocio del top 10% priorizado?",
+    "¿Qué proveedores concentran más alertas críticas?",
+    "¿Qué ramos tienen mayor exposición a riesgo?",
+    "¿Qué ciudades presentan mayor concentración de alertas?",
+    "Muéstrame los casos estrella para la demo ejecutiva.",
+    "¿Cuál sería la estrategia de revisión para reducir exposición?",
+    "¿Hay redes de fraude organizadas en el portafolio?",
+]
+
+
+def get_quick_questions(user_role: str = "analyst") -> list[str]:
+    if user_role == "executive":
+        return EXECUTIVE_QUICK_QUESTIONS.copy()
+
     try:
         from src.agent import tools
         top_claims = tools.get_top_risky_claims(limit=1)
         if top_claims:
             top_id = top_claims[0]["id_siniestro"]
-            questions = QUICK_QUESTIONS.copy()
+            questions = ANALYST_QUICK_QUESTIONS.copy()
             questions[1] = f"¿Por qué el siniestro {top_id} fue marcado como alto riesgo?"
             return questions
     except Exception:
         pass
-    return QUICK_QUESTIONS.copy()
+    return ANALYST_QUICK_QUESTIONS.copy()

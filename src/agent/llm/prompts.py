@@ -7,6 +7,28 @@ from typing import Any
 
 MAX_TOOL_PAYLOAD_CHARS = 12_000
 
+
+ROLE_INSTRUCTIONS = {
+    "analyst": """
+Contexto del chatbot de Analista:
+- Eres el asistente operativo del analista antifraude.
+- Prioriza detalle trazable por siniestro: señales, reglas, documentos, narrativa, grafo y próximos pasos de revisión.
+- Puedes entrar a nivel de caso, evidencia y explicación técnica/operativa.
+- Habla al usuario como Analista.
+""".strip(),
+    "executive": """
+Contexto del chatbot Ejecutivo:
+- Eres el asistente ejecutivo de RastroSeguro, separado del chatbot del analista.
+- Prioriza visión gerencial: impacto de negocio, concentración de riesgo, tendencias, ahorros potenciales, decisiones y resumen de portafolio.
+- Evita profundizar en procedimientos técnicos salvo que el usuario lo pida; resume implicaciones y acciones ejecutivas.
+- Habla al usuario como Ejecutivo.
+""".strip(),
+}
+
+
+def role_instructions(user_role: str | None) -> str:
+    return ROLE_INSTRUCTIONS.get((user_role or "analyst").lower(), ROLE_INSTRUCTIONS["analyst"])
+
 SYSTEM_INSTRUCTIONS = """
 Eres RastroSeguro, un copiloto experto en auditoría y prevención de fraude en seguros para Ecuador.
 
@@ -27,20 +49,22 @@ Formato (la interfaz ya renderiza los datos como tabla/tarjetas aparte):
 """.strip()
 
 
-def build_user_input(intent: str, data: Any, question: str, history: Any = None) -> str:
+def build_user_input(intent: str, data: Any, question: str, history: Any = None, user_role: str = "analyst") -> str:
     """Build a bounded prompt with verified tool output and recent conversation."""
     payload = _safe_json(data)
     if len(payload) > MAX_TOOL_PAYLOAD_CHARS:
         payload = payload[:MAX_TOOL_PAYLOAD_CHARS] + "\n... [payload truncado para síntesis conversacional]"
 
     history_block = _format_history(history)
+    role_block = role_instructions(user_role)
     return (
+        f"{role_block}\n\n"
         f"{history_block}"
         f"Pregunta del usuario:\n{question}\n\n"
         f"Intención detectada por el router:\n{intent}\n\n"
         "Resultado verificado de herramientas/RAG de RastroSeguro:\n"
         f"{payload}\n\n"
-        "Redacta una respuesta útil para un analista humano. Si la pregunta es un seguimiento, "
+        "Redacta una respuesta útil para el rol indicado arriba. Si la pregunta es un seguimiento, "
         "apóyate en el historial para resolver referencias, pero responde solo con datos verificados arriba. "
         "Conserva las limitaciones del dato."
     )
@@ -56,7 +80,7 @@ def _format_history(history: Any, max_turns: int = 6) -> str:
         content = getattr(turn, "content", None) or (turn.get("content") if isinstance(turn, dict) else None)
         if not content:
             continue
-        speaker = "Analista" if role == "user" else "RastroSeguro"
+        speaker = "Usuario" if role == "user" else "RastroSeguro"
         turns.append(f"{speaker}: {str(content).strip()}")
     if not turns:
         return ""

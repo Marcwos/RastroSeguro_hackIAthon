@@ -22,6 +22,7 @@ def answer_question(
     selected_claim_id: str | None = None,
     thread_id: str | None = None,
     runtime: str | None = None,
+    user_role: str = "analyst",
 ) -> dict[str, Any]:
     """Process user queries through deterministic tools and optional OpenAI synthesis."""
     requested_runtime = (runtime or os.environ.get("RASTRO_AGENT_RUNTIME", "classic")).lower()
@@ -42,7 +43,7 @@ def answer_question(
     claim_id = execution.get("claim_id")
 
     llm_result = build_llm_provider().generate(
-        LLMRequest(intent=intent_name, data=data, question=question, history=history)
+        LLMRequest(intent=intent_name, data=data, question=question, history=history, user_role=user_role)
     )
     metadata = {
         "llm": llm_result.metadata(),
@@ -51,6 +52,7 @@ def answer_question(
             "thread_id": thread_id,
             "selected_claim_id": selected_claim_id,
             "resolved_claim_id": claim_id,
+            "user_role": user_role,
         },
     }
     if llm_result.has_message:
@@ -58,7 +60,7 @@ def answer_question(
 
     return success(
         intent_name,
-        message_for_intent(intent_name),
+        message_for_intent(intent_name, user_role=user_role),
         data,
         source=source,
         metadata=metadata,
@@ -111,7 +113,7 @@ def dispatch_intent(intent: str, claim_id: str | None, limit: int, question: str
     return tools.get_top_risky_claims(limit=limit)
 
 
-def message_for_intent(intent: str) -> str:
+def message_for_intent(intent: str, user_role: str = "analyst") -> str:
     messages = {
         "top_riesgo": "Casos priorizados por mayor score de riesgo.",
         "ranking_proveedores": "Ranking de proveedores por concentracion de riesgo.",
@@ -135,7 +137,18 @@ def message_for_intent(intent: str) -> str:
         "concentracion_rojos": "Proveedores que concentran la mayoria de alertas rojas.",
         "ahorro_potencial": "Estimacion de ahorro potencial por revision temprana de casos rojos.",
     }
-    return messages.get(intent, "Respuesta generada desde herramientas verificables.")
+    message = messages.get(intent, "Respuesta generada desde herramientas verificables.")
+    if user_role == "executive":
+        executive_messages = {
+            "top_riesgo": "Vista ejecutiva de casos priorizados por exposición y riesgo.",
+            "ranking_proveedores": "Vista ejecutiva de proveedores con mayor concentración de alertas.",
+            "riesgo_por_ramo": "Vista ejecutiva de exposición por ramo y concentración de riesgo.",
+            "resumen_ejecutivo": "Resumen ejecutivo generado desde datos procesados del portafolio.",
+            "impacto_negocio": "Impacto de negocio estimado para apoyar decisiones de priorización.",
+            "casos_estrella": "Casos seleccionados para demostración ejecutiva y toma de decisiones.",
+        }
+        return executive_messages.get(intent, message)
+    return message
 
 
 def _recover_claim_id_from_history(history: Any) -> str | None:
