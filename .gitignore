@@ -28,3 +28,9 @@ data/processed/*
 .playwright-mcp/
 *.png
 
+# Agent Teams
+.atl/
+.claude/
+.agents/
+skills-lock.json
+

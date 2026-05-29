@@ -38,6 +38,16 @@ def create_app() -> FastAPI:
             ),
         )
 
+    @app.get("/")
+    def root_probe() -> dict:
+        """Azure App Service and load balancers often probe `/` by default."""
+        return {"service": "rastroseguro-api", "status": "ok"}
+
+    @app.get("/health")
+    def legacy_health_probe() -> dict:
+        """Compatibility path for health checks configured without the `/api` prefix."""
+        return {"service": "rastroseguro-api", "status": "ok"}
+
     app.include_router(health.router)
     app.include_router(claims.router)
     app.include_router(simulator.router)
