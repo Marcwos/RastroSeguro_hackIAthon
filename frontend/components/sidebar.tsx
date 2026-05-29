@@ -47,7 +47,7 @@ export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-border bg-[var(--surface-low)] p-4 lg:flex">
       <div className="mb-8 flex flex-col gap-1">
-        <Link href="/" onClick={() => setCurrentStep(0)} className="font-display text-2xl font-bold tracking-tight text-primary">
+        <Link href="/platform" onClick={() => setCurrentStep(0)} className="font-display text-2xl font-bold tracking-tight text-primary">
           RastroSeguro
         </Link>
         <span className="font-display text-xs font-semibold tracking-[0.08em] text-muted-foreground uppercase">
