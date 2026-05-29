@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { AgentResponse } from '@/lib/api'
 import { formatCurrency, getRiskBadgeClasses, getRiskLabel, normalizeRiskLevel } from '@/lib/claims-data'
 import { cn } from '@/lib/utils'
@@ -179,6 +179,98 @@ function KeyValueCards({ obj }: { obj: Record<string, unknown> }) {
   )
 }
 
+/** Claim explanation payload (explicar_siniestro / expediente_siniestro). */
+function isClaimExplanation(data: unknown): data is Record<string, unknown> {
+  return isPlainObject(data) && 'nivel_riesgo' in data && Array.isArray((data as Record<string, unknown>).alertas)
+}
+
+function severityDotClass(severity: string): string {
+  const s = severity.toLowerCase()
+  if (s.includes('crit') || s.includes('alta')) return 'bg-[var(--risk-high,#dc2626)]'
+  if (s.includes('media')) return 'bg-[var(--risk-medium,#d97706)]'
+  return 'bg-muted-foreground/50'
+}
+
+interface Signal {
+  name?: unknown
+  message?: unknown
+  severity?: unknown
+}
+
+function SignalList({ alertas }: { alertas: Record<string, unknown>[] }) {
+  const [expanded, setExpanded] = useState(false)
+  const signals = alertas as Signal[]
+  const visible = expanded ? signals : signals.slice(0, 3)
+  const hidden = signals.length - visible.length
+
+  return (
+    <div className="space-y-1.5">
+      <p className="label-mono text-[10px] uppercase text-muted-foreground">Señales detectadas</p>
+      <ul className="space-y-2">
+        {visible.map((signal, i) => {
+          const severity = String(signal.severity ?? '')
+          const name = String(signal.name ?? '')
+          const detail = String(signal.message ?? '')
+          return (
+            <li key={i} className="flex gap-2.5">
+              <span className={cn('mt-1.5 h-2 w-2 shrink-0 rounded-full', severityDotClass(severity))} aria-hidden />
+              <p className="text-sm leading-6 text-foreground/90">
+                <span className="font-semibold text-foreground">{name}</span>
+                {detail && name ? ' — ' : ''}
+                {detail}
+              </p>
+            </li>
+          )
+        })}
+      </ul>
+      {hidden > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="focus-ring text-xs font-medium text-primary hover:underline"
+        >
+          Ver {hidden} {hidden === 1 ? 'señal más' : 'señales más'}
+        </button>
+      )}
+    </div>
+  )
+}
+
+function ClaimExplanation({ data, source }: { data: Record<string, unknown>; source?: string }) {
+  const nivel = String(data.nivel_riesgo ?? '')
+  const score = data.score_final
+  const explicacion = typeof data.explicacion === 'string' ? data.explicacion : ''
+  const accion = typeof data.accion_sugerida === 'string' ? data.accion_sugerida : ''
+  const alertas = Array.isArray(data.alertas) ? (data.alertas as Record<string, unknown>[]) : []
+  // When the LLM synthesized a narrative it already covers the explanation;
+  // only surface the traceable explicacion text on the deterministic fallback.
+  const showExplanation = source !== 'llm' && Boolean(explicacion)
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        {normalizeRiskLevel(nivel) !== 'neutral' && <RiskCell value={nivel} />}
+        {typeof score === 'number' && (
+          <span className="label-mono text-xs text-muted-foreground">
+            Score {Number.isInteger(score) ? score : score.toFixed(2)}
+          </span>
+        )}
+      </div>
+
+      {showExplanation && <p className="text-sm leading-6 text-foreground/90">{explicacion}</p>}
+
+      {alertas.length > 0 && <SignalList alertas={alertas} />}
+
+      {accion && (
+        <div className="rounded-lg border border-border bg-[var(--surface-low)] p-3">
+          <p className="label-mono text-[10px] uppercase text-muted-foreground">Acción sugerida</p>
+          <p className="mt-1 text-sm leading-6 text-foreground">{accion}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function SourceBadge({ source }: { source?: string }) {
   if (!source) return null
   const config: Record<string, { label: string; Icon: typeof Database }> = {
@@ -204,7 +296,12 @@ export function AgentResult({ response, onOpenClaim }: AgentResultProps) {
   const { data, message, source } = response
   const claimIds = useMemo(() => Array.from(extractClaimIds(data ?? message)), [data, message])
 
+  const claimExplanation = isClaimExplanation(data)
+
   const body = useMemo(() => {
+    if (isClaimExplanation(data)) {
+      return <ClaimExplanation data={data} source={source} />
+    }
     if (Array.isArray(data) && data.length > 0 && data.every(isPlainObject)) {
       return <DataTable rows={data as Record<string, unknown>[]} />
     }
@@ -224,11 +321,13 @@ export function AgentResult({ response, onOpenClaim }: AgentResultProps) {
       return <KeyValueCards obj={data} />
     }
     return null
-  }, [data])
+  }, [data, source])
 
   return (
     <div className="space-y-3">
-      {message && renderMarkdownBlocks(message)}
+      {/* On the deterministic fallback the message is a terse stub; the
+          explanation lives in the data, so skip the robotic one-liner. */}
+      {message && !(claimExplanation && source !== 'llm') && renderMarkdownBlocks(message)}
 
       {body}
 
