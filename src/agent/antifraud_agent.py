@@ -11,6 +11,7 @@ from src.agent.langgraph_runtime import LangGraphUnavailableError, run_langgraph
 from src.agent.llm import LLMRequest, build_llm_provider
 from src.agent.quick_questions import get_quick_questions
 from src.agent.rag import search_docs
+from src.agent.intents import CLAIM_REQUIRED_INTENTS, DOC_INTENTS, IntentMatch
 from src.agent.responses import error, success
 from src.agent.router import route
 
@@ -172,6 +173,17 @@ def _execute_turn(
 ) -> dict[str, Any]:
     intent = route(question)
     claim_id = extract_claim_id(question) or selected_claim_id or _recover_claim_id_from_history(history)
+
+    # When a claim is in focus but the router fell back to the generic default
+    # (no alias matched -> confidence 0.35), treat a vague question as being
+    # about that claim instead of answering with the whole portfolio.
+    if selected_claim_id and intent.name == "top_riesgo" and intent.confidence <= 0.35:
+        intent = IntentMatch(
+            name="explicar_siniestro",
+            confidence=0.5,
+            requires_claim_id="explicar_siniestro" in CLAIM_REQUIRED_INTENTS,
+            uses_documentation="explicar_siniestro" in DOC_INTENTS,
+        )
 
     if intent.requires_claim_id and not claim_id:
         return error(

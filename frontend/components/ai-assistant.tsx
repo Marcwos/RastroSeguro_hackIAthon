@@ -110,6 +110,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
   const [showSessionHistory, setShowSessionHistory] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const lastGuideStepRef = useRef<number | null>(null)
+  const prevClaimRef = useRef<string | null | undefined>(undefined)
   const reduceMotion = useReducedMotion()
   const stepContext = getStepContext(currentStep)
 
@@ -160,6 +161,23 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
       // Ignore storage restrictions.
     }
   }, [threadId, userId])
+
+  // Switching to a different claim must start a fresh conversation: the chat is
+  // scoped to the case in focus, so the previous case's thread (and the history
+  // sent to the LLM) should not bleed into the new one.
+  useEffect(() => {
+    if (prevClaimRef.current === undefined) {
+      prevClaimRef.current = selectedClaimId
+      return
+    }
+    if (prevClaimRef.current === selectedClaimId) return
+    prevClaimRef.current = selectedClaimId
+    setThreadId(null)
+    setSections([])
+    setShowSessionHistory(false)
+    lastGuideStepRef.current = null
+    replaceChatMessages([])
+  }, [selectedClaimId, replaceChatMessages])
 
   const refreshSessions = () => {
     void getAgentSessions(userId)
