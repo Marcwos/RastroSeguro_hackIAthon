@@ -114,7 +114,7 @@ export function Sidebar() {
               <NavButton active={currentStep === 2} disabled={!flowReady} icon={ClipboardList} label="Resumen tecnico" onClick={() => setCurrentStep(2)} />
               <NavButton active={currentStep === 3} disabled={!flowReady} icon={BarChart3} label="Riesgo explicable" onClick={() => setCurrentStep(3)} />
               <NavButton active={currentStep === 4} disabled={!flowReady} icon={GitBranch} label="Red de relaciones" onClick={() => setCurrentStep(4)} />
-              <NavButton active={currentStep === 5} disabled={!flowReady} icon={FileSearch} label="Expediente antifraude" onClick={() => setCurrentStep(5)} />
+              <NavButton active={currentStep === 5} disabled={!flowReady} icon={FileSearch} label="Reporte y cierre" onClick={() => setCurrentStep(5)} />
             </div>
           </>
         ) : (
@@ -133,7 +133,7 @@ export function Sidebar() {
             <div className="space-y-2">
               <p className="label-mono-md px-3 font-bold uppercase text-muted-foreground">Decision ejecutiva</p>
               <NavButton active={currentStep === 6} icon={Star} label="Impacto ejecutivo" onClick={() => setCurrentStep(6)} />
-              <NavButton active={currentStep === 5} disabled={!flowReady} icon={FileSearch} label="Caso seleccionado" onClick={() => setCurrentStep(5)} disabledReason="Selecciona un caso o espera datos del analista para abrir el expediente" />
+              <NavButton active={currentStep === 5} disabled={!flowReady} icon={FileSearch} label="Reporte / Caso" onClick={() => setCurrentStep(5)} disabledReason="Selecciona un caso o espera datos del analista para abrir el reporte" />
             </div>
           </>
         )}

@@ -202,7 +202,7 @@ function EmptyMini({ text }: { text: string }) {
   return <div className="border border-dashed border-border bg-[var(--surface-low)] p-3 text-xs text-muted-foreground">{text}</div>
 }
 
-export function StepDossier() {
+export function StepDossier({ embedded = false }: { embedded?: boolean }) {
   const { selectedClaimId, selectedClaim, setCurrentStep, setShowChat, claims, setSelectedClaimId, setIsDataLoaded, userRole } = useAppState()
   const [dossier, setDossier] = useState<ClaimDossier | null>(null)
   const [loading, setLoading] = useState(false)
@@ -255,9 +255,9 @@ export function StepDossier() {
   const risk = normalizeRisk(dossier?.risk?.nivel_riesgo || selectedClaim?.nivel_riesgo)
   const score = num(dossier?.risk?.score_final ?? selectedClaim?.score_final)
 
-  return (
-    <section className="px-3 py-5 lg:px-6">
-      <div className="mx-auto max-w-7xl space-y-4">
+  const content = (
+    <>
+        {!embedded && (
         <header className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <span className="label-mono uppercase tracking-widest text-muted-foreground">Detalle del caso</span>
@@ -283,6 +283,21 @@ export function StepDossier() {
             <ArrowLeft className="mr-2 inline h-4 w-4" />{isExecutive ? 'Volver al panel principal' : 'Volver al resultado'}
           </button>
         </header>
+        )}
+
+        {embedded && (
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <input
+              value={searchCode}
+              onChange={(e) => setSearchCode(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && searchInDossier()}
+              placeholder="Buscar por código (SIN-046)"
+              className="w-full border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary sm:max-w-sm"
+            />
+            <button onClick={searchInDossier} className="border border-border px-3 py-2 label-mono-md text-muted-foreground hover:text-primary">Buscar caso</button>
+            {searchError && <p className="text-xs text-destructive">{searchError}</p>}
+          </div>
+        )}
 
         {loading && <div className="institutional-card flex items-center gap-2 p-5 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Preparando el detalle del caso...</div>}
         {error && <div className="border border-destructive bg-[var(--error-container)] p-4 text-[var(--on-error-container)]">{error}</div>}
@@ -370,14 +385,27 @@ export function StepDossier() {
               <SimilarityPanel dossier={dossier} />
             </div>
 
-            <footer className="flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
-              <button onClick={() => setCurrentStep(isExecutive ? 6 : 4)} className="px-4 py-2 label-mono-md text-muted-foreground hover:text-primary">
-                {isExecutive ? 'Ver vista ejecutiva' : 'Ver relaciones completas'}
-              </button>
-              <button onClick={() => setShowChat(true)} className="flex items-center justify-center gap-2 bg-primary px-6 py-2 label-mono-md text-white"><Bot className="h-4 w-4" />Preguntar al asistente</button>
-            </footer>
+            {!embedded && (
+              <footer className="flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+                <button onClick={() => setCurrentStep(isExecutive ? 6 : 4)} className="px-4 py-2 label-mono-md text-muted-foreground hover:text-primary">
+                  {isExecutive ? 'Ver vista ejecutiva' : 'Ver relaciones completas'}
+                </button>
+                <button onClick={() => setShowChat(true)} className="flex items-center justify-center gap-2 bg-primary px-6 py-2 label-mono-md text-white"><Bot className="h-4 w-4" />Preguntar al asistente</button>
+              </footer>
+            )}
           </>
         )}
+    </>
+  )
+
+  if (embedded) {
+    return <div className="space-y-4">{content}</div>
+  }
+
+  return (
+    <section className="px-3 py-5 lg:px-6">
+      <div className="mx-auto max-w-7xl space-y-4">
+        {content}
       </div>
     </section>
   )

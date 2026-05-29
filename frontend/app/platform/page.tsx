@@ -9,7 +9,7 @@ import { StepUpload } from '@/components/steps/step-upload'
 import { StepSummary } from '@/components/steps/step-summary'
 import { StepAnalysis } from '@/components/steps/step-analysis'
 import { StepIntelligence } from '@/components/steps/step-intelligence'
-import { StepDossier } from '@/components/steps/step-dossier'
+import { StepCaseClosure } from '@/components/steps/step-case-closure'
 import { StepExecutiveDemo } from '@/components/steps/step-executive-demo'
 import { AIAssistant } from '@/components/ai-assistant'
 import { CommandBar } from '@/components/command-bar'
@@ -23,18 +23,45 @@ const STEP_VIEWS: Record<number, React.ComponentType> = {
   2: StepSummary,
   3: StepAnalysis,
   4: StepIntelligence,
-  5: StepDossier,
+  5: StepCaseClosure,
   6: StepExecutiveDemo,
 }
 
 function MainContent() {
-  const { currentStep, showCommandBar, setShowCommandBar, userRole, setCurrentStep } = useAppState()
+  const {
+    currentStep,
+    showCommandBar,
+    setShowCommandBar,
+    userRole,
+    setCurrentStep,
+    showChat,
+    setShowChat,
+    isDataLoaded,
+    selectedClaimId,
+  } = useAppState()
+
+  const flowReady = isDataLoaded && selectedClaimId !== null
 
   useEffect(() => {
     if (userRole === 'executive' && currentStep >= 1 && currentStep <= 4) {
       setCurrentStep(0)
     }
   }, [currentStep, setCurrentStep, userRole])
+
+  useEffect(() => {
+    if (!userRole) return
+
+    if (userRole === 'analyst') {
+      if (flowReady && currentStep >= 2) {
+        setShowChat(true)
+      }
+      return
+    }
+
+    if (userRole === 'executive' && flowReady && (currentStep === 5 || currentStep === 6)) {
+      setShowChat(true)
+    }
+  }, [userRole, currentStep, flowReady, setShowChat])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -61,22 +88,29 @@ function MainContent() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col lg:ml-64">
         <Header />
-        <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden pb-24 lg:pb-0">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={currentStep}
-              className="min-h-full"
-              initial={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: 'translateY(8px)' }}
-              animate={{ opacity: 1, transform: 'translateY(0px)' }}
-              exit={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: 'translateY(-6px)' }}
-              transition={{ duration: 0.26, ease: [0.23, 1, 0.32, 1] }}
-            >
-              <StepView />
-            </motion.div>
-          </AnimatePresence>
-        </main>
+        <div className="flex min-h-0 min-w-0 flex-1">
+          <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden pb-24 lg:pb-0">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={currentStep}
+                className="min-h-full"
+                initial={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: 'translateY(8px)' }}
+                animate={{ opacity: 1, transform: 'translateY(0px)' }}
+                exit={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: 'translateY(-6px)' }}
+                transition={{ duration: 0.26, ease: [0.23, 1, 0.32, 1] }}
+              >
+                <StepView />
+              </motion.div>
+            </AnimatePresence>
+          </main>
+          {showChat && (
+            <aside className="hidden min-h-0 w-[min(380px,34vw)] shrink-0 flex-col border-l border-border lg:flex">
+              <AIAssistant variant="sidebar" />
+            </aside>
+          )}
+        </div>
       </div>
-      <AIAssistant />
+      <AIAssistant variant="floating" />
       <CommandBar />
       <MobileNav />
     </div>

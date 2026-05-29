@@ -1,14 +1,14 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Bell, CircleUserRound, Search } from 'lucide-react'
+import { Bell, CircleUserRound, MessageCircle, Search } from 'lucide-react'
 import { useAppState } from '@/lib/app-context'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { HelpPanel } from '@/components/help-panel'
 import { cn } from '@/lib/utils'
 
 export function Header() {
-  const { currentStep, setCurrentStep, isDataLoaded, selectedClaimId, setShowCommandBar, userRole, resetUserRole } = useAppState()
+  const { currentStep, setCurrentStep, isDataLoaded, selectedClaimId, setShowCommandBar, setShowChat, showChat, userRole, resetUserRole } = useAppState()
   const isAnalyst = userRole === 'analyst'
   const roleLabel = isAnalyst ? 'Analista' : 'Ejecutivo'
   const flowReady = isDataLoaded && selectedClaimId !== null
@@ -26,7 +26,7 @@ export function Header() {
     return [
       { step: 0, label: 'Panel', enabled: true },
       { step: 6, label: 'Impacto', enabled: true },
-      { step: 5, label: 'Caso', enabled: flowReady },
+      { step: 5, label: 'Reporte', enabled: flowReady },
     ]
   }, [flowReady, isAnalyst])
 
@@ -71,6 +71,22 @@ export function Header() {
 
       <div className="flex items-center gap-2">
         <HelpPanel />
+        <button
+          type="button"
+          onClick={() => setShowChat(!showChat)}
+          aria-pressed={showChat}
+          aria-label={showChat ? 'Cerrar chat lateral' : 'Abrir chat lateral'}
+          title={showChat ? 'Cerrar asistente' : 'Abrir asistente lateral'}
+          className={cn(
+            'focus-ring flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs font-semibold transition-colors',
+            showChat
+              ? 'border-primary bg-primary/10 text-primary'
+              : 'border-primary bg-primary text-primary-foreground shadow-sm hover:opacity-95',
+          )}
+        >
+          <MessageCircle className="h-4 w-4 shrink-0" />
+          <span className="hidden sm:inline">{showChat ? 'Cerrar chat' : 'Abrir chat'}</span>
+        </button>
         <button
           type="button"
           onClick={() => setShowCommandBar(true)}

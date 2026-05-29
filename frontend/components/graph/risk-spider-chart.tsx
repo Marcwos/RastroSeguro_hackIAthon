@@ -9,40 +9,23 @@ import {
   RadarChart,
 } from 'recharts'
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
-
-const AXES = [
-  { key: 'score_reglas', label: 'Reglas' },
-  { key: 'score_modelo', label: 'Modelo' },
-  { key: 'score_anomalia', label: 'Anomalía' },
-  { key: 'score_nlp', label: 'Narrativa' },
-  { key: 'score_grafo', label: 'Relaciones' },
-  { key: 'score_categorico', label: 'Categórico' },
-] as const
+import { buildSpiderNarrative, computeSpiderData, getTopSpiderDrivers } from '@/lib/graph-insights'
+import { ChartInsight } from '@/components/report/chart-insight'
 
 const gridStroke = 'color-mix(in oklch, var(--chart-grid) 45%, transparent)'
-
-const num = (v: unknown) => Number(v ?? 0)
 
 export function RiskSpiderChart({ selectedClaim, claims }: { selectedClaim: ClaimSummary | null; claims: ClaimSummary[] }) {
   if (!selectedClaim) return null
 
-  const data = AXES.map((axis) => {
-    const avg = claims.length
-      ? claims.reduce((acc, c) => acc + num(c[axis.key]), 0) / claims.length
-      : 0
+  const data = computeSpiderData(selectedClaim, claims).map((d) => ({
+    dimension: d.dimension,
+    Caso: d.caseValue,
+    Promedio: d.average,
+    diff: d.diff,
+  }))
 
-    return {
-      dimension: axis.label,
-      Caso: Math.round(num(selectedClaim[axis.key]) * 100) / 100,
-      Promedio: Math.round(avg * 100) / 100,
-      diff: Math.round((num(selectedClaim[axis.key]) - avg) * 100) / 100,
-    }
-  })
-
-  const topDrivers = [...data]
-    .sort((a, b) => b.diff - a.diff)
-    .filter((d) => d.diff > 0)
-    .slice(0, 3)
+  const topDrivers = getTopSpiderDrivers(selectedClaim, claims, 3)
+  const narrative = buildSpiderNarrative(selectedClaim, claims)
 
   return (
     <div className="space-y-3">
@@ -84,6 +67,7 @@ export function RiskSpiderChart({ selectedClaim, claims }: { selectedClaim: Clai
           )}
         </div>
       </div>
+      <ChartInsight text={narrative} />
     </div>
   )
 }

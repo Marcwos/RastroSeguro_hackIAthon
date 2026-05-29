@@ -432,6 +432,7 @@ export function chatAgent(payload: {
   threadId?: string | null
   selectedClaimId?: string | null
   runtime?: 'classic' | 'langgraph'
+  uiContext?: { step?: number; step_title?: string } | null
 }) {
   return apiRequest<AgentChatSession>('/api/agent/chat', {
     method: 'POST',
@@ -441,6 +442,7 @@ export function chatAgent(payload: {
       thread_id: payload.threadId || null,
       selected_claim_id: payload.selectedClaimId || null,
       runtime: payload.runtime || 'classic',
+      ui_context: payload.uiContext || null,
     }),
   })
 }

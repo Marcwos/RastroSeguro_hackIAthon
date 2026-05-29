@@ -40,6 +40,7 @@ class AgentChatRequest(BaseModel):
     role: Literal["user"] = "user"
     runtime: Literal["classic", "langgraph"] = "classic"
     persist: bool = True
+    ui_context: dict[str, Any] | None = None
 
 
 class SimulatorClaimRequest(BaseModel):

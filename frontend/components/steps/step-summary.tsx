@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   ArrowRight,
+  Bot,
   CheckCircle2,
   FileText,
   Image as ImageIcon,
@@ -38,7 +39,7 @@ function documentBadge(status: 'completo' | 'pendiente' | 'inconsistente') {
 }
 
 export function StepSummary() {
-  const { selectedClaim, selectedClaimId, selectedExplanation, isLoadingExplanation, loadClaimExplanation, setCurrentStep } = useAppState()
+  const { selectedClaim, selectedClaimId, selectedExplanation, isLoadingExplanation, loadClaimExplanation, setCurrentStep, setShowChat } = useAppState()
   const [processing, setProcessing] = useState(false)
 
   useEffect(() => {
@@ -244,19 +245,29 @@ export function StepSummary() {
           </aside>
         </div>
 
-        <footer className="flex justify-between border-t border-border pt-6">
+        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
           <button onClick={() => setCurrentStep(1)} className="focus-ring flex items-center gap-2 px-4 py-2 label-mono-md text-muted-foreground hover:text-primary">
             <ArrowLeft className="h-4 w-4" />
             Anterior
           </button>
-          <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 sm:flex">
             <ShieldCheck className="h-4 w-4 text-[var(--on-tertiary-fixed)]" />
             <span className="label-mono text-sm text-muted-foreground">Apoya la revisión humana: no decide pagos ni rechazos.</span>
           </div>
-          <button onClick={next} className="focus-ring flex items-center gap-2 bg-primary px-6 py-2 label-mono-md text-primary-foreground">
-            Siguiente
-            <ArrowRight className="h-4 w-4" />
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowChat(true)}
+              className="focus-ring flex items-center gap-2 border border-border px-4 py-2 label-mono-md text-foreground hover:bg-[var(--surface-container)]"
+            >
+              <Bot className="h-4 w-4" />
+              Preguntar al asistente
+            </button>
+            <button onClick={next} className="focus-ring flex items-center gap-2 bg-primary px-6 py-2 label-mono-md text-primary-foreground">
+              Siguiente
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
         </footer>
       </div>
     </section>

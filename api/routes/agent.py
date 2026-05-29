@@ -120,6 +120,14 @@ def chat_agent(payload: AgentChatRequest):
             )
 
         selected_claim_id = payload.selected_claim_id or thread["context"].get("selected_claim_id")
+        thread_state: dict = {
+            "last_ok": bool(reply.get("ok")),
+            "last_source": assistant_source,
+            "section_intent": reply.get("intent"),
+            "section_claim_id": resolved_claim_id,
+        }
+        if payload.ui_context:
+            thread_state["ui_context"] = payload.ui_context
         if payload.persist:
             updated_thread = store.update_context(
                 thread_id,
@@ -129,12 +137,7 @@ def chat_agent(payload: AgentChatRequest):
                 last_intent=reply.get("intent"),
                 current_section_id=section["section_id"] if section else None,
                 runtime=(reply.get("runtime") or {}).get("active"),
-                state={
-                    "last_ok": bool(reply.get("ok")),
-                    "last_source": assistant_source,
-                    "section_intent": reply.get("intent"),
-                    "section_claim_id": resolved_claim_id,
-                },
+                state=thread_state,
             )
         else:
             updated_thread = thread

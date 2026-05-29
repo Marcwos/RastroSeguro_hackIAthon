@@ -4,12 +4,13 @@ import { useEffect } from 'react'
 import { useAppState } from '@/lib/app-context'
 import { alertToText } from '@/lib/api'
 import { getRiskBadgeClasses, getActionPanelClasses, getRiskColor, getRiskLabel } from '@/lib/claims-data'
-import { AlertTriangle, ArrowLeft, Bot, BrainCircuit, CheckCircle2, Download, Info } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, ArrowRight, Bot, BrainCircuit, Download, Info } from 'lucide-react'
 import { cn, sanitizeAiText } from '@/lib/utils'
 import { safeGraphPayload } from '@/components/graph/graph-utils'
 import { ScoreWaterfall } from '@/components/explainability/score-waterfall'
 import { RuleTrace } from '@/components/explainability/rule-trace'
 import { NarrativeCompare, type SimilarMatch } from '@/components/explainability/narrative-compare'
+import { resolveMainDriverLabel } from '@/lib/graph-insights'
 
 const num = (value: unknown) => Number(value ?? 0)
 
@@ -77,6 +78,15 @@ export function StepAnalysis() {
     const match = claims.find((c) => c.id_siniestro === id)
     return match?.narrativa || match?.descripcion || undefined
   }
+
+  const mainDriverRaw = hasCurrentExplanation
+    ? ((selectedExplanation?.detalles_avanzados as Record<string, unknown> | undefined)?.main_driver as { componente?: string; valor?: number } | undefined)
+    : undefined
+  const oneLineSummary = mainDriverRaw?.componente
+    ? `En una frase: la señal que más explica este puntaje es ${resolveMainDriverLabel(mainDriverRaw.componente)}${mainDriverRaw.valor != null ? ` (${Math.round(num(mainDriverRaw.valor))}/100)` : ''}.`
+    : topAlerts.length
+      ? `En una frase: las alertas principales (${topAlerts.map((a) => alertToText(a)).slice(0, 2).join('; ')}) concentran la priorización.`
+      : null
 
   const exportCertificate = () => {
     const lines = [
@@ -190,6 +200,9 @@ export function StepAnalysis() {
 
           <section className="institutional-card col-span-12 p-4 lg:col-span-7">
             <ScoreWaterfall componentes={waterfallComponents} scoreFinal={scoreFinal} />
+            {oneLineSummary && (
+              <p className="mt-3 rounded-md border border-border bg-[var(--surface-low)] p-3 text-sm text-muted-foreground">{oneLineSummary}</p>
+            )}
           </section>
 
           <section className="institutional-card col-span-12 p-4 lg:col-span-5">
@@ -241,9 +254,15 @@ export function StepAnalysis() {
           </aside>
         </div>
 
-        <footer className="flex items-center justify-between border-t border-border pt-6">
+        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
           <button onClick={() => setCurrentStep(2)} className="focus-ring flex items-center gap-2 px-4 py-2 label-mono-md text-muted-foreground hover:text-primary"><ArrowLeft className="h-4 w-4" />Anterior</button>
-          <button onClick={() => setShowChat(true)} className="focus-ring flex items-center gap-2 bg-primary px-6 py-2 label-mono-md text-primary-foreground"><Bot className="h-4 w-4" />Preguntar al asistente<CheckCircle2 className="h-4 w-4" /></button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button onClick={() => setShowChat(true)} className="focus-ring flex items-center gap-2 border border-border px-4 py-2 label-mono-md text-foreground hover:bg-[var(--surface-container)]"><Bot className="h-4 w-4" />Preguntar al asistente</button>
+            <button onClick={() => setCurrentStep(5)} className="focus-ring flex items-center gap-2 bg-primary px-6 py-2 label-mono-md text-primary-foreground">
+              Continuar al reporte
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
         </footer>
       </div>
     </section>

@@ -1,6 +1,6 @@
 'use client'
 
-import { BarChart3, FileSearch, GitBranch, LayoutDashboard, UploadCloud } from 'lucide-react'
+import { BarChart3, FileSearch, FileText, GitBranch, LayoutDashboard, UploadCloud } from 'lucide-react'
 import { useAppState } from '@/lib/app-context'
 import { cn } from '@/lib/utils'
 
@@ -9,12 +9,13 @@ const analystItems = [
   { step: 1, label: 'Carga', Icon: UploadCloud, needsCase: false },
   { step: 3, label: 'Riesgo', Icon: BarChart3, needsCase: true },
   { step: 4, label: 'Grafo', Icon: GitBranch, needsCase: true },
+  { step: 5, label: 'Reporte', Icon: FileText, needsCase: true },
 ]
 
 const executiveItems = [
   { step: 0, label: 'Panel', Icon: LayoutDashboard, needsCase: false },
   { step: 6, label: 'Impacto', Icon: BarChart3, needsCase: false },
-  { step: 5, label: 'Caso', Icon: FileSearch, needsCase: true },
+  { step: 5, label: 'Reporte', Icon: FileSearch, needsCase: true },
 ]
 
 export function MobileNav() {
@@ -27,7 +28,7 @@ export function MobileNav() {
       aria-label="Navegacion movil principal"
       className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 px-3 py-2 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl lg:hidden"
     >
-      <div className="mx-auto grid max-w-md grid-cols-4 gap-1">
+      <div className={cn('mx-auto grid max-w-lg gap-1', items.length > 4 ? 'grid-cols-5' : 'grid-cols-4')}>
         {items.map(({ step, label, Icon, needsCase }) => {
           const disabled = needsCase && !flowReady
           const active = currentStep === step

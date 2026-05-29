@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import { useAppState } from '@/lib/app-context'
 import { AgentChatMessage, AgentChatSection, AgentChatSessionSummary, ApiClientError, chatAgent, getAgentSessions, getAgentThread, getQuickQuestions } from '@/lib/api'
 import { AgentResult } from '@/components/agent/agent-result'
+import { getStepContext, getStepQuickQuestions, getStepGuideMessage } from '@/lib/demo-step-context'
 import { History, MessageCircle, Plus, X, Send, Bot, User } from 'lucide-react'
 import { cn, sanitizeAiText } from '@/lib/utils'
 import { renderMarkdownBlocks } from '@/lib/markdown'
@@ -29,23 +30,6 @@ function normalizeAssistantText(text: string): string {
       .replace(/\n{3,}/g, '\n\n')
       .trim(),
   )
-}
-
-function contextualQuickQuestions(claimId: string | null): string[] {
-  if (claimId) {
-    return [
-      `¿Por qué el caso ${claimId} tiene este puntaje?`,
-      '¿Qué señales principales explican este resultado?',
-      '¿Hay relatos parecidos o conexiones con otros casos?',
-      '¿Qué recomienda el sistema para este caso?',
-    ]
-  }
-  return [
-    '¿Cuáles son los casos con mayor prioridad?',
-    '¿Qué proveedores concentran más alertas?',
-    '¿Qué tipos de seguro tienen más casos sospechosos?',
-    'Genera un resumen general de los casos más delicados.',
-  ]
 }
 
 function toUiMessage(message: AgentChatMessage) {
@@ -85,8 +69,22 @@ function ensureLocalUserId(): string {
   }
 }
 
-export function AIAssistant() {
-  const { showChat, setShowChat, selectedClaimId, setSelectedClaimId, setIsDataLoaded, setCurrentStep, userRole, chatMessages, addChatMessage, replaceChatMessages } = useAppState()
+type AssistantVariant = 'sidebar' | 'floating'
+
+export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVariant }) {
+  const {
+    showChat,
+    setShowChat,
+    selectedClaimId,
+    setSelectedClaimId,
+    setIsDataLoaded,
+    setCurrentStep,
+    userRole,
+    currentStep,
+    chatMessages,
+    addChatMessage,
+    replaceChatMessages,
+  } = useAppState()
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [apiQuickQuestions, setApiQuickQuestions] = useState<string[]>([])
@@ -96,17 +94,19 @@ export function AIAssistant() {
   const [sections, setSections] = useState<AgentChatSection[]>([])
   const [showSessionHistory, setShowSessionHistory] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const lastGuideStepRef = useRef<number | null>(null)
   const reduceMotion = useReducedMotion()
+  const stepContext = getStepContext(currentStep)
 
   const quickQuestions = useMemo(() => {
-    const base = contextualQuickQuestions(selectedClaimId)
+    const base = getStepQuickQuestions(currentStep, selectedClaimId)
     if (!apiQuickQuestions.length) return base
     const merged = [...base]
     for (const q of apiQuickQuestions) {
       if (!merged.includes(q)) merged.push(q)
     }
     return merged.slice(0, 5)
-  }, [apiQuickQuestions, selectedClaimId])
+  }, [apiQuickQuestions, currentStep, selectedClaimId])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -133,7 +133,7 @@ export function AIAssistant() {
         window.localStorage.removeItem(`${THREAD_STORAGE_KEY}:${userId}`)
       }
     } catch {
-      // Ignore storage restrictions in embedded browsers.
+      // Ignore storage restrictions.
     }
   }, [threadId, userId])
 
@@ -166,29 +166,79 @@ export function AIAssistant() {
   }, [showChat, threadId, userId, replaceChatMessages])
 
   useEffect(() => {
-    if (showChat && chatMessages.length === 0 && !threadId) {
-      addChatMessage({
-        id: Date.now().toString(),
-        role: 'assistant',
-        content: selectedClaimId
-          ? `Estoy listo para ayudarte con el caso ${selectedClaimId}. Puedo explicar por qué fue priorizado y qué señales lo destacan.`
-          : 'Estoy listo para ayudarte. Selecciona un caso o haz una pregunta general sobre la información cargada.',
-        timestamp: new Date(),
-      })
+    if (!showChat) {
+      lastGuideStepRef.current = null
     }
-  }, [showChat, chatMessages.length, selectedClaimId, threadId, addChatMessage])
+  }, [showChat])
+
+  useEffect(() => {
+    if (!showChat || threadId) return
+
+    const guide = getStepGuideMessage(currentStep, selectedClaimId)
+    const stepChanged = lastGuideStepRef.current !== currentStep
+    const hasUserMessages = chatMessages.some((m) => m.role === 'user')
+
+    if (chatMessages.length === 0) {
+      addChatMessage({
+        id: `step-guide-${currentStep}`,
+        role: 'assistant',
+        content: guide,
+        timestamp: new Date(),
+        sectionId: `step-${currentStep}`,
+      })
+      lastGuideStepRef.current = currentStep
+      return
+    }
+
+    if (!hasUserMessages) {
+      const onlyAssistant = chatMessages.every((m) => m.role === 'assistant')
+      if (onlyAssistant && (stepChanged || chatMessages[0]?.content !== guide)) {
+        replaceChatMessages([{
+          id: chatMessages[0]?.id ?? `step-guide-${currentStep}`,
+          role: 'assistant',
+          content: guide,
+          timestamp: new Date(),
+          sectionId: `step-${currentStep}`,
+        }])
+        lastGuideStepRef.current = currentStep
+      }
+      return
+    }
+
+    if (stepChanged && lastGuideStepRef.current !== null) {
+      addChatMessage({
+        id: `step-guide-${currentStep}-${Date.now()}`,
+        role: 'assistant',
+        content: guide,
+        timestamp: new Date(),
+        sectionId: `step-${currentStep}`,
+      })
+      lastGuideStepRef.current = currentStep
+    } else if (lastGuideStepRef.current === null) {
+      lastGuideStepRef.current = currentStep
+    }
+  }, [
+    currentStep,
+    selectedClaimId,
+    showChat,
+    threadId,
+    chatMessages,
+    addChatMessage,
+    replaceChatMessages,
+  ])
 
   const openClaim = (id: string) => {
     setSelectedClaimId(id)
     setIsDataLoaded(true)
     setCurrentStep(userRole === 'executive' ? 5 : 3)
-    setShowChat(false)
+    if (variant === 'floating') setShowChat(false)
   }
 
   const startNewSession = () => {
     setThreadId(null)
     setSections([])
     setShowSessionHistory(false)
+    lastGuideStepRef.current = null
     replaceChatMessages([])
   }
 
@@ -217,6 +267,7 @@ export function AIAssistant() {
         threadId,
         selectedClaimId,
         runtime: 'classic',
+        uiContext: { step: currentStep, step_title: stepContext.title },
       })
       setThreadId(session.thread_id)
       setSections(session.sections)
@@ -250,243 +301,284 @@ export function AIAssistant() {
     return new Map(sections.map((section) => [section.section_id, section.title]))
   }, [sections])
 
+  function resolveSectionTitle(sectionId: string | null | undefined): string {
+    if (!sectionId) return 'Conversación'
+    if (sectionId.startsWith('step-')) {
+      const stepNum = Number(sectionId.replace('step-', ''))
+      if (!Number.isNaN(stepNum)) {
+        return `${stepNum > 0 ? `Paso ${stepNum}` : 'Inicio'} · ${getStepContext(stepNum).title}`
+      }
+    }
+    return sectionTitleById.get(sectionId) || 'Conversación'
+  }
+
+  const panelClassName = variant === 'sidebar'
+    ? 'flex h-full w-full flex-col overflow-hidden bg-card text-card-foreground'
+    : cn(
+        'fixed bottom-20 left-1/2 z-[110] flex -translate-x-1/2 flex-col overflow-hidden border border-border bg-card text-card-foreground shadow-2xl ring-1 ring-border/60 dark:shadow-black/40 lg:hidden',
+        'h-[min(56vh,460px)] w-[min(92vw,520px)] rounded-xl',
+      )
+
+  if (variant === 'floating' && showChat) {
+    // floating only on mobile
+  }
+
+  const renderPanel = () => (
+    <div role="dialog" aria-label="Asistente" className={panelClassName}>
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-[var(--surface-container)] px-3 py-2.5 text-foreground">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--secondary-container)] text-[var(--on-secondary-container)]">
+            <Bot className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <p className="truncate font-semibold">Asistente</p>
+            <p className="label-mono truncate text-xs text-muted-foreground">
+              Paso {currentStep > 0 ? currentStep : 'inicio'} · {stepContext.title}
+              {selectedClaimId ? ` · ${selectedClaimId}` : ''}
+            </p>
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setShowSessionHistory((value) => !value)}
+            className="focus-ring rounded-lg p-2 text-muted-foreground transition-colors hover:bg-[var(--surface-high)] hover:text-foreground"
+            aria-label="Historial de conversaciones"
+            title="Historial"
+          >
+            <History className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={startNewSession}
+            className="focus-ring rounded-lg p-2 text-muted-foreground transition-colors hover:bg-[var(--surface-high)] hover:text-foreground"
+            aria-label="Nueva conversación"
+            title="Nueva conversación"
+          >
+            <Plus className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowChat(false)}
+            className="focus-ring rounded-lg p-2 text-muted-foreground transition-colors hover:bg-[var(--surface-high)] hover:text-foreground"
+            aria-label="Cerrar asistente"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col">
+        {showSessionHistory && (
+          <div className="shrink-0 border-b border-border bg-card px-3 py-2">
+            <div className="flex max-h-24 gap-2 overflow-x-auto">
+              {sessions.map((session) => (
+                <button
+                  key={session.thread_id}
+                  type="button"
+                  onClick={() => openSession(session.thread_id)}
+                  className={cn(
+                    'focus-ring min-w-[180px] rounded-md border px-3 py-2 text-left text-xs transition-colors',
+                    session.thread_id === threadId
+                      ? 'border-primary bg-primary/10 text-foreground'
+                      : 'border-border bg-[var(--surface-low)] text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  <span className="block truncate font-medium">{session.title}</span>
+                  <span className="label-mono mt-1 block text-[10px]">{session.message_count} mensajes</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[var(--surface-low)] p-3">
+          {chatMessages.map((message, index) => {
+            const previous = chatMessages[index - 1]
+            const shouldShowSection = message.sectionId && message.sectionId !== previous?.sectionId
+            return (
+              <div key={message.id} className="space-y-3">
+                {shouldShowSection && (
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <div className="h-px flex-1 bg-border" />
+                    <span className="max-w-[70%] truncate label-mono">
+                            {resolveSectionTitle(message.sectionId)}
+                    </span>
+                    <div className="h-px flex-1 bg-border" />
+                  </div>
+                )}
+                <div className={cn('flex gap-2.5', message.role === 'user' ? 'flex-row-reverse' : '')}>
+                  <div
+                    className={cn(
+                      'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+                      message.role === 'assistant' ? 'bg-[var(--secondary-container)]' : 'bg-primary text-primary-foreground',
+                    )}
+                  >
+                    {message.role === 'assistant' ? (
+                      <Bot className="h-4 w-4 text-[var(--on-secondary-container)]" />
+                    ) : (
+                      <User className="h-4 w-4" />
+                    )}
+                  </div>
+                  <div
+                    className={cn(
+                      'rounded-lg px-3 py-2 text-xs leading-relaxed',
+                      message.role === 'assistant'
+                        ? 'border border-border bg-card text-card-foreground'
+                        : 'max-w-[85%] bg-primary text-primary-foreground',
+                      message.role === 'assistant' && message.response ? 'w-full max-w-[92%]' : 'max-w-[85%]',
+                    )}
+                  >
+                    {message.role === 'assistant' && message.response ? (
+                      <AgentResult response={message.response} onOpenClaim={openClaim} />
+                    ) : message.role === 'assistant' ? (
+                      renderMarkdownBlocks(message.content)
+                    ) : (
+                      <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+
+          {isTyping && (
+            <div className="flex gap-2.5">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--secondary-container)]">
+                <Bot className="h-4 w-4 text-[var(--on-secondary-container)]" />
+              </div>
+              <div className="rounded-lg border border-border bg-card px-4 py-3">
+                <div className="flex gap-1">
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" style={{ animationDelay: '0ms' }} />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" style={{ animationDelay: '150ms' }} />
+                  <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        <div className="shrink-0 border-t border-border bg-card">
+          <div className="max-h-[64px] overflow-y-auto px-3 pt-2">
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {quickQuestions.slice(0, 3).map((q) => (
+                <button
+                  key={q}
+                  type="button"
+                  title={q}
+                  onClick={() => handleSend(q)}
+                  disabled={isTyping}
+                  className="focus-ring shrink-0 rounded-full border border-border bg-[var(--surface-low)] px-3 py-1.5 text-xs text-foreground transition-colors hover:border-primary disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {shortenQuestion(q, 42)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-3">
+            <div className="rounded-xl border border-border bg-[var(--surface-low)] px-3 py-2.5">
+              <textarea
+                name="agent_question"
+                aria-label="Pregunta para el asistente"
+                rows={2}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    void handleSend()
+                  }
+                }}
+                placeholder="¿Qué quieres consultar?"
+                className="min-h-[36px] max-h-20 w-full resize-none bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
+              />
+
+              <div className="mt-2 flex items-center justify-between">
+                <span className="label-mono text-[10px] text-muted-foreground">
+                  Enter envía · Shift+Enter nueva línea
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void handleSend()}
+                  disabled={!input.trim() || isTyping}
+                  className={cn(
+                    'focus-ring flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-foreground transition-colors hover:bg-[var(--surface-high)]',
+                    (!input.trim() || isTyping) && 'cursor-not-allowed opacity-50',
+                  )}
+                  aria-label="Enviar mensaje"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <p className="mt-2 text-center text-xs text-muted-foreground">
+              Ayuda a priorizar la revisión humana; no acusa fraude automáticamente.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  if (variant === 'sidebar') {
+    if (!showChat) return null
+    return renderPanel()
+  }
+
   return (
     <>
       <AnimatePresence>
         {!showChat && (
-          <motion.button
-            type="button"
-            initial={reduceMotion ? false : { y: 12, opacity: 0, scale: 0.95 }}
-            animate={reduceMotion ? undefined : {
-              y: 0,
-              opacity: 1,
-              scale: [1, 1.06, 1],
-              boxShadow: ['0 0 0 0 rgba(79,70,229,0.35)', '0 0 0 12px rgba(79,70,229,0)', '0 0 0 0 rgba(79,70,229,0)'],
-            }}
-            transition={reduceMotion ? undefined : { duration: 2, repeat: Infinity, repeatDelay: 1.2 }}
-            exit={reduceMotion ? undefined : { y: 12, opacity: 0 }}
-            onClick={() => setShowChat(true)}
-            className="focus-ring fixed bottom-4 left-1/2 z-[100] flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-primary/40 bg-primary text-primary-foreground shadow-lg"
-            aria-label="Abrir asistente"
-          >
-            <MessageCircle className="h-5 w-5" />
-          </motion.button>
+          <>
+            <motion.button
+              type="button"
+              initial={reduceMotion ? false : { y: 12, opacity: 0, scale: 0.95 }}
+              animate={reduceMotion ? undefined : {
+                y: 0,
+                opacity: 1,
+                scale: [1, 1.06, 1],
+                boxShadow: ['0 0 0 0 rgba(79,70,229,0.35)', '0 0 0 12px rgba(79,70,229,0)', '0 0 0 0 rgba(79,70,229,0)'],
+              }}
+              transition={reduceMotion ? undefined : { duration: 2, repeat: Infinity, repeatDelay: 1.2 }}
+              exit={reduceMotion ? undefined : { y: 12, opacity: 0 }}
+              onClick={() => setShowChat(true)}
+              className="focus-ring fixed bottom-4 left-1/2 z-[110] flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-primary/40 bg-primary text-primary-foreground shadow-lg lg:hidden"
+              aria-label="Abrir asistente"
+            >
+              <MessageCircle className="h-5 w-5" />
+            </motion.button>
+
+            <motion.button
+              type="button"
+              initial={reduceMotion ? false : { x: 12, opacity: 0 }}
+              animate={reduceMotion ? undefined : { x: 0, opacity: 1 }}
+              exit={reduceMotion ? undefined : { x: 12, opacity: 0 }}
+              onClick={() => setShowChat(true)}
+              className="focus-ring fixed right-0 top-1/2 z-[110] hidden -translate-y-1/2 flex-col items-center gap-2 rounded-l-md border border-r-0 border-primary/30 bg-primary px-2.5 py-4 text-primary-foreground shadow-lg hover:opacity-95 lg:flex"
+              aria-label="Abrir chat lateral"
+              title="Abrir asistente lateral"
+            >
+              <MessageCircle className="h-5 w-5" />
+              <span className="label-mono-md text-[10px] font-bold uppercase tracking-wider [writing-mode:vertical-rl]">
+                Asistente
+              </span>
+            </motion.button>
+          </>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {showChat && (
           <motion.div
-            role="dialog"
-            aria-label="Asistente"
             initial={reduceMotion ? false : { opacity: 0, y: 16, scale: 0.98 }}
             animate={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
             exit={reduceMotion ? undefined : { opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: reduceMotion ? 0 : 0.2 }}
-            className={cn(
-              'fixed bottom-20 left-1/2 z-[100] flex -translate-x-1/2 flex-col overflow-hidden border border-border bg-card text-card-foreground shadow-2xl ring-1 ring-border/60 dark:shadow-black/40',
-              'h-[min(56vh,460px)] w-[min(92vw,520px)] rounded-xl',
-            )}
+            className="lg:hidden"
           >
-            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-[var(--surface-container)] px-3 py-2.5 text-foreground">
-              <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--secondary-container)] text-[var(--on-secondary-container)]">
-                  <Bot className="h-4 w-4" />
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate font-semibold">Asistente</p>
-                  {selectedClaimId && (
-                    <p className="label-mono truncate text-xs text-muted-foreground">
-                      Caso {selectedClaimId}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="flex shrink-0 items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setShowSessionHistory((value) => !value)}
-                  className="focus-ring rounded-lg p-2 text-muted-foreground transition-colors hover:bg-[var(--surface-high)] hover:text-foreground"
-                  aria-label="Historial de conversaciones"
-                  title="Historial"
-                >
-                  <History className="h-5 w-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={startNewSession}
-                  className="focus-ring rounded-lg p-2 text-muted-foreground transition-colors hover:bg-[var(--surface-high)] hover:text-foreground"
-                  aria-label="Nueva conversación"
-                  title="Nueva conversación"
-                >
-                  <Plus className="h-5 w-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowChat(false)}
-                  className="focus-ring rounded-lg p-2 text-muted-foreground transition-colors hover:bg-[var(--surface-high)] hover:text-foreground"
-                  aria-label="Cerrar asistente"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-
-            <div className="flex min-h-0 flex-1 flex-col">
-              {showSessionHistory && (
-                <div className="shrink-0 border-b border-border bg-card px-3 py-2">
-                  <div className="flex max-h-24 gap-2 overflow-x-auto">
-                    {sessions.map((session) => (
-                      <button
-                        key={session.thread_id}
-                        type="button"
-                        onClick={() => openSession(session.thread_id)}
-                        className={cn(
-                          'focus-ring min-w-[180px] rounded-md border px-3 py-2 text-left text-xs transition-colors',
-                          session.thread_id === threadId
-                            ? 'border-primary bg-primary/10 text-foreground'
-                            : 'border-border bg-[var(--surface-low)] text-muted-foreground hover:text-foreground',
-                        )}
-                      >
-                        <span className="block truncate font-medium">{session.title}</span>
-                        <span className="label-mono mt-1 block text-[10px]">{session.message_count} mensajes</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[var(--surface-low)] p-3">
-                {chatMessages.map((message, index) => {
-                  const previous = chatMessages[index - 1]
-                  const shouldShowSection = message.sectionId && message.sectionId !== previous?.sectionId
-                  return (
-                    <div key={message.id} className="space-y-3">
-                      {shouldShowSection && (
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <div className="h-px flex-1 bg-border" />
-                          <span className="max-w-[70%] truncate label-mono">
-                            {sectionTitleById.get(message.sectionId || '') || 'Conversación'}
-                          </span>
-                          <div className="h-px flex-1 bg-border" />
-                        </div>
-                      )}
-                      <div className={cn('flex gap-2.5', message.role === 'user' ? 'flex-row-reverse' : '')}>
-                        <div
-                          className={cn(
-                            'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
-                            message.role === 'assistant' ? 'bg-[var(--secondary-container)]' : 'bg-primary text-primary-foreground',
-                          )}
-                        >
-                          {message.role === 'assistant' ? (
-                            <Bot className="h-4 w-4 text-[var(--on-secondary-container)]" />
-                          ) : (
-                            <User className="h-4 w-4" />
-                          )}
-                        </div>
-                        <div
-                          className={cn(
-                            'rounded-lg px-3 py-2 text-xs leading-relaxed',
-                            message.role === 'assistant'
-                              ? 'border border-border bg-card text-card-foreground'
-                              : 'max-w-[85%] bg-primary text-primary-foreground',
-                            message.role === 'assistant' && message.response ? 'w-full max-w-[92%]' : 'max-w-[85%]',
-                          )}
-                        >
-                          {message.role === 'assistant' && message.response ? (
-                            <AgentResult response={message.response} onOpenClaim={openClaim} />
-                          ) : message.role === 'assistant' ? (
-                            renderMarkdownBlocks(message.content)
-                          ) : (
-                            <p className="whitespace-pre-wrap break-words">{message.content}</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-
-                {isTyping && (
-                  <div className="flex gap-2.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--secondary-container)]">
-                      <Bot className="h-4 w-4 text-[var(--on-secondary-container)]" />
-                    </div>
-                    <div className="rounded-lg border border-border bg-card px-4 py-3">
-                      <div className="flex gap-1">
-                        <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" style={{ animationDelay: '0ms' }} />
-                        <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" style={{ animationDelay: '150ms' }} />
-                        <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground/50" style={{ animationDelay: '300ms' }} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div ref={messagesEndRef} />
-              </div>
-
-              <div className="shrink-0 border-t border-border bg-card">
-                <div className="max-h-[64px] overflow-y-auto px-3 pt-2">
-                  <div className="flex gap-2 overflow-x-auto pb-1">
-                    {quickQuestions.slice(0, 3).map((q) => (
-                      <button
-                        key={q}
-                        type="button"
-                        title={q}
-                        onClick={() => handleSend(q)}
-                        disabled={isTyping}
-                        className="focus-ring shrink-0 rounded-full border border-border bg-[var(--surface-low)] px-3 py-1.5 text-xs text-foreground transition-colors hover:border-primary disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {shortenQuestion(q, 42)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="p-3">
-                  <div className="rounded-xl border border-border bg-[var(--surface-low)] px-3 py-2.5">
-                    <textarea
-                      name="agent_question"
-                      aria-label="Pregunta para el asistente"
-                      rows={2}
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault()
-                          void handleSend()
-                        }
-                      }}
-                      placeholder="¿Qué quieres consultar?"
-                      className="min-h-[36px] max-h-20 w-full resize-none bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
-                    />
-
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="label-mono text-[10px] text-muted-foreground">
-                        Enter envía · Shift+Enter crea una nueva línea
-                      </span>
-
-                      <div className="flex items-center gap-2">
-                        <span className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">RastroSeguro</span>
-                        <button
-                          type="button"
-                          onClick={() => void handleSend()}
-                          disabled={!input.trim() || isTyping}
-                          className={cn(
-                            'focus-ring flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-foreground transition-colors hover:bg-[var(--surface-high)]',
-                            (!input.trim() || isTyping) && 'cursor-not-allowed opacity-50',
-                          )}
-                          aria-label="Enviar mensaje"
-                        >
-                          <Send className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="mt-2 text-center text-xs text-muted-foreground">
-                    Ayuda a priorizar la revisión humana; no acusa fraude automáticamente.
-                  </p>
-                </div>
-              </div>
-            </div>
+            {renderPanel()}
           </motion.div>
         )}
       </AnimatePresence>

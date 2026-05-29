@@ -77,7 +77,14 @@ El agente debe usar herramientas reales. El simulador debe calcular score y expl
 
 Objetivo: facilitar pitch y cierre ejecutivo.
 
-Tabs sugeridas:
+**Paso 5 en la app (analista y ejecutivo):** pantalla `step-case-closure` con pestañas **Reporte** y **Expediente**.
+
+- **Reporte:** score objetivo desglosado (pesos 30/25/15/15/10/5), recorrido por etapas 1–4, gráficos explicados, contexto portafolio, guion demo y exportación `.md`.
+- **Expediente:** ficha antifraude completa (`step-dossier` embebido).
+
+El chat lateral (desktop) usa preguntas rápidas contextualizadas por paso (`demo-step-context.ts`).
+
+Tabs sugeridas (vista conceptual):
 
 - Resumen ejecutivo.
 - Casos estrella.
