@@ -10,6 +10,24 @@ export const metadata: Metadata = {
     'RastroSeguro prioriza siniestros con señales de posible fraude y explica por qué, para que el equipo humano revise primero donde más importa.',
 }
 
+const magnitudeFacts = [
+  {
+    label: 'Toda la región',
+    detail:
+      'Ecuador y América Latina comparten el mismo patrón: el fraude no distingue aseguradora ni tamaño. Prácticamente todas conviven con él.',
+  },
+  {
+    label: 'Dónde se concentra',
+    detail:
+      'En las líneas de alto volumen (salud, vehículos y vida) un caso fraudulento se pierde con facilidad entre miles de reclamos legítimos.',
+  },
+  {
+    label: 'Cómo se revisa hoy',
+    detail:
+      'La mayoría de los equipos aún prioriza por muestreo e intuición, no por nivel de riesgo. Lo difícil no es saber que hay fraude, es saber dónde mirar.',
+  },
+]
+
 const problemQuestions = [
   {
     question: '¿Cuáles reclamos debo revisar hoy?',
@@ -87,7 +105,7 @@ export default function LandingPage() {
           <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-12 lg:grid-cols-[1.1fr_.9fr] lg:px-8 lg:py-16">
             <div className="landing-reveal space-y-8">
               <div className="flex flex-wrap gap-3">
-                <span className="landing-tag">Prioridad operativa</span>
+                <span className="landing-tag">~10% de siniestros con fraude</span>
                 <span className="landing-tag">Razones visibles</span>
                 <span className="landing-tag">Revisión humana</span>
               </div>
@@ -127,12 +145,45 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* ── Magnitud ─────────────────────────────────────────────────────── */}
+        <section className="border-b border-border bg-[var(--surface-low)]">
+          <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-20">
+            <p className="label-mono-md uppercase text-muted-foreground">La magnitud del problema</p>
+
+            <div className="mt-8 grid items-start gap-10 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
+              <div>
+                <p className="landing-stat-hero text-primary">
+                  ~10<span className="align-top text-[0.45em] font-semibold">%</span>
+                </p>
+                <p className="mt-5 max-w-xl text-balance font-display text-2xl font-semibold leading-snug lg:text-3xl">
+                  de cada dólar pagado en siniestros se estima ligado a fraude.
+                </p>
+                <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground">
+                  Es la cifra que el sector asegurador maneja a nivel global y en América Latina. En una cartera de miles de reclamos, ese 10% se traduce en pérdidas que casi nunca se ven hasta que ya se pagaron.
+                </p>
+              </div>
+
+              <dl className="border-t border-border">
+                {magnitudeFacts.map(({ label, detail }) => (
+                  <div key={label} className="border-b border-border py-5">
+                    <dt className="label-mono uppercase text-primary">{label}</dt>
+                    <dd className="mt-2 text-sm leading-7 text-muted-foreground">{detail}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
+        </section>
+
         {/* ── Problema ─────────────────────────────────────────────────────── */}
         <section id="problema" className="scroll-mt-24 border-b border-border bg-background">
           <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
-            <h2 className="display-heading max-w-2xl text-balance text-3xl lg:text-4xl">
-              El fraude no siempre es obvio. El costo de no priorizar bien, sí.
+            <h2 className="display-heading max-w-3xl text-balance text-3xl lg:text-4xl">
+              Saber que el fraude existe es fácil. Cada mañana, la pregunta es otra:
             </h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
+              Tres preguntas que un analista de siniestros enfrenta con cada cartera, sin una guía clara de por dónde empezar.
+            </p>
 
             <div className="mt-10 grid gap-4 lg:grid-cols-3">
               {problemQuestions.map(({ question, consequence }) => (
@@ -154,11 +205,12 @@ export default function LandingPage() {
         <section className="border-b border-border bg-[var(--surface-low)]">
           <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
             <div className="max-w-3xl">
-              <h2 className="display-heading text-balance text-3xl lg:text-4xl">
-                Una herramienta que ordena, explica y deja decidir.
+              <p className="label-mono-md uppercase text-muted-foreground">La solución</p>
+              <h2 className="display-heading mt-4 text-balance text-3xl lg:text-4xl">
+                Convierte esa cartera en una bandeja ordenada por riesgo.
               </h2>
               <p className="mt-4 text-sm leading-7 text-muted-foreground">
-                RastroSeguro toma la cartera de siniestros, detecta las señales de alerta en cada expediente y entrega una bandeja priorizada con las razones detrás de cada caso.
+                RastroSeguro toma los miles de reclamos, detecta las señales de alerta en cada expediente y los ordena para que el analista empiece por donde más importa, con las razones a la vista.
               </p>
             </div>
 

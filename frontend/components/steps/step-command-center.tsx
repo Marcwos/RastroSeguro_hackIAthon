@@ -53,7 +53,7 @@ function ReportDialog({ report, loading, onLoad }: { report: ExecutiveReport | n
   return (
     <Dialog onOpenChange={(open) => { if (open && !report && !loading) onLoad() }}>
       <DialogTrigger asChild>
-        <Button variant="outline-inverse" className="h-auto px-5 py-3 label-mono-md font-bold uppercase">
+        <Button variant="outline-inverse" className="h-auto px-5 py-3 text-[15px] font-semibold">
           <FileText className="h-4 w-4" /> Reporte ejecutivo
         </Button>
       </DialogTrigger>
@@ -163,7 +163,7 @@ function SimulatorDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline-inverse" className="h-auto px-5 py-3 label-mono-md font-bold uppercase">
+        <Button variant="outline-inverse" className="h-auto px-5 py-3 text-[15px] font-semibold">
           <FlaskConical className="h-4 w-4" /> Simular caso
         </Button>
       </DialogTrigger>
@@ -190,7 +190,7 @@ function SimulatorDialog() {
               <Checkbox checked={form.documentos_presentes === 'true'} onCheckedChange={(checked) => update('documentos_presentes', String(checked === true))} />
               Documentación completa
             </label>
-            <Button onClick={run} disabled={loading} className="h-auto w-full px-4 py-3 label-mono-md font-bold uppercase">
+            <Button onClick={run} disabled={loading} className="h-auto w-full px-4 py-3 text-[15px] font-semibold">
               {loading && <Loader2 className="h-4 w-4 animate-spin" />} Ejecutar simulación
             </Button>
             {error && <p className="text-sm text-destructive">{error}</p>}
@@ -431,30 +431,27 @@ export function StepCommandCenter() {
           <div className="dark-panel dark-panel-border border p-8">
             <div className="dark-panel-kicker flex items-center gap-2">
               <GitBranch className="h-5 w-5" />
-              <span className="label-mono-md uppercase">RastroSeguro Intelligence Layer</span>
+              <span className="label-mono-md uppercase">Inteligencia antifraude</span>
             </div>
             <h1 className="dark-panel-heading display-heading mt-4 text-4xl lg:text-5xl">Centro de Control Antifraude</h1>
             <p className="dark-panel-muted mt-3 max-w-2xl text-base">
               {isAnalyst ? 'Bandeja operativa de riesgo, carga de datos y casos prioritarios para revision con IA.' : 'Panorama ejecutivo de riesgo, concentracion de alertas e impacto para decision gerencial.'}
             </p>
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               {isAnalyst ? (
-                <Button onClick={() => setCurrentStep(1)} className="dark-panel-cta h-auto px-5 py-3 label-mono-md font-bold uppercase">
-                  Cargar datos / iniciar análisis <ArrowRight className="h-4 w-4" />
+                <Button onClick={() => setCurrentStep(1)} className="dark-panel-cta h-auto px-5 py-3 text-[15px] font-semibold">
+                  Cargar datos e iniciar análisis <ArrowRight className="h-4 w-4" />
                 </Button>
               ) : (
-                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-[var(--primary-fixed-dim)]">
-                  Datos gestionados por analista
+                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[var(--primary-fixed-dim)] px-5 py-3 text-[15px] font-semibold text-[var(--primary-fixed-dim)]">
+                  Datos gestionados por el analista
                 </span>
               )}
-              <Button variant="outline-inverse" onClick={() => { void loadClaims(); void loadCommandCenterData() }} className="h-auto px-5 py-3 label-mono-md font-bold uppercase">
+              <Button variant="outline-inverse" onClick={() => { void loadClaims(); void loadCommandCenterData() }} className="h-auto px-5 py-3 text-[15px] font-semibold">
                 Sincronizar datos
               </Button>
               <ReportDialog report={report} loading={reportLoading} onLoad={() => void loadCommandCenterData()} />
               <SimulatorDialog />
-              <Button variant="outline-inverse" onClick={() => setCurrentStep(6)} className="h-auto px-5 py-3 label-mono-md font-bold uppercase">
-                Impacto ejecutivo
-              </Button>
             </div>
           </div>
           <div className="institutional-card p-6">
@@ -489,7 +486,7 @@ export function StepCommandCenter() {
               <p className="mt-2 text-sm text-muted-foreground">Cargue los datos para activar el Centro de Control.</p>
             </div>
             {isAnalyst ? (
-              <Button onClick={() => setCurrentStep(1)} className="h-auto px-5 py-3 label-mono-md font-bold uppercase">Ir a carga de datos</Button>
+              <Button onClick={() => setCurrentStep(1)} className="h-auto px-5 py-3 text-[15px] font-semibold">Ir a carga de datos</Button>
             ) : (
               <p className="max-w-md text-sm text-muted-foreground">Solicita al analista cargar los datos para que esta vista muestre los indicadores, impacto y casos críticos.</p>
             )}
@@ -514,7 +511,7 @@ export function StepCommandCenter() {
 
             <div className="grid grid-cols-12 gap-4">
               <div className="institutional-card col-span-12 overflow-hidden xl:col-span-7">
-                <div className="section-header flex items-center gap-2"><GitBranch className="h-4 w-4" />Grafo ejecutivo de casos</div>
+                <div className="section-header flex items-center gap-2"><GitBranch className="h-4 w-4" />Red de relaciones de casos</div>
                 <GlobalRelationshipMap claims={claims} onAnalyze={analyzeClaim} />
               </div>
               <div className="institutional-card col-span-12 overflow-hidden xl:col-span-5">

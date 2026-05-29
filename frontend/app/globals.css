@@ -416,6 +416,16 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Anchor statistic for the magnitude band — single dominant figure */
+.landing-stat-hero {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: clamp(3.5rem, 8vw, 5.5rem);
+  font-weight: 700;
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
 .landing-spotlight {
   box-shadow:
     0 16px 40px rgba(15, 23, 42, 0.18),
