@@ -40,6 +40,158 @@ def _record_for_claim(id_siniestro: str, data_path: Path = OUTPUT_PATH) -> dict[
     return matches.iloc[0].to_dict()
 
 
+def _clean_text(value: Any, fallback: str = "No informado") -> str:
+    text = str(value or "").strip()
+    if not text or text.lower() in {"nan", "none", "null"}:
+        return fallback
+    return text
+
+
+def _format_day(value: Any) -> str | None:
+    text = _clean_text(value, "")
+    return text or None
+
+
+def _risk_phrase(level: str) -> str:
+    if level == "Rojo":
+        return "prioridad crítica para revisión especializada"
+    if level == "Amarillo":
+        return "prioridad media con validación documental recomendada"
+    if level == "Verde":
+        return "monitoreo habitual con bajo nivel de alerta"
+    return "prioridad pendiente de clasificación"
+
+
+def _build_investigation_summary(row: dict[str, Any], level: str, evidence: list[dict[str, Any]], top_component: tuple[str, float]) -> str:
+    claim_id = _clean_text(row.get("id_siniestro"), "Este siniestro")
+    branch = _clean_text(row.get("ramo"), "ramo no informado")
+    city = _clean_text(row.get("ciudad"), "ciudad no informada")
+    amount = _safe_number(row.get("monto_reclamado"))
+    top_signal = evidence[0].get("senal") if evidence else top_component[0]
+    return (
+        f"RastroSeguro reconstruyó {claim_id} como un caso de {_risk_phrase(level)}. "
+        f"El reclamo de {branch} en {city} concentra una exposición de ${amount:,.0f} "
+        f"y su señal dominante es {top_signal}. La recomendación es priorizar revisión humana "
+        "con evidencia trazable, sin acusación ni decisión automática."
+    )
+
+
+def _build_timeline(row: dict[str, Any], level: str, evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    days_from_start = _safe_number(row.get("dias_desde_inicio_poliza"), -1)
+    report_delay = _safe_number(row.get("dias_entre_ocurrencia_reporte"), -1)
+    docs_complete = str(row.get("documentos_completos", "")).lower() in {"true", "1", "si", "sí", "yes"}
+    docs_inconsistent = str(row.get("documentos_inconsistentes", "")).lower() in {"true", "1", "si", "sí", "yes"}
+    score = round(_safe_number(row.get("score_final")), 2)
+    timeline = [
+        {
+            "title": "Inicio de póliza",
+            "date": "Día 0",
+            "detail": (
+                f"El siniestro ocurre {int(days_from_start)} día(s) después del inicio."
+                if days_from_start >= 0
+                else "Fecha base no disponible; se mantiene trazabilidad con datos del reclamo."
+            ),
+            "tone": "neutral",
+        },
+        {
+            "title": "Ocurrencia del siniestro",
+            "date": _format_day(row.get("fecha_ocurrencia")) or "Fecha no informada",
+            "detail": f"Ramo {_clean_text(row.get('ramo'))} · Ciudad {_clean_text(row.get('ciudad'))}.",
+            "tone": "info",
+        },
+        {
+            "title": "Reporte del siniestro",
+            "date": _format_day(row.get("fecha_reporte")) or "Fecha no informada",
+            "detail": (
+                f"Reporte registrado {int(report_delay)} día(s) después de la ocurrencia."
+                if report_delay >= 0
+                else "Brecha ocurrencia-reporte no disponible."
+            ),
+            "tone": "info",
+        },
+        {
+            "title": "Validación documental",
+            "date": "Control de integridad",
+            "detail": (
+                "Documentación con inconsistencias detectadas."
+                if docs_inconsistent
+                else "Documentación completa reportada." if docs_complete else "Documentación requiere validación manual."
+            ),
+            "tone": "warning" if docs_inconsistent or not docs_complete else "success",
+        },
+        {
+            "title": "Evaluación IA",
+            "date": f"Score {score}/100",
+            "detail": f"Nivel {level}. {len(evidence)} señal(es) trazables incluidas en el expediente.",
+            "tone": "critical" if level == "Rojo" else "warning" if level == "Amarillo" else "success",
+        },
+        {
+            "title": "Recomendación humana",
+            "date": "Sin decisión automática",
+            "detail": _clean_text(row.get("accion_sugerida"), "Revisión humana según protocolo de riesgo."),
+            "tone": "neutral",
+        },
+    ]
+    return timeline
+
+
+def _build_signal_radar(components: dict[str, float]) -> list[dict[str, Any]]:
+    descriptions = {
+        "Reglas": "Señales auditables de negocio y vigencia.",
+        "Modelo ML": "Patrones aprendidos desde variables del portafolio.",
+        "Anomalías": "Desviaciones frente al comportamiento esperado.",
+        "NLP": "Narrativa, similitud textual y señales semánticas.",
+        "Grafo": "Relaciones con entidades o casos recurrentes.",
+        "Categórico": "Perfil de ramo, ciudad y cobertura.",
+    }
+    radar = []
+    for component, value in components.items():
+        score = round(_safe_number(value), 2)
+        if score >= 75:
+            label = "Señal dominante"
+        elif score >= 55:
+            label = "Señal relevante"
+        elif score > 0:
+            label = "Señal de apoyo"
+        else:
+            label = "Sin aporte"
+        radar.append({
+            "component": component,
+            "score": score,
+            "label": label,
+            "description": descriptions.get(component, "Componente de riesgo."),
+        })
+    return sorted(radar, key=lambda item: item["score"], reverse=True)
+
+
+def _build_similar_cases_summary(similar: list[dict[str, Any]], connections: list[dict[str, Any]], recurring: list[dict[str, Any]]) -> dict[str, Any]:
+    top_similar = []
+    for item in similar[:4]:
+        similarity = _safe_number(item.get("similaridad") or item.get("similarity") or item.get("score"))
+        top_similar.append({
+            "id_siniestro": item.get("id_siniestro") or item.get("id") or item.get("claim_id") or "Caso relacionado",
+            "similarity": round(similarity * 100 if similarity <= 1 else similarity, 1),
+            "reason": item.get("motivo") or item.get("reason") or "Narrativa o patrón operativo comparable.",
+        })
+    entities = []
+    for item in recurring[:4]:
+        entities.append({
+            "entity": item.get("entity") or item.get("entidad") or item.get("id") or "Entidad recurrente",
+            "type": item.get("type") or item.get("tipo") or "relación",
+            "count": int(_safe_number(item.get("count") or item.get("conteo"), 0)),
+        })
+    return {
+        "headline": (
+            f"{len(top_similar)} caso(s) similar(es) y {len(entities)} entidad(es) recurrente(s) detectadas."
+            if top_similar or entities or connections
+            else "Sin casos similares o relaciones recurrentes relevantes en los datos actuales."
+        ),
+        "similar_cases": top_similar,
+        "recurring_entities": entities,
+        "connections_count": len(connections),
+    }
+
+
 def build_claim_dossier(id_siniestro: str, data_path: Path = OUTPUT_PATH) -> dict[str, Any]:
     """Build an investigation-style dossier for one claim.
 
@@ -74,6 +226,8 @@ def build_claim_dossier(id_siniestro: str, data_path: Path = OUTPUT_PATH) -> dic
     ratio = _safe_number(row.get("monto_reclamado")) / max(_safe_number(row.get("suma_asegurada"), 1), 1)
 
     level = str(row.get("nivel_riesgo", "Sin clasificar"))
+    investigation_summary = _build_investigation_summary(row, level, evidence, top_component)
+    similar_cases_summary = _build_similar_cases_summary(similar, connections, recurring)
     return {
         "id_siniestro": row.get("id_siniestro"),
         "headline": f"Expediente {row.get('id_siniestro')} · {level} · {round(_safe_number(row.get('score_final')), 2)}/100",
@@ -100,6 +254,17 @@ def build_claim_dossier(id_siniestro: str, data_path: Path = OUTPUT_PATH) -> dic
         "evidence": evidence,
         "score_components": components,
         "main_driver": {"componente": top_component[0], "valor": round(top_component[1], 2)},
+        "investigation_summary": investigation_summary,
+        "timeline": _build_timeline(row, level, evidence),
+        "signal_radar": _build_signal_radar(components),
+        "similar_cases_summary": similar_cases_summary,
+        "executive_takeaway": (
+            f"{row.get('id_siniestro')} concentra {_risk_phrase(level)}: "
+            f"score {round(_safe_number(row.get('score_final')), 2)}/100, "
+            f"monto reclamado ${_safe_number(row.get('monto_reclamado')):,.0f}, "
+            f"driver principal {top_component[0]}. "
+            "Debe revisarse por una persona antes de cualquier decisión."
+        ),
         "advanced_evidence": {
             "nlp": {
                 "explicacion": row.get("explicacion_nlp", ""),

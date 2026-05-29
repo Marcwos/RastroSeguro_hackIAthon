@@ -95,6 +95,34 @@ export interface ClaimDossier {
   }>
   score_components: Record<string, number | null | undefined>
   main_driver?: { componente?: string | null; valor?: number | null }
+  investigation_summary?: string | null
+  timeline?: Array<{
+    title: string
+    date?: string | null
+    detail?: string | null
+    tone?: 'neutral' | 'info' | 'success' | 'warning' | 'critical' | string | null
+  }>
+  signal_radar?: Array<{
+    component: string
+    score?: number | null
+    label?: string | null
+    description?: string | null
+  }>
+  similar_cases_summary?: {
+    headline?: string | null
+    similar_cases?: Array<{
+      id_siniestro?: string | null
+      similarity?: number | null
+      reason?: string | null
+    }>
+    recurring_entities?: Array<{
+      entity?: string | null
+      type?: string | null
+      count?: number | null
+    }>
+    connections_count?: number | null
+  }
+  executive_takeaway?: string | null
   advanced_evidence?: {
     nlp?: { explicacion?: string | null; similares?: unknown[] }
     grafo?: { explicacion?: string | null; conexiones?: unknown[]; entidades_recurrentes?: unknown[] }
