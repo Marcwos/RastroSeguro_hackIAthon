@@ -26,7 +26,7 @@ export function MobileNav() {
   return (
     <nav
       aria-label="Navegacion movil principal"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 px-3 py-2 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 px-3 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl lg:hidden"
     >
       <div className={cn('mx-auto grid max-w-lg gap-1', items.length > 4 ? 'grid-cols-5' : 'grid-cols-4')}>
         {items.map(({ step, label, Icon, needsCase }) => {

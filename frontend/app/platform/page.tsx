@@ -89,7 +89,7 @@ function MainContent() {
       <div className="flex min-w-0 flex-1 flex-col lg:ml-64">
         <Header />
         <div className="flex min-h-0 min-w-0 flex-1">
-          <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden pb-24 lg:pb-0">
+          <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden pb-[calc(6rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={currentStep}

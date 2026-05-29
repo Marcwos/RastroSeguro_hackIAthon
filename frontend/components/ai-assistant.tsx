@@ -383,8 +383,8 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
   const panelClassName = variant === 'sidebar'
     ? 'flex h-full w-full flex-col overflow-hidden bg-card text-card-foreground'
     : cn(
-        'fixed bottom-20 left-1/2 z-[110] flex -translate-x-1/2 flex-col overflow-hidden border border-border bg-card text-card-foreground shadow-2xl ring-1 ring-border/60 dark:shadow-black/40 lg:hidden',
-        'h-[min(56vh,460px)] w-[min(92vw,520px)] rounded-xl',
+        'fixed bottom-[calc(9rem+env(safe-area-inset-bottom,0px))] right-3 z-[110] flex flex-col overflow-hidden border border-border bg-card text-card-foreground shadow-2xl ring-1 ring-border/60 dark:shadow-black/40 lg:hidden',
+        'h-[min(56vh,460px)] w-[min(94vw,420px)] rounded-xl',
       )
 
   if (variant === 'floating' && showChat) {
@@ -612,7 +612,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
               transition={reduceMotion ? undefined : { duration: 2, repeat: Infinity, repeatDelay: 1.2 }}
               exit={reduceMotion ? undefined : { y: 12, opacity: 0 }}
               onClick={() => setShowChat(true)}
-              className="focus-ring fixed bottom-4 left-1/2 z-[110] flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-primary/40 bg-primary text-primary-foreground shadow-lg lg:hidden"
+              className="focus-ring fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] right-4 z-[110] flex h-12 w-12 items-center justify-center rounded-full border border-primary/40 bg-primary text-primary-foreground shadow-lg lg:hidden"
               aria-label="Abrir asistente"
             >
               <MessageCircle className="h-5 w-5" />

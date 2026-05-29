@@ -37,7 +37,7 @@ export function Header() {
   }, [])
 
   return (
-    <header className="sticky top-0 z-40 flex h-12 w-full items-center justify-between border-b border-border bg-background/92 px-3 backdrop-blur-xl lg:px-6">
+    <header className="sticky top-0 z-40 flex min-h-12 w-full items-center justify-between border-b border-border bg-background/92 px-3 pt-[env(safe-area-inset-top,0px)] backdrop-blur-xl lg:px-6">
       <div className="flex min-w-0 items-center gap-4">
         <span className="font-display text-lg font-bold tracking-tight text-primary lg:hidden">RastroSeguro</span>
         <div className="hidden items-center gap-2 xl:flex">
