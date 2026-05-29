@@ -50,12 +50,30 @@ export function StepSummary() {
 
   if (!selectedClaim) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 text-muted-foreground">
-        <p className="text-base">No hay caso seleccionado</p>
-        <button onClick={() => setCurrentStep(1)} className="focus-ring bg-primary px-4 py-2 text-sm text-primary-foreground">
-          Volver al Paso 1
-        </button>
-      </div>
+      <section className="flex min-h-[calc(100svh-4rem)] items-center justify-center px-4 py-10">
+        <div className="institutional-card w-full max-w-lg p-8 text-center shadow-sm">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--surface-low)] text-primary ring-1 ring-border">
+            <FileText className="h-7 w-7" />
+          </div>
+          <p className="label-mono-md mt-5 uppercase text-muted-foreground">Resumen del caso</p>
+          <h2 className="mt-2 font-display text-2xl font-semibold text-foreground">No hay caso seleccionado</h2>
+          <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
+            Selecciona o carga un siniestro para activar el resumen, validar documentos y continuar con el análisis de riesgo.
+          </p>
+          <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
+            <button onClick={() => setCurrentStep(1)} className="focus-ring inline-flex items-center justify-center gap-2 bg-primary px-5 py-2.5 label-mono-md text-primary-foreground">
+              Volver al Paso 1
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <button onClick={() => setCurrentStep(0)} className="focus-ring inline-flex items-center justify-center border border-border px-5 py-2.5 label-mono-md text-foreground hover:bg-[var(--surface-container)]">
+              Ir a bandeja
+            </button>
+          </div>
+          <p className="mt-5 rounded-md border border-border bg-[var(--surface-low)] px-3 py-2 text-xs text-muted-foreground">
+            Si el panel lateral muestra un caso activo, vuelve al flujo y selecciónalo nuevamente para sincronizar la vista.
+          </p>
+        </div>
+      </section>
     )
   }
 
