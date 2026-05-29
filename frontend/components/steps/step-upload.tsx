@@ -125,13 +125,15 @@ export function StepUpload() {
             <input
               className="absolute inset-0 opacity-0 disabled:pointer-events-none"
               type="file"
+              name="claims_csv"
+              aria-label="Subir archivo CSV de siniestros"
               accept=".csv,text/csv"
               disabled={isUploading}
               onChange={(e) => handleFileUpload(e.target.files)}
             />
 
             {isUploading && (
-              <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-[var(--surface-lowest)]/85 backdrop-blur-[2px]">
+              <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-[var(--surface-lowest)]/85 backdrop-blur-[2px]" aria-live="polite">
                 <div className="absolute inset-0 overflow-hidden">
                   <div className="upload-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
                 </div>
@@ -200,8 +202,13 @@ export function StepUpload() {
             <div className="space-y-3">
               <p className="dark-panel-kicker label-mono-md uppercase">Protocolo de Integridad</p>
               <p className="dark-panel-muted text-sm leading-relaxed">
-                Validación estructural y preparación de datos para priorización institucional.
+                Validacion estructural y preparacion de datos para priorizacion institucional.
               </p>
+              <ul className="dark-panel-muted space-y-2 text-xs leading-relaxed">
+                <li>1. Recibe el CSV.</li>
+                <li>2. Valida columnas y registros.</li>
+                <li>3. Selecciona el caso que se va a revisar.</li>
+              </ul>
             </div>
           </div>
 
@@ -243,9 +250,9 @@ export function StepUpload() {
           <div className="institutional-card col-span-12 overflow-hidden">
             <div className="section-header flex justify-between">
               <span>Previsualización de Estructura</span>
-              <button type="button" className="focus-ring border border-border bg-background px-2 py-1 text-xs uppercase">
-                Configurar Mapeo
-              </button>
+              <span className="rounded-sm border border-border bg-background px-2 py-1 text-xs uppercase text-muted-foreground">
+                Mapeo automatico
+              </span>
             </div>
             {showPreview ? (
               <div className="overflow-x-auto">
@@ -282,15 +289,15 @@ export function StepUpload() {
           </div>
         </div>
 
-        <footer className="flex items-center justify-between border-t border-border pt-6">
-          <div className="flex items-center gap-2">
+        <footer className="flex flex-col gap-4 border-t border-border pt-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex min-w-0 items-center gap-2">
             <span className={cn('h-2 w-2 rounded-full', isApiReady ? 'bg-[var(--tertiary-fixed-dim)]' : 'bg-destructive')} />
-            <span className="label-mono text-foreground">
+            <span className="label-mono truncate text-foreground">
               {isApiReady ? 'Servidor de Validación Activo' : 'Esperando API de RastroSeguro'}
             </span>
             {(status === 'validating' || isLoadingClaims) && <Loader2 className="h-4 w-4 animate-spin" />}
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
               onClick={() => {
@@ -310,7 +317,7 @@ export function StepUpload() {
               onClick={handleNext}
               className="focus-ring bg-primary px-8 py-2 label-mono-md text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {processing ? 'Procesando...' : `Procesar ${selectedClaimId || ''}`}
+              {processing ? 'Procesando...' : selectedClaimId ? `Continuar con ${selectedClaimId}` : 'Selecciona un siniestro'}
             </button>
           </div>
         </footer>

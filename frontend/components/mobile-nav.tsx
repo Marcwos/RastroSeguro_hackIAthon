@@ -38,6 +38,7 @@ export function MobileNav() {
               disabled={disabled}
               onClick={() => setCurrentStep(step)}
               aria-current={active ? 'page' : undefined}
+              title={disabled ? 'Carga o sincroniza datos para habilitar este paso' : label}
               className={cn(
                 'focus-ring flex min-h-12 flex-col items-center justify-center gap-1 rounded-md px-2 text-xs font-semibold transition-colors',
                 active

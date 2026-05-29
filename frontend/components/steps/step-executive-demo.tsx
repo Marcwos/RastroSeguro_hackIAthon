@@ -57,7 +57,7 @@ export function StepExecutiveDemo() {
               Vista para gerencia, riesgos y auditoria: exposicion priorizada, casos relevantes y lectura operativa conectada al backend.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <button onClick={() => setShowChat(true)} className="inline-flex items-center gap-2 bg-white px-5 py-3 label-mono-md font-bold uppercase text-primary">
+              <button onClick={() => setShowChat(true)} className="dark-panel-cta inline-flex items-center gap-2 px-5 py-3 label-mono-md font-bold uppercase">
                 <Bot className="h-4 w-4" />
                 Preguntar al agente
               </button>

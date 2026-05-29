@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Bell, CircleUserRound, Search } from 'lucide-react'
 import { useAppState } from '@/lib/app-context'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { HelpPanel } from '@/components/help-panel'
 import { cn } from '@/lib/utils'
 
 export function Header() {
@@ -55,6 +56,7 @@ export function Header() {
               disabled={!tab.enabled}
               aria-current={currentStep === tab.step ? 'page' : undefined}
               onClick={() => tab.enabled && setCurrentStep(tab.step)}
+              title={tab.enabled ? tab.label : 'Carga o sincroniza datos para habilitar este paso'}
               className={cn(
                 'focus-ring rounded-sm pb-1 font-display text-[15px] font-semibold transition-colors',
                 currentStep === tab.step ? 'border-b-2 border-primary text-primary' : 'text-foreground hover:text-primary',
@@ -68,6 +70,7 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-2">
+        <HelpPanel />
         <button
           type="button"
           onClick={() => setShowCommandBar(true)}
@@ -89,7 +92,7 @@ export function Header() {
           <Search className="h-5 w-5" />
         </button>
         <ThemeToggle />
-        <button type="button" aria-label="Notificaciones" className="focus-ring rounded-md p-1.5 text-foreground hover:bg-[var(--surface-container)]">
+        <button type="button" disabled aria-label="Notificaciones" title="Sin notificaciones pendientes" className="rounded-md p-1.5 text-muted-foreground opacity-60">
           <Bell className="h-5 w-5" />
         </button>
         <button

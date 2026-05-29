@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, BarChart3, ShieldCheck, UploadCloud, UsersRound } from 'lucide-react'
+import { ArrowRight, BarChart3, CheckCircle2, ShieldCheck, UploadCloud, UsersRound } from 'lucide-react'
 import { useAppState, type UserRole } from '@/lib/app-context'
 
 const roles: Array<{
@@ -46,6 +46,15 @@ export function RoleSelector() {
             <h1 className="display-heading text-balance text-4xl lg:text-6xl">Elige como quieres revisar el riesgo.</h1>
             <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground lg:text-lg">
               RastroSeguro adapta la navegacion segun la tarea: analisis operativo para preparar casos o vista ejecutiva para entender impacto y prioridades.
+            </p>
+          </div>
+          <div className="institutional-card border-primary/30 bg-[var(--secondary-container)] p-4">
+            <p className="flex items-center gap-2 font-display text-base font-semibold text-[var(--on-secondary-container)]">
+              <CheckCircle2 className="h-5 w-5" aria-hidden />
+              Si no sabes por donde empezar
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--on-secondary-container)]">
+              Usa Analista Antifraude para cargar datos y revisar un caso. Usa Vista Ejecutiva para presentar resultados, impacto y prioridades.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">

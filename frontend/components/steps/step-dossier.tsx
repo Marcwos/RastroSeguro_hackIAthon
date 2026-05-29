@@ -274,7 +274,7 @@ export function StepDossier() {
 
         {dossier && (
           <>
-            <section className="relative overflow-hidden border border-border bg-[var(--primary-container)] p-6 text-white lg:p-8">
+            <section className="dark-panel dark-panel-border relative overflow-hidden border p-6 lg:p-8">
               <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-white/10 blur-3xl" aria-hidden />
               <div className="relative grid gap-6 lg:grid-cols-[1.2fr_.8fr]">
                 <div className="space-y-4">
@@ -283,13 +283,13 @@ export function StepDossier() {
                     <RiskBadge level={risk} className="border-white/20" />
                     <span className="label-mono-md rounded-full border border-white/20 px-3 py-1 text-white/80">Sin decisión automática</span>
                   </div>
-                  <h2 className="display-heading text-3xl lg:text-4xl">{dossier.headline}</h2>
-                  <p className="max-w-3xl text-sm leading-7 text-[var(--primary-fixed-dim)]">
+                  <h2 className="dark-panel-heading display-heading text-3xl text-white lg:text-4xl">{dossier.headline}</h2>
+                  <p className="dark-panel-muted max-w-3xl text-sm leading-7">
                     {isExecutive
                       ? dossier.executive_takeaway || dossier.investigation_summary || dossier.explanation
                       : dossier.investigation_summary || dossier.explanation || 'Expediente generado para revisión humana trazable.'}
                   </p>
-                  <p className="rounded-md border border-white/15 bg-white/10 p-3 text-sm italic text-white/80">{dossier.ethical_guardrail}</p>
+                  <p className="dark-panel-card rounded-md p-3 text-sm italic text-white/80">{dossier.ethical_guardrail}</p>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                   <HeroMetric label="Score final" value={`${Math.round(score)}/100`} Icon={Fingerprint} />

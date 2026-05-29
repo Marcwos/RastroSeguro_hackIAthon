@@ -24,18 +24,21 @@ function NavButton({
   icon: Icon,
   label,
   onClick,
+  disabledReason,
 }: {
   active: boolean
   disabled?: boolean
   icon: typeof LayoutDashboard
   label: string
   onClick: () => void
+  disabledReason?: string
 }) {
   return (
     <button
       type="button"
       disabled={disabled}
       onClick={() => !disabled && onClick()}
+      title={disabled ? disabledReason || 'Carga o sincroniza datos para habilitar este paso' : label}
       className={cn(
         'font-display flex w-full items-center gap-3 rounded-md px-3 py-3 text-left text-[15px] font-semibold transition-colors',
         active
@@ -130,17 +133,17 @@ export function Sidebar() {
             <div className="space-y-2">
               <p className="label-mono-md px-3 font-bold uppercase text-muted-foreground">Decision ejecutiva</p>
               <NavButton active={currentStep === 6} icon={Star} label="Impacto ejecutivo" onClick={() => setCurrentStep(6)} />
-              <NavButton active={currentStep === 5} disabled={!flowReady} icon={FileSearch} label="Caso seleccionado" onClick={() => setCurrentStep(5)} />
+              <NavButton active={currentStep === 5} disabled={!flowReady} icon={FileSearch} label="Caso seleccionado" onClick={() => setCurrentStep(5)} disabledReason="Selecciona un caso o espera datos del analista para abrir el expediente" />
             </div>
           </>
         )}
       </nav>
 
       <div className="mt-auto space-y-2 border-t border-border pt-6">
-        <button type="button" className="focus-ring font-display flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-[14px] font-semibold text-muted-foreground hover:bg-[var(--surface-high)] hover:text-foreground">
+        <button type="button" disabled title="Disponible en una siguiente version" className="font-display flex w-full cursor-not-allowed items-center gap-3 rounded-md px-3 py-2.5 text-[14px] font-semibold text-muted-foreground opacity-55">
           <Shield className="h-4 w-4" aria-hidden /> Registros de seguridad
         </button>
-        <button type="button" className="focus-ring font-display flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-[14px] font-semibold text-muted-foreground hover:bg-[var(--surface-high)] hover:text-foreground">
+        <button type="button" disabled title="Disponible en una siguiente version" className="font-display flex w-full cursor-not-allowed items-center gap-3 rounded-md px-3 py-2.5 text-[14px] font-semibold text-muted-foreground opacity-55">
           <Terminal className="h-4 w-4" aria-hidden /> Documentacion
         </button>
         <div className="mt-4 rounded-md border border-border bg-[var(--surface-high)] p-3">

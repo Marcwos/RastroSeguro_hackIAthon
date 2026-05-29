@@ -258,6 +258,8 @@ export function AIAssistant() {
                 <div className="p-3">
                   <div className="rounded-2xl border border-border bg-[var(--surface-low)] px-3 py-3">
                     <textarea
+                      name="agent_question"
+                      aria-label="Pregunta para el asistente de riesgo"
                       rows={2}
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
@@ -273,10 +275,10 @@ export function AIAssistant() {
 
                     <div className="mt-2 flex items-center justify-between">
                       <div className="flex items-center gap-1">
-                        <button type="button" aria-label="Agregar" className="focus-ring rounded-md p-2 text-muted-foreground hover:bg-[var(--surface-high)] hover:text-foreground">
+                        <button type="button" disabled aria-label="Agregar" title="Adjuntos no disponibles en esta version" className="rounded-md p-2 text-muted-foreground opacity-50">
                           <Plus className="h-4 w-4" />
                         </button>
-                        <button type="button" aria-label="Opciones" className="focus-ring rounded-md p-2 text-muted-foreground hover:bg-[var(--surface-high)] hover:text-foreground">
+                        <button type="button" disabled aria-label="Opciones" title="Opciones no disponibles en esta version" className="rounded-md p-2 text-muted-foreground opacity-50">
                           <SlidersHorizontal className="h-4 w-4" />
                         </button>
                       </div>
