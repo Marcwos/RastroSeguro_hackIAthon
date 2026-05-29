@@ -15,9 +15,8 @@ const USER_STORAGE_KEY = 'rastroseguro-agent-user-id'
 function shortenQuestion(text: string, max = 72): string {
   const trimmed = text.trim()
   if (trimmed.length <= max) return trimmed
-  return `${trimmed.slice(0, max - 1)}…`
+  return `${trimmed.slice(0, max - 1)}...`
 }
-
 
 function normalizeAssistantText(text: string): string {
   return sanitizeAiText(
@@ -35,17 +34,17 @@ function normalizeAssistantText(text: string): string {
 function contextualQuickQuestions(claimId: string | null): string[] {
   if (claimId) {
     return [
-      `¿Por qué el siniestro ${claimId} tiene este puntaje de riesgo?`,
-      '¿Qué alertas principales explican el riesgo?',
-      '¿Hay narrativas similares o conexiones en la red de relaciones?',
-      '¿Qué acción recomienda el motor para este caso?',
+      `¿Por qué el caso ${claimId} tiene este puntaje?`,
+      '¿Qué señales principales explican este resultado?',
+      '¿Hay relatos parecidos o conexiones con otros casos?',
+      '¿Qué recomienda el sistema para este caso?',
     ]
   }
   return [
-    '¿Cuáles son los siniestros con mayor riesgo?',
+    '¿Cuáles son los casos con mayor prioridad?',
     '¿Qué proveedores concentran más alertas?',
-    '¿Qué ramos tienen más casos sospechosos?',
-    'Genera un resumen ejecutivo de casos críticos.',
+    '¿Qué tipos de seguro tienen más casos sospechosos?',
+    'Genera un resumen general de los casos más delicados.',
   ]
 }
 
@@ -172,12 +171,12 @@ export function AIAssistant() {
         id: Date.now().toString(),
         role: 'assistant',
         content: selectedClaimId
-          ? `Conectado al agente antifraude. Puedo explicar el siniestro ${selectedClaimId}, sus alertas y patrones.`
-          : 'Conectado al agente antifraude. Selecciona un siniestro en el flujo o haz una pregunta general.',
+          ? `Estoy listo para ayudarte con el caso ${selectedClaimId}. Puedo explicar por qué fue priorizado y qué señales lo destacan.`
+          : 'Estoy listo para ayudarte. Selecciona un caso o haz una pregunta general sobre la información cargada.',
         timestamp: new Date(),
       })
     }
-  }, [showChat, chatMessages.length, selectedClaimId, addChatMessage])
+  }, [showChat, chatMessages.length, selectedClaimId, threadId, addChatMessage])
 
   const openClaim = (id: string) => {
     setSelectedClaimId(id)
@@ -235,7 +234,7 @@ export function AIAssistant() {
     } catch (error) {
       const message = error instanceof ApiClientError
         ? `${error.message}${error.hint ? `\n\n${error.hint}` : ''}`
-        : 'No se pudo consultar al agente antifraude.'
+        : 'No se pudo consultar al asistente.'
       addChatMessage({
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -267,8 +266,8 @@ export function AIAssistant() {
             transition={reduceMotion ? undefined : { duration: 2, repeat: Infinity, repeatDelay: 1.2 }}
             exit={reduceMotion ? undefined : { y: 12, opacity: 0 }}
             onClick={() => setShowChat(true)}
-            className="focus-ring fixed bottom-5 left-1/2 z-[100] flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border border-primary/40 bg-primary text-primary-foreground shadow-lg"
-            aria-label="Abrir asistente de riesgo"
+            className="focus-ring fixed bottom-4 left-1/2 z-[100] flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-primary/40 bg-primary text-primary-foreground shadow-lg"
+            aria-label="Abrir asistente"
           >
             <MessageCircle className="h-5 w-5" />
           </motion.button>
@@ -279,23 +278,23 @@ export function AIAssistant() {
         {showChat && (
           <motion.div
             role="dialog"
-            aria-label="Asistente de riesgo"
+            aria-label="Asistente"
             initial={reduceMotion ? false : { opacity: 0, y: 16, scale: 0.98 }}
             animate={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
             exit={reduceMotion ? undefined : { opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: reduceMotion ? 0 : 0.2 }}
             className={cn(
               'fixed bottom-20 left-1/2 z-[100] flex -translate-x-1/2 flex-col overflow-hidden border border-border bg-card text-card-foreground shadow-2xl ring-1 ring-border/60 dark:shadow-black/40',
-              'h-[min(62vh,520px)] w-[min(94vw,560px)] rounded-2xl',
+              'h-[min(56vh,460px)] w-[min(92vw,520px)] rounded-xl',
             )}
           >
-            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-[var(--surface-container)] px-4 py-3 text-foreground">
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-[var(--surface-container)] px-3 py-2.5 text-foreground">
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--secondary-container)] text-[var(--on-secondary-container)]">
-                  <Bot className="h-5 w-5" />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--secondary-container)] text-[var(--on-secondary-container)]">
+                  <Bot className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate font-semibold">Asistente de Riesgo</p>
+                  <p className="truncate font-semibold">Asistente</p>
                   {selectedClaimId && (
                     <p className="label-mono truncate text-xs text-muted-foreground">
                       Caso {selectedClaimId}
@@ -308,7 +307,7 @@ export function AIAssistant() {
                   type="button"
                   onClick={() => setShowSessionHistory((value) => !value)}
                   className="focus-ring rounded-lg p-2 text-muted-foreground transition-colors hover:bg-[var(--surface-high)] hover:text-foreground"
-                  aria-label="Historial de sesiones"
+                  aria-label="Historial de conversaciones"
                   title="Historial"
                 >
                   <History className="h-5 w-5" />
@@ -317,8 +316,8 @@ export function AIAssistant() {
                   type="button"
                   onClick={startNewSession}
                   className="focus-ring rounded-lg p-2 text-muted-foreground transition-colors hover:bg-[var(--surface-high)] hover:text-foreground"
-                  aria-label="Nueva sesion"
-                  title="Nueva sesion"
+                  aria-label="Nueva conversación"
+                  title="Nueva conversación"
                 >
                   <Plus className="h-5 w-5" />
                 </button>
@@ -356,7 +355,7 @@ export function AIAssistant() {
                   </div>
                 </div>
               )}
-              <div className="min-h-0 flex-1 overflow-y-auto p-4 space-y-4 bg-[var(--surface-low)]">
+              <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[var(--surface-low)] p-3">
                 {chatMessages.map((message, index) => {
                   const previous = chatMessages[index - 1]
                   const shouldShowSection = message.sectionId && message.sectionId !== previous?.sectionId
@@ -366,14 +365,12 @@ export function AIAssistant() {
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           <div className="h-px flex-1 bg-border" />
                           <span className="max-w-[70%] truncate label-mono">
-                            {sectionTitleById.get(message.sectionId || '') || 'Conversacion'}
+                            {sectionTitleById.get(message.sectionId || '') || 'Conversación'}
                           </span>
                           <div className="h-px flex-1 bg-border" />
                         </div>
                       )}
-                      <div
-                        className={cn('flex gap-2.5', message.role === 'user' ? 'flex-row-reverse' : '')}
-                      >
+                      <div className={cn('flex gap-2.5', message.role === 'user' ? 'flex-row-reverse' : '')}>
                         <div
                           className={cn(
                             'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
@@ -388,14 +385,14 @@ export function AIAssistant() {
                         </div>
                         <div
                           className={cn(
-                            'rounded-lg px-3 py-2.5 text-sm leading-relaxed',
+                            'rounded-lg px-3 py-2 text-xs leading-relaxed',
                             message.role === 'assistant'
                               ? 'border border-border bg-card text-card-foreground'
                               : 'max-w-[85%] bg-primary text-primary-foreground',
                             message.role === 'assistant' && message.response ? 'w-full max-w-[92%]' : 'max-w-[85%]',
                           )}
                         >
-                      {message.role === 'assistant' && message.response ? (
+                          {message.role === 'assistant' && message.response ? (
                             <AgentResult response={message.response} onOpenClaim={openClaim} />
                           ) : message.role === 'assistant' ? (
                             renderMarkdownBlocks(message.content)
@@ -427,7 +424,7 @@ export function AIAssistant() {
               </div>
 
               <div className="shrink-0 border-t border-border bg-card">
-                <div className="max-h-[78px] overflow-y-auto px-3 pt-3">
+                <div className="max-h-[64px] overflow-y-auto px-3 pt-2">
                   <div className="flex gap-2 overflow-x-auto pb-1">
                     {quickQuestions.slice(0, 3).map((q) => (
                       <button
@@ -445,10 +442,10 @@ export function AIAssistant() {
                 </div>
 
                 <div className="p-3">
-                  <div className="rounded-2xl border border-border bg-[var(--surface-low)] px-3 py-3">
+                  <div className="rounded-xl border border-border bg-[var(--surface-low)] px-3 py-2.5">
                     <textarea
                       name="agent_question"
-                      aria-label="Pregunta para el asistente de riesgo"
+                      aria-label="Pregunta para el asistente"
                       rows={2}
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
@@ -458,17 +455,17 @@ export function AIAssistant() {
                           void handleSend()
                         }
                       }}
-                      placeholder="¿Qué puedo ayudarte a resolver?"
-                      className="min-h-[42px] max-h-24 w-full resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                      placeholder="¿Qué quieres consultar?"
+                      className="min-h-[36px] max-h-20 w-full resize-none bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
                     />
 
                     <div className="mt-2 flex items-center justify-between">
                       <span className="label-mono text-[10px] text-muted-foreground">
-                        Enter envía · Shift+Enter salto de línea
+                        Enter envía · Shift+Enter crea una nueva línea
                       </span>
 
                       <div className="flex items-center gap-2">
-                        <span className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">Rastro IA</span>
+                        <span className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">RastroSeguro</span>
                         <button
                           type="button"
                           onClick={() => void handleSend()}
@@ -485,7 +482,7 @@ export function AIAssistant() {
                     </div>
                   </div>
                   <p className="mt-2 text-center text-xs text-muted-foreground">
-                    Prioriza revisión humana; no acusa fraude automáticamente.
+                    Ayuda a priorizar la revisión humana; no acusa fraude automáticamente.
                   </p>
                 </div>
               </div>

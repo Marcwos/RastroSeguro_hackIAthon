@@ -125,7 +125,7 @@ export function ClaimNetworkReactFlow({ nodes, edges, compact = false }: { nodes
   const { flowNodes, flowEdges } = useMemo(() => toFlow(nodes, edges, compact), [nodes, edges, compact])
 
   return (
-    <div className={`rounded border border-border bg-[var(--surface-low)] ${compact ? 'h-[360px]' : 'h-[560px]'}`}>
+    <div className={`rounded border border-border bg-[var(--surface-low)] ${compact ? 'h-[300px]' : 'h-[460px]'}`}>
       <ReactFlow nodes={flowNodes} edges={flowEdges} fitView nodesDraggable={false} nodesConnectable={false} zoomOnScroll panOnDrag attributionPosition="bottom-left">
         <Background gap={24} size={1} />
         <Controls />

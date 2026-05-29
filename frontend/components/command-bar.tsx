@@ -9,16 +9,16 @@ import { useAppState } from '@/lib/app-context'
 import { cn } from '@/lib/utils'
 
 const PRIORITY_PROMPTS = [
-  'Que proveedores concentran la mayor cantidad de alertas rojas?',
-  'Cuales son los siniestros que debo revisar primero?',
-  'Resume los patrones mas importantes del portafolio.',
+  '¿Qué proveedores concentran la mayor cantidad de alertas?',
+  '¿Cuáles son los casos que debo revisar primero?',
+  'Resume los hallazgos más importantes del conjunto de casos.',
 ]
 
 const EXPLORE_PROMPTS = [
-  'Genera un resumen ejecutivo de los casos criticos.',
-  'Que ramos tienen mayor porcentaje de casos sospechosos?',
-  'Que ciudades presentan mayor concentracion de alertas?',
-  'Que documentos faltan en los casos criticos?',
+  'Genera un resumen general de los casos más delicados.',
+  '¿Qué tipos de seguro tienen más casos sospechosos?',
+  '¿Qué ciudades presentan mayor concentración de alertas?',
+  '¿Qué documentos faltan en los casos más delicados?',
 ]
 
 export function CommandBar() {
@@ -59,7 +59,7 @@ export function CommandBar() {
         setError(
           err instanceof ApiClientError
             ? `${err.message}${err.hint ? ` ${err.hint}` : ''}`
-            : 'No se pudo consultar al agente antifraude.',
+            : 'No se pudo consultar al asistente.',
         )
       } finally {
         setIsLoading(false)
@@ -97,7 +97,7 @@ export function CommandBar() {
 
           <motion.div
             role="dialog"
-            aria-label="Consultar al agente antifraude"
+            aria-label="Consultar al asistente"
             initial={reduceMotion ? false : { opacity: 0, y: -16, scale: 0.98 }}
             animate={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
             exit={reduceMotion ? undefined : { opacity: 0, y: -12, scale: 0.98 }}
@@ -143,7 +143,7 @@ export function CommandBar() {
               {isLoading && (
                 <div className="flex items-center gap-3 px-4 py-6 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Analizando con el motor antifraude...
+                  Revisando la información...
                 </div>
               )}
 
@@ -164,7 +164,7 @@ export function CommandBar() {
                 <div className="space-y-4 p-4">
                   <PromptGroup
                     icon={<Zap className="h-3.5 w-3.5 text-[var(--risk-amarillo)]" />}
-                    title="Preguntas operativas"
+                    title="Preguntas sugeridas"
                     prompts={suggestions.priority}
                     onPick={(question) => {
                       setInput(question)
@@ -173,7 +173,7 @@ export function CommandBar() {
                   />
                   <PromptGroup
                     icon={<Search className="h-3.5 w-3.5 text-muted-foreground" />}
-                    title="Exploracion rapida"
+                    title="Consulta rápida"
                     prompts={suggestions.explore}
                     onPick={(question) => {
                       setInput(question)
@@ -187,7 +187,7 @@ export function CommandBar() {
             <div className="flex items-center justify-between gap-3 border-t border-border bg-card px-4 py-2.5">
               <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                 <ShieldCheck className="h-3.5 w-3.5" />
-                Respuestas trazables del motor RastroSeguro.
+                Respuestas apoyadas en la información cargada.
               </span>
               <span className="hidden items-center gap-2 text-[11px] text-muted-foreground sm:flex">
                 <kbd className="inline-flex items-center gap-1 rounded border border-border bg-[var(--surface-low)] px-1.5 py-0.5">

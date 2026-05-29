@@ -40,7 +40,7 @@ function NavButton({
       onClick={() => !disabled && onClick()}
       title={disabled ? disabledReason || 'Carga o sincroniza datos para habilitar este paso' : label}
       className={cn(
-        'font-display flex w-full items-center gap-3 rounded-md px-3 py-3 text-left text-[15px] font-semibold transition-colors',
+        'font-display flex w-full items-center gap-2.5 rounded-md px-2.5 py-2.5 text-left text-[13px] font-semibold transition-colors',
         active
           ? 'bg-[var(--accent)] font-bold text-[var(--accent-foreground)] ring-1 ring-inset ring-border'
           : 'text-muted-foreground opacity-80 hover:bg-[var(--surface-high)] hover:text-foreground hover:opacity-100',
@@ -61,9 +61,9 @@ export function Sidebar() {
   const roleLabel = isAnalyst ? 'Analista antifraude' : 'Vista ejecutiva'
 
   return (
-    <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-border bg-[var(--surface-low)] p-4 lg:flex">
-      <div className="mb-8 flex flex-col gap-1">
-        <Link href="/platform" onClick={() => setCurrentStep(0)} className="font-display text-2xl font-bold tracking-tight text-primary">
+    <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-border bg-[var(--surface-low)] p-3 lg:flex">
+      <div className="mb-6 flex flex-col gap-1">
+        <Link href="/platform" onClick={() => setCurrentStep(0)} className="font-display text-xl font-bold tracking-tight text-primary">
           RastroSeguro
         </Link>
         <span className="font-display text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
@@ -72,7 +72,7 @@ export function Sidebar() {
         <button
           type="button"
           onClick={resetUserRole}
-          className="mt-3 inline-flex items-center gap-2 self-start rounded-full border border-border bg-[var(--surface-high)] px-3 py-1 text-xs font-semibold text-muted-foreground hover:text-foreground"
+          className="mt-2 inline-flex items-center gap-2 self-start rounded-full border border-border bg-[var(--surface-high)] px-2.5 py-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground"
         >
           <RotateCcw className="h-3.5 w-3.5" aria-hidden />
           {roleLabel}
@@ -97,7 +97,7 @@ export function Sidebar() {
               <button
                 type="button"
                 onClick={() => setCurrentStep(1)}
-                className="focus-ring mt-4 flex w-full items-center justify-center gap-2 bg-primary px-3 py-2.5 label-mono-md font-bold uppercase text-primary-foreground hover:opacity-95"
+                className="focus-ring mt-3 flex w-full items-center justify-center gap-2 bg-primary px-3 py-2 label-mono-md font-bold uppercase text-primary-foreground hover:opacity-95"
               >
                 {inFlow ? 'Volver al flujo' : 'Cargar datos'}
                 <ArrowRight className="h-4 w-4" aria-hidden />
@@ -139,19 +139,19 @@ export function Sidebar() {
         )}
       </nav>
 
-      <div className="mt-auto space-y-2 border-t border-border pt-6">
-        <button type="button" disabled title="Disponible en una siguiente version" className="font-display flex w-full cursor-not-allowed items-center gap-3 rounded-md px-3 py-2.5 text-[14px] font-semibold text-muted-foreground opacity-55">
+      <div className="mt-auto space-y-2 border-t border-border pt-4">
+        <button type="button" disabled title="Disponible en una siguiente version" className="font-display flex w-full cursor-not-allowed items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-semibold text-muted-foreground opacity-55">
           <Shield className="h-4 w-4" aria-hidden /> Registros de seguridad
         </button>
-        <button type="button" disabled title="Disponible en una siguiente version" className="font-display flex w-full cursor-not-allowed items-center gap-3 rounded-md px-3 py-2.5 text-[14px] font-semibold text-muted-foreground opacity-55">
+        <button type="button" disabled title="Disponible en una siguiente version" className="font-display flex w-full cursor-not-allowed items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-semibold text-muted-foreground opacity-55">
           <Terminal className="h-4 w-4" aria-hidden /> Documentacion
         </button>
-        <div className="mt-4 rounded-md border border-border bg-[var(--surface-high)] p-3">
+        <div className="mt-3 rounded-md border border-border bg-[var(--surface-high)] p-2.5">
           <div className="mb-2 flex items-center gap-2 text-foreground">
             <LockKeyhole className="h-3.5 w-3.5 shrink-0" aria-hidden />
             <span className="label-mono-md font-bold">Aviso etico</span>
           </div>
-          <p className="text-sm leading-snug text-muted-foreground">La IA alerta y explica. No acusa ni rechaza reclamos.</p>
+          <p className="text-xs leading-snug text-muted-foreground">La IA alerta y explica. No acusa ni rechaza reclamos.</p>
         </div>
       </div>
     </aside>

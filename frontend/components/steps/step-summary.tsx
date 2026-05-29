@@ -71,56 +71,56 @@ export function StepSummary() {
     selectedClaim.narrativa ||
     selectedClaim.descripcion ||
     selectedExplanation?.explicacion ||
-    'RastroSeguro procesó el siniestro. Continúe al análisis para revisar señales explicables y priorización.'
+    'RastroSeguro ya revisó este caso. Continúa para ver por qué fue priorizado y qué puntos conviene revisar.'
 
   const documentosCompletos = yes(selectedClaim.documentos_completos)
   const documentosIncompletos = no(selectedClaim.documentos_completos)
   const documentosInconsistentes = yes(selectedClaim.documentos_inconsistentes)
   const documentos = [
     {
-      nombre: 'Expediente documental obligatorio',
+      nombre: 'Documentos obligatorios',
       tipo: 'declaracion',
       estado: documentosIncompletos ? ('pendiente' as const) : ('completo' as const),
       detalle: documentosCompletos
-        ? 'Documentos mínimos verificados por el sistema'
-        : 'El sistema detecta expediente documental incompleto',
+        ? 'Documentos mínimos revisados por el sistema'
+        : 'Faltan documentos importantes por revisar',
     },
     {
-      nombre: 'Control de inconsistencias',
+      nombre: 'Revisión de consistencia',
       tipo: 'informe',
       estado: documentosInconsistentes ? ('inconsistente' as const) : ('completo' as const),
       detalle: documentosInconsistentes
-        ? 'Fechas, valores o soportes requieren validación manual'
-        : 'Sin inconsistencias documentales registradas',
+        ? 'Fechas, valores o soportes requieren revisión manual'
+        : 'No se encontraron diferencias relevantes en la documentación',
     },
     {
-      nombre: 'Trazabilidad del análisis IA',
+      nombre: 'Explicación del resultado',
       tipo: 'telemetria',
       estado: 'completo' as const,
-      detalle: 'Registro auditable de los componentes y la explicación del puntaje',
+      detalle: 'Resumen de los factores que ayudan a entender este resultado',
     },
   ]
 
   return (
-    <section className="px-4 py-8 lg:px-8">
-      <div className="mx-auto max-w-6xl space-y-6">
+    <section className="px-3 py-5 lg:px-6">
+      <div className="mx-auto max-w-6xl space-y-4">
         <header className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <h1 className="display-heading text-3xl lg:text-4xl">Paso 2: Resumen Técnico del Siniestro</h1>
+            <h1 className="display-heading text-3xl lg:text-4xl">Paso 2: Resumen del caso</h1>
             <p className="mt-2 text-base text-readable text-muted-foreground">
-              Validación clara del caso antes de ejecutar el análisis de riesgo.
+              Revisión clara del caso antes de pasar a la explicación del resultado.
             </p>
           </div>
-          <div className="bg-primary px-6 py-3 text-primary-foreground">
-            <span className="label-mono-md">CASE ID: </span>
+          <div className="bg-primary px-4 py-2 text-primary-foreground">
+            <span className="label-mono-md">CASO: </span>
             <span className="label-mono-md font-bold tracking-widest">{selectedClaim.id_siniestro}</span>
           </div>
         </header>
 
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-12 space-y-6 lg:col-span-8">
+        <div className="grid grid-cols-12 gap-4">
+          <div className="col-span-12 space-y-4 lg:col-span-8">
             <div className="institutional-card overflow-hidden">
-              <div className="section-header">Metadatos del Siniestro</div>
+              <div className="section-header">Datos principales del caso</div>
               <table className="zebra w-full text-left">
                 <thead>
                   <tr className="border-b border-border bg-[var(--surface-low)]">
@@ -164,10 +164,10 @@ export function StepSummary() {
 
             <div className="institutional-card overflow-hidden">
               <div className="section-header flex items-center justify-between">
-                <span>Narrativa del Evento</span>
+                <span>Relato del caso</span>
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </div>
-              <div className="p-6">
+              <div className="p-4">
                 <p className="rounded-md border border-border bg-[var(--surface-low)] p-4 text-base italic leading-relaxed text-readable">
                   &ldquo;{narrativa}&rdquo;
                 </p>
@@ -176,9 +176,9 @@ export function StepSummary() {
 
             <div className="institutional-card overflow-hidden">
               <div className="section-header flex items-center justify-between gap-2">
-                <span>Verificación de Documentación</span>
+                <span>Revisión de documentos</span>
                 <span className="label-mono text-sm text-muted-foreground">
-                  {documentosCompletos && !documentosInconsistentes ? 'Sin hallazgos críticos' : 'Requiere revisión'}
+                  {documentosCompletos && !documentosInconsistentes ? 'Sin hallazgos clave' : 'Requiere revisión'}
                 </span>
               </div>
               <div className="divide-y divide-border">
@@ -186,7 +186,7 @@ export function StepSummary() {
                   const Icon = docIcon(doc.tipo)
                   const Badge = documentBadge(doc.estado)
                   return (
-                    <div key={i} className="flex items-center justify-between gap-4 p-4 hover:bg-[var(--surface-low)]">
+                    <div key={i} className="flex items-center justify-between gap-4 p-3 hover:bg-[var(--surface-low)]">
                       <div className="flex items-center gap-4">
                         <Icon className="h-5 w-5 shrink-0" />
                         <div>
@@ -202,41 +202,41 @@ export function StepSummary() {
                   )
                 })}
               </div>
-              <div className="grid gap-3 border-t border-border bg-[var(--surface-low)] p-4 sm:grid-cols-2">
+              <div className="grid gap-3 border-t border-border bg-[var(--surface-low)] p-3 sm:grid-cols-2">
                 <div>
-                  <p className="label-mono text-muted-foreground">Documentos completos</p>
+                  <p className="label-mono text-muted-foreground">Documentos recibidos</p>
                   <p className="font-mono text-sm text-foreground">{String(selectedClaim.documentos_completos ?? 'No informado')}</p>
                 </div>
                 <div>
-                  <p className="label-mono text-muted-foreground">Inconsistencias</p>
+                  <p className="label-mono text-muted-foreground">Diferencias encontradas</p>
                   <p className="font-mono text-sm text-foreground">{String(selectedClaim.documentos_inconsistentes ?? 'No informado')}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <aside className="col-span-12 space-y-6 lg:col-span-4">
-            <div className="dark-panel dark-panel-border border p-6">
-              <h3 className="dark-panel-kicker label-mono-md font-bold uppercase tracking-widest">Listo para análisis</h3>
+          <aside className="col-span-12 space-y-4 lg:col-span-4">
+            <div className="dark-panel dark-panel-border border p-4">
+              <h3 className="dark-panel-kicker label-mono-md font-bold uppercase tracking-widest">Listo para continuar</h3>
               <div className="mt-4">
                 <div className="flex items-end justify-between">
                   <span className="dark-panel-heading font-display text-3xl font-semibold">
-                    {isLoadingExplanation ? 'Sincronizando' : 'Listo'}
+                    {isLoadingExplanation ? 'Actualizando' : 'Listo'}
                   </span>
-                  <span className="label-mono-md text-[var(--tertiary-fixed)]">Sistema conectado</span>
+                  <span className="label-mono-md text-[var(--tertiary-fixed)]">Información lista</span>
                 </div>
                 <div className="mt-2 h-2 bg-[var(--surface-high)]">
                   <div className="h-full bg-[var(--tertiary-fixed-dim)]" style={{ width: selectedExplanation ? '100%' : '75%' }} />
                 </div>
               </div>
               <p className="dark-panel-muted mt-4 text-sm leading-relaxed">
-                La información mínima del caso está completa. La explicación trazable se consulta directamente desde el motor antifraude.
+                La información básica del caso ya está reunida. Ahora puedes ver por qué fue marcado para revisión.
               </p>
               <button
                 onClick={next}
-                className="focus-ring mt-6 flex w-full items-center justify-center gap-2 bg-primary py-3 label-mono-md font-bold uppercase text-primary-foreground hover:opacity-95"
+                className="focus-ring mt-4 flex w-full items-center justify-center gap-2 bg-primary py-2.5 label-mono-md font-bold uppercase text-primary-foreground hover:opacity-95"
               >
-                {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Continuar al análisis de riesgo'}
+                {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Continuar a la explicación'}
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
@@ -251,7 +251,7 @@ export function StepSummary() {
           </button>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-[var(--on-tertiary-fixed)]" />
-            <span className="label-mono text-sm text-muted-foreground">Validación auditable: no decide pagos ni rechazos.</span>
+            <span className="label-mono text-sm text-muted-foreground">Apoya la revisión humana: no decide pagos ni rechazos.</span>
           </div>
           <button onClick={next} className="focus-ring flex items-center gap-2 bg-primary px-6 py-2 label-mono-md text-primary-foreground">
             Siguiente

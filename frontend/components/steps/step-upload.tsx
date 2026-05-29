@@ -242,7 +242,7 @@ export function StepUpload() {
       <Dialog open={!!review} onOpenChange={(open) => { if (!open) { resetReview(); setStatus('idle') } }}>
         <DialogContent
           showCloseButton={false}
-          className="flex max-h-[92vh] w-[calc(100%-2rem)] max-w-[1200px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[1200px]"
+          className="flex max-h-[80vh] w-[calc(100%-1rem)] max-w-[900px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[900px]"
         >
           {review && (<>
             <DialogHeader className="flex flex-row items-start justify-between gap-4 space-y-0 border-b border-border p-5 text-left">
@@ -267,9 +267,9 @@ export function StepUpload() {
                   <h3 className="font-display text-lg font-semibold">Previsualización</h3>
                 </div>
                 {review.preview_base64 ? (
-                  <iframe title="Previsualización del documento" src={review.preview_base64} className="min-h-[420px] w-full flex-1 rounded-lg border border-border bg-white" />
+                  <iframe title="Previsualización del documento" src={review.preview_base64} className="min-h-[300px] w-full rounded-lg border border-border bg-white" />
                 ) : (
-                  <pre className="min-h-[420px] flex-1 overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-background p-4 text-sm text-foreground">
+                  <pre className="min-h-[300px] overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-background p-3 text-sm text-foreground">
                     {(() => {
                       const description = String(draft.descripcion || '')
                       return description || 'Vista previa TXT no disponible.'
@@ -278,7 +278,7 @@ export function StepUpload() {
                 )}
               </div>
 
-              <div className="min-h-0 space-y-4 overflow-y-auto p-4">
+              <div className="min-h-0 space-y-3 p-3">
                 <div className="rounded-lg border border-border bg-[var(--surface-low)] p-3">
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <span className="label-mono-md uppercase">Calidad de extracción</span>
@@ -436,7 +436,7 @@ export function StepUpload() {
               handleFileUpload(e.dataTransfer.files)
             }}
             className={cn(
-              'institutional-card group relative col-span-12 flex min-h-[220px] flex-col items-center justify-center gap-4 overflow-hidden p-8 transition-colors lg:col-span-8',
+              'institutional-card group relative col-span-12 flex min-h-[160px] flex-col items-center justify-center gap-3 overflow-hidden p-6 transition-colors lg:col-span-8',
               isUploading && 'cursor-wait border-2 border-primary bg-[var(--secondary-container)]/40',
               uploadComplete && 'border-2 border-[var(--tertiary-fixed-dim)] bg-[var(--success-container)]/30',
               !isUploading && !uploadComplete && (drag ? 'cursor-copy border-2 border-primary bg-[var(--secondary-container)]' : 'cursor-pointer hover:border-primary'),
@@ -458,8 +458,8 @@ export function StepUpload() {
                 <div className="absolute inset-0 overflow-hidden">
                   <div className="upload-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
                 </div>
-                <div className="relative flex h-20 w-20 items-center justify-center rounded-xl border-2 border-primary bg-[var(--secondary-container)]">
-                  <Loader2 className="h-10 w-10 animate-spin text-primary motion-reduce:animate-none" aria-hidden />
+                <div className="relative flex h-16 w-16 items-center justify-center rounded-lg border-2 border-primary bg-[var(--secondary-container)]">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary motion-reduce:animate-none" aria-hidden />
                 </div>
                 <div className="relative text-center">
                   <p className="font-display text-lg font-semibold text-foreground">Cargando archivo…</p>

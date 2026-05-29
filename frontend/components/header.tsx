@@ -37,9 +37,9 @@ export function Header() {
   }, [])
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-border bg-background/92 px-4 backdrop-blur-xl lg:px-8">
-      <div className="flex min-w-0 items-center gap-5">
-        <span className="font-display text-xl font-bold tracking-tight text-primary lg:hidden">RastroSeguro</span>
+    <header className="sticky top-0 z-40 flex h-12 w-full items-center justify-between border-b border-border bg-background/92 px-3 backdrop-blur-xl lg:px-6">
+      <div className="flex min-w-0 items-center gap-4">
+        <span className="font-display text-lg font-bold tracking-tight text-primary lg:hidden">RastroSeguro</span>
         <div className="hidden items-center gap-2 xl:flex">
           <span className="label-mono-md uppercase text-muted-foreground">
             {isAnalyst ? 'Navegacion analista' : 'Vista ejecutiva'}
@@ -49,7 +49,7 @@ export function Header() {
             {isAnalyst ? 'Carga, revision y expediente' : 'Indicadores, impacto y caso foco'}
           </span>
         </div>
-        <nav className="hidden items-center gap-5 md:flex" aria-label="Navegacion superior por perfil">
+        <nav className="hidden items-center gap-4 md:flex" aria-label="Navegacion superior por perfil">
           {tabs.map((tab) => (
             <button
               key={tab.step}
@@ -58,7 +58,7 @@ export function Header() {
               onClick={() => tab.enabled && setCurrentStep(tab.step)}
               title={tab.enabled ? tab.label : 'Carga o sincroniza datos para habilitar este paso'}
               className={cn(
-                'focus-ring rounded-sm pb-1 font-display text-[15px] font-semibold transition-colors',
+                'focus-ring rounded-sm pb-1 font-display text-[13px] font-semibold transition-colors',
                 currentStep === tab.step ? 'border-b-2 border-primary text-primary' : 'text-foreground hover:text-primary',
                 !tab.enabled && 'cursor-not-allowed text-muted-foreground hover:text-muted-foreground',
               )}
@@ -74,7 +74,7 @@ export function Header() {
         <button
           type="button"
           onClick={() => setShowCommandBar(true)}
-          className="focus-ring hidden items-center gap-2 rounded-md border border-border bg-[var(--surface-low)] px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-foreground sm:flex"
+          className="focus-ring hidden items-center gap-2 rounded-md border border-border bg-[var(--surface-low)] px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-foreground sm:flex"
           aria-label="Preguntar al agente antifraude"
         >
           <Search className="h-4 w-4" />
@@ -102,7 +102,7 @@ export function Header() {
           title="Cambiar perfil de usuario"
         >
           <CircleUserRound className="h-5 w-5 text-foreground" aria-hidden />
-          <span className="font-display hidden text-sm font-semibold text-foreground sm:inline">{roleLabel}</span>
+          <span className="font-display hidden text-xs font-semibold text-foreground sm:inline">{roleLabel}</span>
         </button>
       </div>
     </header>

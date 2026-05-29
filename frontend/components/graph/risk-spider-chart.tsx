@@ -45,16 +45,16 @@ export function RiskSpiderChart({ selectedClaim, claims }: { selectedClaim: Clai
     .slice(0, 3)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="institutional-card p-4 lg:col-span-2">
+        <div className="institutional-card p-3 lg:col-span-2">
           <p className="label-mono mb-2 text-muted-foreground">Patrón de aumento de riesgo (caso vs promedio de la cartera)</p>
           <ChartContainer
             config={{
               Caso: { label: 'Caso', color: 'var(--chart-1)' },
               Promedio: { label: 'Promedio', color: 'var(--chart-2)' },
             }}
-            className="h-[360px] w-full"
+            className="h-[280px] w-full"
           >
             <RadarChart data={data} outerRadius="72%">
               <PolarGrid stroke={gridStroke} />
@@ -68,7 +68,7 @@ export function RiskSpiderChart({ selectedClaim, claims }: { selectedClaim: Clai
           </ChartContainer>
         </div>
 
-        <div className="institutional-card p-4">
+        <div className="institutional-card p-3">
           <h4 className="label-mono-md mb-3 font-bold uppercase">Drivers principales</h4>
           {topDrivers.length ? (
             <div className="space-y-2">

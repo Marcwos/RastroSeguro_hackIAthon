@@ -15,7 +15,6 @@ import { AIAssistant } from '@/components/ai-assistant'
 import { CommandBar } from '@/components/command-bar'
 import { RoleSelector } from '@/components/role-selector'
 import { MobileNav } from '@/components/mobile-nav'
-import { FlowCoach } from '@/components/flow-coach'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 
 const STEP_VIEWS: Record<number, React.ComponentType> = {
@@ -58,15 +57,15 @@ function MainContent() {
   if (!userRole) return <RoleSelector />
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="flex h-svh overflow-hidden bg-background text-foreground">
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col lg:ml-64">
         <Header />
-        <FlowCoach />
-        <main className="min-w-0 flex-1 pb-24 lg:pb-0">
+        <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden pb-24 lg:pb-0">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={currentStep}
+              className="min-h-full"
               initial={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: 'translateY(8px)' }}
               animate={{ opacity: 1, transform: 'translateY(0px)' }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: 'translateY(-6px)' }}

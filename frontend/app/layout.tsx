@@ -4,8 +4,8 @@ import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'RastroSeguro | Priorización antifraude explicable',
-  description: 'Copiloto antifraude explicable para priorizar siniestros con señales de riesgo. Alerta y explica; no acusa ni rechaza reclamos.',
+  title: 'RastroSeguro | Priorización clara de casos',
+  description: 'RastroSeguro ayuda a ordenar casos, explicar hallazgos y apoyar la revisión humana sin decisiones automáticas.',
   generator: 'v0.app',
   icons: {
     icon: [

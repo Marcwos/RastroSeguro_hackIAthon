@@ -33,13 +33,14 @@ export function StepAnalysis() {
 
   const scoreFinal = num(selectedExplanation?.score_final ?? selectedClaim.score_final)
   const nivelRiesgo = selectedExplanation?.nivel_riesgo || selectedClaim.nivel_riesgo || 'Sin clasificar'
-  const rawExplicacion = selectedExplanation?.explicacion || selectedClaim.explicacion || 'La explicación se cargará desde el motor antifraude cuando el sistema esté disponible.'
+  const rawExplicacion = selectedExplanation?.explicacion || selectedClaim.explicacion || 'La explicación estará disponible cuando el sistema termine de cargar la información.'
   const explicacion = sanitizeAiText(rawExplicacion)
   const accion = sanitizeAiText(selectedExplanation?.accion_sugerida || selectedClaim.accion_sugerida || 'Revisar el caso con criterio humano.')
   const componentes = selectedExplanation?.componentes_score
   const alertas = (selectedExplanation?.alertas?.length ? selectedExplanation.alertas : selectedClaim.alertas_activadas instanceof Array ? selectedClaim.alertas_activadas : []) as unknown[]
   const riskColor = getRiskColor(nivelRiesgo)
-  const circumference = 2 * Math.PI * 88
+  const meterRadius = 58
+  const circumference = 2 * Math.PI * meterRadius
   const dashOffset = circumference - (scoreFinal / 100) * circumference
   const hasCurrentExplanation = selectedExplanation?.id_siniestro === selectedClaimId
   const graphPayload = safeGraphPayload(
@@ -55,11 +56,11 @@ export function StepAnalysis() {
     grafo: selectedClaim.score_grafo,
     categorico: selectedClaim.score_categorico,
   }
-  const topAlerts = (alertas.length ? alertas : ['Sin alertas críticas principales.']).slice(0, 3)
+  const topAlerts = (alertas.length ? alertas : ['Sin alertas principales.']).slice(0, 3)
   const topEntity = [...graphPayload.recurring_entities].sort((a, b) => b.total_siniestros - a.total_siniestros)[0]
   const relationSummary = topEntity
-    ? `${topEntity.type} ${topEntity.value} aparece en ${topEntity.total_siniestros} siniestros.`
-    : 'No se detectan entidades recurrentes fuertes en la red del caso.'
+    ? `${topEntity.type} ${topEntity.value} aparece en ${topEntity.total_siniestros} casos.`
+    : 'No se detectan coincidencias fuertes con otros casos.'
 
   const nlpDetails = hasCurrentExplanation
     ? ((selectedExplanation?.detalles_avanzados as Record<string, unknown> | undefined)?.nlp as
@@ -79,40 +80,40 @@ export function StepAnalysis() {
 
   const exportCertificate = () => {
     const lines = [
-      `# Certificado técnico de evaluación de riesgo`,
+      `# Resumen del caso`,
       ``,
-      `**Siniestro:** ${selectedClaim.id_siniestro}`,
-      `**Ramo / cobertura:** ${selectedClaim.ramo ?? '—'} / ${selectedClaim.cobertura ?? '—'}`,
-      `**Puntaje de riesgo:** ${Math.round(scoreFinal)}/100`,
-      `**Nivel de riesgo:** ${getRiskLabel(nivelRiesgo)}`,
+      `**Caso:** ${selectedClaim.id_siniestro}`,
+      `**Ramo / cobertura:** ${selectedClaim.ramo ?? '-'} / ${selectedClaim.cobertura ?? '-'}`,
+      `**Puntaje:** ${Math.round(scoreFinal)}/100`,
+      `**Nivel:** ${getRiskLabel(nivelRiesgo)}`,
       ``,
       `## Explicación`,
       explicacion,
       ``,
-      `## Acción recomendada`,
+      `## Recomendación`,
       accion,
       ``,
-      `## Componentes del puntaje (0-100)`,
+      `## Factores del puntaje (0-100)`,
       `- Reglas: ${num(waterfallComponents.reglas)}`,
       `- Modelo: ${num(waterfallComponents.modelo)}`,
       `- Anomalías: ${num(waterfallComponents.anomalia)}`,
       `- Narrativa: ${num(waterfallComponents.nlp)}`,
-      `- Red de relaciones: ${num(waterfallComponents.grafo)}`,
-      `- Categórico: ${num(waterfallComponents.categorico)}`,
+      `- Relaciones: ${num(waterfallComponents.grafo)}`,
+      `- Categorías: ${num(waterfallComponents.categorico)}`,
       ``,
-      `## Traza de reglas activadas`,
+      `## Señales detectadas`,
       ...(alertas.length
         ? alertas.map((a) => `- ${alertToText(a)}`)
-        : ['- Sin reglas de riesgo activadas.']),
+        : ['- Sin señales principales detectadas.']),
       ``,
       `---`,
-      `Documento generado por RastroSeguro. El puntaje es una alerta para revisión humana; no constituye una acusación de fraude ni una decisión automática.`,
+      `Documento generado por RastroSeguro. Este resultado solo apoya la revisión humana y no toma decisiones automáticas.`,
     ]
     const blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `certificado-${selectedClaim.id_siniestro}.md`
+    link.download = `resumen-${selectedClaim.id_siniestro}.md`
     document.body.appendChild(link)
     link.click()
     link.remove()
@@ -120,17 +121,17 @@ export function StepAnalysis() {
   }
 
   return (
-    <section className="px-4 py-8 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-5">
+    <section className="px-3 py-5 lg:px-6">
+      <div className="mx-auto max-w-7xl space-y-4">
         <header className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <span className="label-mono uppercase tracking-widest text-muted-foreground">Informe de inteligencia</span>
-            <h1 className="display-heading text-3xl lg:text-4xl">Paso 3: Evaluación de Riesgo</h1>
-            <p className="mt-2 text-base text-readable text-muted-foreground">Resumen ejecutivo: riesgo, razones principales y acción.</p>
+            <span className="label-mono uppercase tracking-widest text-muted-foreground">Explicación del caso</span>
+            <h1 className="display-heading text-3xl lg:text-4xl">Paso 3: Resultado y motivos</h1>
+            <p className="mt-2 text-base text-readable text-muted-foreground">Resumen claro del puntaje, las señales principales y la recomendación.</p>
           </div>
           <div className="flex items-center gap-2 border border-border bg-[var(--surface-high)] px-4 py-2">
             <Info className="h-4 w-4" />
-            <span className="label-mono">{isLoadingExplanation ? 'ANALIZANDO...' : 'ANÁLISIS CON IA'}</span>
+            <span className="label-mono">{isLoadingExplanation ? 'REVISANDO...' : 'INFORMACIÓN ACTUALIZADA'}</span>
           </div>
         </header>
 
@@ -142,16 +143,16 @@ export function StepAnalysis() {
         )}
 
         <div className="grid grid-cols-12 gap-4">
-          <section className="institutional-card col-span-12 p-6 lg:col-span-8">
-            <div className="grid gap-6 md:grid-cols-[220px_1fr] md:items-center">
+          <section className="institutional-card col-span-12 p-4 lg:col-span-8">
+            <div className="grid gap-4 md:grid-cols-[180px_1fr] md:items-center">
               <div className="flex justify-center">
                 <div className="relative shrink-0">
-                  <svg className="h-48 w-48 -rotate-90">
-                    <circle cx="96" cy="96" r="88" fill="transparent" stroke="var(--surface-high)" strokeWidth="12" />
-                    <circle cx="96" cy="96" r="88" fill="transparent" stroke={riskColor} strokeWidth="12" strokeDasharray={circumference} strokeDashoffset={dashOffset} />
+                  <svg viewBox="0 0 160 160" className="h-40 w-40 -rotate-90">
+                    <circle cx="80" cy="80" r={meterRadius} fill="transparent" stroke="var(--surface-high)" strokeWidth="12" />
+                    <circle cx="80" cy="80" r={meterRadius} fill="transparent" stroke={riskColor} strokeWidth="12" strokeDasharray={circumference} strokeDashoffset={dashOffset} strokeLinecap="round" />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="font-display text-5xl">{Math.round(scoreFinal)}</span>
+                    <span className="font-display text-4xl">{Math.round(scoreFinal)}</span>
                     <span className="label-mono text-muted-foreground">DE 100</span>
                   </div>
                 </div>
@@ -164,48 +165,48 @@ export function StepAnalysis() {
                 </div>
                 <p className="text-base text-readable">{explicacion}</p>
                 <div className={cn('p-4', getActionPanelClasses(nivelRiesgo))}>
-                  <div className="mb-1 flex items-center gap-2"><AlertTriangle className="h-5 w-5" /><span className="label-mono-md font-bold uppercase">Acción recomendada</span></div>
+                  <div className="mb-1 flex items-center gap-2"><AlertTriangle className="h-5 w-5" /><span className="label-mono-md font-bold uppercase">Recomendación</span></div>
                   <p className="text-sm leading-relaxed">{accion}</p>
                 </div>
               </div>
             </div>
           </section>
 
-          <aside className="institutional-card col-span-12 p-6 lg:col-span-4">
+          <aside className="institutional-card col-span-12 p-4 lg:col-span-4">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="label-mono-md font-bold uppercase">Alertas clave</h3>
+              <h3 className="label-mono-md font-bold uppercase">Señales clave</h3>
               <span className="label-mono text-muted-foreground">Top 3</span>
             </div>
             <div className="space-y-3">
               {topAlerts.map((a, i) => (
                 <div key={`${i}-${alertToText(a)}`} className="border border-border bg-[var(--surface-low)] p-3">
-                  <p className="label-mono text-muted-foreground">ALERTA {String(i + 1).padStart(2, '0')}</p>
+                  <p className="label-mono text-muted-foreground">SEÑAL {String(i + 1).padStart(2, '0')}</p>
                   <p className="mt-1 text-sm">{alertToText(a)}</p>
                 </div>
               ))}
             </div>
-            {alertas.length > 3 && <p className="mt-3 text-xs text-muted-foreground">+{alertas.length - 3} alertas adicionales disponibles en el detalle.</p>}
+            {alertas.length > 3 && <p className="mt-3 text-xs text-muted-foreground">+{alertas.length - 3} señales adicionales disponibles en el detalle.</p>}
           </aside>
 
-          <section className="institutional-card col-span-12 p-6 lg:col-span-7">
+          <section className="institutional-card col-span-12 p-4 lg:col-span-7">
             <ScoreWaterfall componentes={waterfallComponents} scoreFinal={scoreFinal} />
           </section>
 
-          <section className="institutional-card col-span-12 p-6 lg:col-span-5">
+          <section className="institutional-card col-span-12 p-4 lg:col-span-5">
             <div className="mb-4 flex flex-col justify-between gap-2 md:flex-row md:items-end">
               <div>
-                <h2 className="label-mono-md font-bold uppercase">Traza de reglas activadas</h2>
-                <p className="text-sm text-muted-foreground">Códigos RF/RB/RV con severidad y evidencia auditable.</p>
+                <h2 className="label-mono-md font-bold uppercase">Detalle de señales</h2>
+                <p className="text-sm text-muted-foreground">Listado de señales encontradas y su evidencia.</p>
               </div>
               <button onClick={() => setCurrentStep(4)} className="focus-ring shrink-0 self-start border border-border px-4 py-2 label-mono-md text-foreground hover:bg-[var(--surface-container)] md:self-auto">
-                Ver análisis completo
+                Ver detalle completo
               </button>
             </div>
             <RuleTrace alertas={alertas} />
           </section>
 
           {similarMatches.length > 0 && currentNarrative && (
-            <section className="institutional-card col-span-12 p-6">
+            <section className="institutional-card col-span-12 p-4">
               <NarrativeCompare
                 currentId={selectedClaim.id_siniestro}
                 currentNarrative={currentNarrative}
@@ -215,34 +216,34 @@ export function StepAnalysis() {
             </section>
           )}
 
-          <section className="institutional-card col-span-12 p-6 lg:col-span-8">
+          <section className="institutional-card col-span-12 p-4 lg:col-span-8">
             <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
               <div>
-                <h2 className="label-mono-md font-bold uppercase">Hipótesis principal de relaciones</h2>
+                <h2 className="label-mono-md font-bold uppercase">Coincidencia principal</h2>
                 <p className="mt-2 text-base font-medium">{relationSummary}</p>
-                <p className="mt-1 text-sm text-muted-foreground">La red no confirma fraude; sirve para decidir qué comparar primero.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Estas coincidencias ayudan a decidir qué comparar primero, pero no confirman nada por sí solas.</p>
               </div>
-              <button onClick={() => setCurrentStep(4)} className="focus-ring flex shrink-0 items-center justify-center gap-2 bg-primary px-5 py-3 label-mono-md text-primary-foreground">
-                <BrainCircuit className="h-4 w-4" />Ver red completa
+              <button onClick={() => setCurrentStep(4)} className="focus-ring flex shrink-0 items-center justify-center gap-2 bg-primary px-4 py-2.5 label-mono-md text-primary-foreground">
+                <BrainCircuit className="h-4 w-4" />Ver relaciones completas
               </button>
             </div>
           </section>
 
-          <aside className="institutional-card col-span-12 p-6 lg:col-span-4">
+          <aside className="institutional-card col-span-12 p-4 lg:col-span-4">
             <div className="flex items-start gap-3">
               <Info className="mt-1 h-5 w-5 shrink-0" />
               <div>
-                <h3 className="font-display text-lg font-semibold">Nota legal</h3>
-                <p className="mt-1 text-sm italic text-muted-foreground">El puntaje prioriza revisión humana; no acusa ni rechaza automáticamente.</p>
+                <h3 className="font-display text-lg font-semibold">Importante</h3>
+                <p className="mt-1 text-sm italic text-muted-foreground">Este resultado ayuda a priorizar la revisión humana; no acusa ni rechaza automáticamente.</p>
               </div>
             </div>
-            <button onClick={exportCertificate} className="focus-ring mt-5 flex w-full items-center justify-center gap-2 border border-border py-2 label-mono-md text-foreground transition-colors hover:bg-[var(--surface-container)]"><Download className="h-4 w-4" />Exportar certificado técnico</button>
+            <button onClick={exportCertificate} className="focus-ring mt-5 flex w-full items-center justify-center gap-2 border border-border py-2 label-mono-md text-foreground transition-colors hover:bg-[var(--surface-container)]"><Download className="h-4 w-4" />Descargar resumen</button>
           </aside>
         </div>
 
         <footer className="flex items-center justify-between border-t border-border pt-6">
           <button onClick={() => setCurrentStep(2)} className="focus-ring flex items-center gap-2 px-4 py-2 label-mono-md text-muted-foreground hover:text-primary"><ArrowLeft className="h-4 w-4" />Anterior</button>
-          <button onClick={() => setShowChat(true)} className="focus-ring flex items-center gap-2 bg-primary px-6 py-2 label-mono-md text-primary-foreground"><Bot className="h-4 w-4" />Consultar IA<CheckCircle2 className="h-4 w-4" /></button>
+          <button onClick={() => setShowChat(true)} className="focus-ring flex items-center gap-2 bg-primary px-6 py-2 label-mono-md text-primary-foreground"><Bot className="h-4 w-4" />Preguntar al asistente<CheckCircle2 className="h-4 w-4" /></button>
         </footer>
       </div>
     </section>

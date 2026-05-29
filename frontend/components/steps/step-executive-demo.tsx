@@ -33,7 +33,7 @@ export function StepExecutiveDemo() {
         setImpact(impactData)
         setStars(starData)
       })
-      .catch((err) => setError(err instanceof Error ? err.message : 'No se pudo cargar la vista ejecutiva.'))
+        .catch((err) => setError(err instanceof Error ? err.message : 'No se pudo cargar esta vista.'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -44,36 +44,36 @@ export function StepExecutiveDemo() {
   }
 
   return (
-    <section className="px-4 py-8 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <section className="px-3 py-5 lg:px-6">
+      <div className="mx-auto max-w-7xl space-y-4">
         <header className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
-          <div className="dark-panel dark-panel-border border p-8">
+          <div className="dark-panel dark-panel-border border p-6">
             <div className="dark-panel-kicker flex items-center gap-2">
               <Star className="h-5 w-5" />
-              <span className="label-mono-md uppercase">Impacto Ejecutivo</span>
+              <span className="label-mono-md uppercase">Resumen para decisión</span>
             </div>
-            <h1 className="dark-panel-heading display-heading mt-4 text-4xl lg:text-5xl">Casos prioritarios e impacto de negocio</h1>
-            <p className="dark-panel-muted mt-3 max-w-2xl text-base">
-              Vista para gerencia, riesgos y auditoria: exposicion priorizada, casos relevantes y lectura operativa del portafolio.
+            <h1 className="dark-panel-heading display-heading mt-3 text-3xl lg:text-4xl">Casos prioritarios e impacto esperado</h1>
+            <p className="dark-panel-muted mt-2 max-w-2xl text-sm">
+              Vista general para revisar exposición, casos relevantes y puntos que merecen atención.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button onClick={() => setShowChat(true)} className="dark-panel-cta inline-flex items-center gap-2 px-5 py-3 label-mono-md font-bold uppercase">
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button onClick={() => setShowChat(true)} className="dark-panel-cta inline-flex items-center gap-2 px-4 py-2 label-mono-md font-bold uppercase">
                 <Bot className="h-4 w-4" />
-                Preguntar al agente
+                Preguntar al asistente
               </button>
-              <button onClick={() => setCurrentStep(0)} className="inline-flex items-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-white">
+              <button onClick={() => setCurrentStep(0)} className="inline-flex items-center gap-2 border border-[var(--primary-fixed-dim)] px-4 py-2 label-mono-md font-bold uppercase text-white">
                 <ArrowLeft className="h-4 w-4" />
-                Centro de Control
+                Panel principal
               </button>
             </div>
           </div>
-          <div className="institutional-card p-6">
+          <div className="institutional-card p-4">
             <div className="flex items-start gap-3">
               <ShieldCheck className="h-8 w-8 text-[var(--risk-verde)]" />
               <div>
                 <p className="label-mono-md font-bold uppercase">Criterio de uso</p>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  RastroSeguro no promete ahorro automatico ni confirma fraude. Prioriza exposicion para revision humana y muestra evidencia verificable.
+                  RastroSeguro no promete ahorros automáticos ni confirma fraude. Señala prioridades para revisión humana y muestra evidencia verificable.
                 </p>
               </div>
             </div>
@@ -84,7 +84,7 @@ export function StepExecutiveDemo() {
         {loading && (
           <div className="institutional-card flex items-center gap-2 p-5 text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Preparando vista...
+            Preparando información...
           </div>
         )}
         {error && <div className="border border-destructive bg-[var(--error-container)] p-4 text-[var(--on-error-container)]">{error}</div>}
@@ -93,8 +93,8 @@ export function StepExecutiveDemo() {
           <div className="grid gap-4 md:grid-cols-4">
             <Kpi label="Siniestros" value={impact.total_siniestros.toLocaleString()} Icon={FileText} />
             <Kpi label="Casos rojos" value={impact.casos_rojos.toLocaleString()} Icon={Target} />
-            <Kpi label="Top a revisar" value={impact.casos_a_revisar_top_percent.toLocaleString()} Icon={BriefcaseBusiness} />
-            <Kpi label="Exposicion priorizada" value={formatCurrency(impact.monto_priorizado_top_percent)} Icon={CircleDollarSign} />
+            <Kpi label="Casos a revisar primero" value={impact.casos_a_revisar_top_percent.toLocaleString()} Icon={BriefcaseBusiness} />
+            <Kpi label="Monto priorizado" value={formatCurrency(impact.monto_priorizado_top_percent)} Icon={CircleDollarSign} />
           </div>
         )}
 
@@ -102,7 +102,7 @@ export function StepExecutiveDemo() {
           <section className="institutional-card col-span-12 overflow-hidden xl:col-span-8">
             <div className="section-header flex items-center gap-2">
               <Star className="h-4 w-4" />
-              Casos prioritarios para revision
+              Casos prioritarios para revisión
             </div>
             <div className="divide-y divide-border">
               {(stars?.cases || []).map((item) => {
@@ -111,7 +111,7 @@ export function StepExecutiveDemo() {
                   <button
                     key={`${item.tipo}-${item.id_siniestro}`}
                     onClick={() => openCase(item.id_siniestro)}
-                    className="grid w-full gap-3 p-4 text-left transition-colors hover:bg-[var(--surface-low)] md:grid-cols-[1fr_auto]"
+                    className="grid w-full gap-2 p-3 text-left transition-colors hover:bg-[var(--surface-low)] md:grid-cols-[1fr_auto]"
                   >
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
@@ -120,10 +120,10 @@ export function StepExecutiveDemo() {
                         <RiskBadge level={risk} size="sm" />
                       </div>
                       <p className="mt-2 text-sm font-medium">{item.por_que_destaca}</p>
-                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{item.explicacion_demo || 'Caso preparado para revision.'}</p>
+                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{item.explicacion_demo || 'Caso preparado para revisión.'}</p>
                     </div>
                     <div className="text-left md:text-right">
-                      <p className="font-display text-3xl font-semibold">{Math.round(num(item.score_final))}</p>
+                      <p className="font-display text-2xl font-semibold">{Math.round(num(item.score_final))}</p>
                       <p className="label-mono text-muted-foreground">{formatCurrency(item.monto_reclamado)}</p>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {item.ramo || 'N/D'} / {item.ciudad || 'N/D'}
@@ -138,15 +138,15 @@ export function StepExecutiveDemo() {
           <aside className="institutional-card col-span-12 overflow-hidden xl:col-span-4">
             <div className="section-header flex items-center gap-2">
               <PlayCircle className="h-4 w-4" />
-              Recorrido operativo sugerido
+              Recorrido sugerido
             </div>
-            <ol className="space-y-3 p-5 text-sm">
+            <ol className="space-y-2 p-4 text-sm">
               {[
-                'Abrir un rojo evidente y mostrar reglas/documentos.',
-                'Abrir un rojo no evidente y explicar la red de relaciones y narrativa.',
-                'Revisar un amarillo etico: alerta, no acusacion.',
-                'Preguntar al agente por proveedores con mas alertas.',
-                'Simular un siniestro nuevo ocurrido cerca del inicio de poliza.',
+                'Abrir un caso rojo evidente y mostrar sus señales y documentos.',
+                'Abrir un caso rojo no evidente y explicar sus relaciones y su relato.',
+                'Revisar un caso amarillo con criterio humano: es una alerta, no una acusación.',
+                'Preguntar al asistente qué proveedores concentran más alertas.',
+                'Simular un caso nuevo ocurrido cerca del inicio de la póliza.',
               ].map((step, index) => (
                 <li key={step} className="flex gap-3 border border-border bg-[var(--surface-low)] p-3">
                   <span className="label-mono-md font-bold text-primary">{index + 1}</span>
@@ -163,12 +163,12 @@ export function StepExecutiveDemo() {
 
 function Kpi({ label, value, Icon }: { label: string; value: string; Icon: React.ComponentType<{ className?: string }> }) {
   return (
-    <div className="institutional-card p-5">
+    <div className="institutional-card p-4">
       <div className="flex items-center justify-between">
         <p className="label-mono-md uppercase text-muted-foreground">{label}</p>
         <Icon className="h-5 w-5 text-[var(--on-secondary-container)]" />
       </div>
-      <p className="mt-3 font-display text-3xl font-semibold">{value}</p>
+      <p className="mt-2 font-display text-2xl font-semibold">{value}</p>
     </div>
   )
 }

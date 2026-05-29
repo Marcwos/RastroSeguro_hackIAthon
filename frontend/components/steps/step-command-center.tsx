@@ -53,7 +53,7 @@ function ReportDialog({ report, loading, onLoad }: { report: ExecutiveReport | n
   return (
     <Dialog onOpenChange={(open) => { if (open && !report && !loading) onLoad() }}>
       <DialogTrigger asChild>
-        <Button variant="outline-inverse" className="h-auto px-5 py-3 text-[15px] font-semibold">
+        <Button variant="outline-inverse" className="h-auto px-4 py-2 text-[13px] font-semibold">
           <FileText className="h-4 w-4" /> Reporte ejecutivo
         </Button>
       </DialogTrigger>
@@ -73,9 +73,9 @@ function ReportDialog({ report, loading, onLoad }: { report: ExecutiveReport | n
                 ['% rojo', `${summary.porcentaje_rojo}%`],
                 ['Monto rojo', formatCurrency(summary.monto_reclamado_casos_rojos)],
               ].map(([label, value]) => (
-                <div key={label} className="border border-border bg-[var(--surface-low)] p-3">
+                <div key={label} className="border border-border bg-[var(--surface-low)] p-2.5">
                   <p className="label-mono text-muted-foreground">{label}</p>
-                  <p className="font-display text-2xl font-semibold">{value}</p>
+                  <p className="font-display text-xl font-semibold">{value}</p>
                 </div>
               ))}
             </div>
@@ -83,7 +83,7 @@ function ReportDialog({ report, loading, onLoad }: { report: ExecutiveReport | n
             {report.ahorro_potencial_estimado ? (
               <div className="action-panel-verde p-4">
                 <p className="label-mono text-[var(--risk-verde)]">Ahorro potencial estimado</p>
-                <p className="font-display text-3xl font-semibold">
+                <p className="font-display text-2xl font-semibold">
                   {formatCurrency(report.ahorro_potencial_estimado.ahorro_potencial_estimado)}
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground">
@@ -163,7 +163,7 @@ function SimulatorDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline-inverse" className="h-auto px-5 py-3 text-[15px] font-semibold">
+        <Button variant="outline-inverse" className="h-auto px-4 py-2 text-[13px] font-semibold">
           <FlaskConical className="h-4 w-4" /> Simular caso
         </Button>
       </DialogTrigger>
@@ -190,7 +190,7 @@ function SimulatorDialog() {
               <Checkbox checked={form.documentos_presentes === 'true'} onCheckedChange={(checked) => update('documentos_presentes', String(checked === true))} />
               Documentación completa
             </label>
-            <Button onClick={run} disabled={loading} className="h-auto w-full px-4 py-3 text-[15px] font-semibold">
+            <Button onClick={run} disabled={loading} className="h-auto w-full px-4 py-2 text-[13px] font-semibold">
               {loading && <Loader2 className="h-4 w-4 animate-spin" />} Ejecutar simulación
             </Button>
             {error && <p className="text-sm text-destructive">{error}</p>}
@@ -198,11 +198,11 @@ function SimulatorDialog() {
           <div className="institutional-card overflow-hidden">
             <div className="section-header">Resultado simulado</div>
             {result ? (
-              <div className="space-y-4 p-5">
+              <div className="space-y-3 p-4">
                 <div className="flex items-end justify-between">
                   <div>
                     <p className="label-mono text-muted-foreground">PUNTAJE FINAL</p>
-                    <p className="font-display text-5xl font-semibold">{Math.round(num(result.score_final))}</p>
+                    <p className="font-display text-4xl font-semibold">{Math.round(num(result.score_final))}</p>
                   </div>
                   <RiskBadge level={normalizeRisk(result.nivel_riesgo)} className="px-3 py-2" />
                 </div>
@@ -215,7 +215,7 @@ function SimulatorDialog() {
                 </div>
               </div>
             ) : (
-              <div className="flex min-h-[320px] items-center justify-center p-8 text-center text-sm text-muted-foreground">Complete el formulario y ejecute una simulación para ver el puntaje, las alertas y la recomendación.</div>
+              <div className="flex min-h-[240px] items-center justify-center p-6 text-center text-sm text-muted-foreground">Complete el formulario y ejecute una simulación para ver el puntaje, las alertas y la recomendación.</div>
             )}
           </div>
         </div>
@@ -264,7 +264,7 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
   const activeClaim = hoveredClaim
 
   return (
-    <div className="dark-panel relative h-[360px] overflow-hidden">
+    <div className="dark-panel relative h-[300px] overflow-hidden">
       <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(var(--primary-fixed)_1px,transparent_1px),linear-gradient(90deg,var(--primary-fixed)_1px,transparent_1px)] [background-size:32px_32px]" />
       <svg viewBox="0 0 520 320" className="absolute inset-0 h-full w-full">
         {satellites.map((node) => (
@@ -425,36 +425,36 @@ export function StepCommandCenter() {
   ]
 
   return (
-    <section className="px-4 py-8 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <section className="px-3 py-5 lg:px-6">
+      <div className="mx-auto max-w-7xl space-y-4">
         <header className="grid gap-4 lg:grid-cols-[1.4fr_.6fr]">
-          <div className="dark-panel dark-panel-border border p-8">
+          <div className="dark-panel dark-panel-border border p-6">
             <div className="dark-panel-kicker flex items-center gap-2">
               <GitBranch className="h-5 w-5" />
               <span className="label-mono-md uppercase">Inteligencia antifraude</span>
             </div>
-            <h1 className="dark-panel-heading display-heading mt-4 text-4xl lg:text-5xl">Centro de Control Antifraude</h1>
-            <p className="dark-panel-muted mt-3 max-w-2xl text-base">
+            <h1 className="dark-panel-heading display-heading mt-3 text-3xl lg:text-4xl">Centro de Control Antifraude</h1>
+            <p className="dark-panel-muted mt-2 max-w-2xl text-sm">
               {isAnalyst ? 'Bandeja operativa de riesgo, carga de datos y casos prioritarios para revision con IA.' : 'Panorama ejecutivo de riesgo, concentracion de alertas e impacto para decision gerencial.'}
             </p>
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
               {isAnalyst ? (
-                <Button onClick={() => setCurrentStep(1)} className="dark-panel-cta h-auto px-5 py-3 text-[15px] font-semibold">
+                <Button onClick={() => setCurrentStep(1)} className="dark-panel-cta h-auto px-4 py-2 text-[13px] font-semibold">
                   Cargar datos e iniciar análisis <ArrowRight className="h-4 w-4" />
                 </Button>
               ) : (
-                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[var(--primary-fixed-dim)] px-5 py-3 text-[15px] font-semibold text-[var(--primary-fixed-dim)]">
+                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[var(--primary-fixed-dim)] px-4 py-2 text-[13px] font-semibold text-[var(--primary-fixed-dim)]">
                   Datos gestionados por el analista
                 </span>
               )}
-              <Button variant="outline-inverse" onClick={() => { void loadClaims(); void loadCommandCenterData() }} className="h-auto px-5 py-3 text-[15px] font-semibold">
+              <Button variant="outline-inverse" onClick={() => { void loadClaims(); void loadCommandCenterData() }} className="h-auto px-4 py-2 text-[13px] font-semibold">
                 Sincronizar datos
               </Button>
               <ReportDialog report={report} loading={reportLoading} onLoad={() => void loadCommandCenterData()} />
               <SimulatorDialog />
             </div>
           </div>
-          <div className="institutional-card p-6">
+          <div className="institutional-card p-4">
             <div className="flex items-start gap-3">
               <ShieldCheck className="h-8 w-8 text-[var(--risk-verde)]" />
               <div>
@@ -464,7 +464,7 @@ export function StepCommandCenter() {
                 </p>
               </div>
             </div>
-            <div className="mt-6 grid grid-cols-2 gap-3">
+            <div className="mt-4 grid grid-cols-2 gap-2">
               <div className="bg-[var(--surface-low)] p-3"><p className="label-mono text-muted-foreground">Proveedor foco</p><p className="truncate font-semibold">{analytics.topProvider}</p></div>
               <div className="bg-[var(--surface-low)] p-3"><p className="label-mono text-muted-foreground">Casos medios</p><p className="font-semibold">{analytics.mediumCount}</p></div>
             </div>
@@ -479,14 +479,14 @@ export function StepCommandCenter() {
         )}
 
         {!claims.length && !isLoadingClaims ? (
-          <div className="institutional-card flex min-h-[320px] flex-col items-center justify-center gap-4 p-8 text-center">
+          <div className="institutional-card flex min-h-[240px] flex-col items-center justify-center gap-3 p-6 text-center">
             <UploadCloud className="h-12 w-12 text-muted-foreground" />
             <div>
-              <h2 className="font-display text-2xl font-semibold">Sin datos para visualizar</h2>
+              <h2 className="font-display text-xl font-semibold">Sin datos para visualizar</h2>
               <p className="mt-2 text-sm text-muted-foreground">Cargue los datos para activar el Centro de Control.</p>
             </div>
             {isAnalyst ? (
-              <Button onClick={() => setCurrentStep(1)} className="h-auto px-5 py-3 text-[15px] font-semibold">Ir a carga de datos</Button>
+              <Button onClick={() => setCurrentStep(1)} className="h-auto px-4 py-2 text-[13px] font-semibold">Ir a carga de datos</Button>
             ) : (
               <p className="max-w-md text-sm text-muted-foreground">Solicita al analista cargar los datos para que esta vista muestre los indicadores, impacto y casos críticos.</p>
             )}
@@ -497,12 +497,12 @@ export function StepCommandCenter() {
               {kpis.map((kpi, i) => {
                 const Icon = kpi.Icon
                 return (
-                  <div key={kpi.label} className="institutional-card stagger-item p-5" style={{ '--i': i } as Record<string, number>}>
+                  <div key={kpi.label} className="institutional-card stagger-item p-4" style={{ '--i': i } as Record<string, number>}>
                     <div className="flex items-center justify-between">
                       <p className="label-mono-md uppercase text-muted-foreground">{kpi.label}</p>
                       <Icon className="h-5 w-5 text-[var(--brand)]" />
                     </div>
-                    <p className="mt-3 font-display text-3xl font-semibold">{kpi.value}</p>
+                    <p className="mt-2 font-display text-2xl font-semibold">{kpi.value}</p>
                     <p className="mt-1 text-sm text-muted-foreground">{kpi.note}</p>
                   </div>
                 )
@@ -517,7 +517,7 @@ export function StepCommandCenter() {
               <div className="institutional-card col-span-12 overflow-hidden xl:col-span-5">
                 <div className="section-header flex items-center gap-2"><BarChart3 className="h-4 w-4" />Distribución por semáforo</div>
                 <div className="p-4">
-                  <ChartContainer config={{ total: { label: 'Casos', color: 'var(--chart-1)' } }} className="h-[280px] w-full">
+                  <ChartContainer config={{ total: { label: 'Casos', color: 'var(--chart-1)' } }} className="h-[220px] w-full">
                     <PieChart>
                       <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
                       <Pie data={analytics.riskDistribution} dataKey="total" nameKey="name" innerRadius={62} outerRadius={96} paddingAngle={4}>
@@ -529,7 +529,7 @@ export function StepCommandCenter() {
                     {analytics.riskDistribution.map((row) => (
                       <div key={row.risk} className="bg-[var(--surface-low)] p-2 text-center">
                         <p className="label-mono" style={{ color: row.fill }}>{row.name}</p>
-                        <p className="font-display text-xl font-semibold">{row.total}</p>
+                        <p className="font-display text-lg font-semibold">{row.total}</p>
                       </div>
                     ))}
                   </div>
@@ -540,8 +540,8 @@ export function StepCommandCenter() {
             <div className="grid grid-cols-12 gap-4">
               <div className="institutional-card col-span-12 overflow-hidden lg:col-span-4">
                 <div className="section-header flex items-center gap-2"><Building2 className="h-4 w-4" />Riesgo por proveedor</div>
-                <div className="p-4">
-                  <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-4)' } }} className="h-[240px] w-full">
+                <div className="p-3">
+                  <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-4)' } }} className="h-[200px] w-full">
                     <BarChart data={analytics.providerRows} layout="vertical" margin={{ left: 8, right: 8 }}>
                       <CartesianGrid horizontal={false} />
                       <XAxis type="number" domain={[0, 100]} hide />
@@ -554,8 +554,8 @@ export function StepCommandCenter() {
               </div>
               <div className="institutional-card col-span-12 overflow-hidden lg:col-span-4">
                 <div className="section-header flex items-center gap-2"><UsersRound className="h-4 w-4" />Riesgo por ramo</div>
-                <div className="p-4">
-                  <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-3)' } }} className="h-[240px] w-full">
+                <div className="p-3">
+                  <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-3)' } }} className="h-[200px] w-full">
                     <BarChart data={analytics.branchRows} margin={{ left: 4, right: 4 }}>
                       <CartesianGrid vertical={false} />
                       <XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={10} />
@@ -568,8 +568,8 @@ export function StepCommandCenter() {
               </div>
               <div className="institutional-card col-span-12 overflow-hidden lg:col-span-4">
                 <div className="section-header flex items-center gap-2"><MapPin className="h-4 w-4" />Riesgo por ciudad</div>
-                <div className="p-4">
-                  <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-1)' } }} className="h-[240px] w-full">
+                <div className="p-3">
+                  <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-1)' } }} className="h-[200px] w-full">
                     <BarChart data={analytics.cityRows} margin={{ left: 4, right: 4 }}>
                       <CartesianGrid vertical={false} />
                       <XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={10} />
@@ -634,9 +634,9 @@ export function StepCommandCenter() {
                 { title: 'Patrones visibles', text: 'Expone concentración por proveedor, ramo y ciudad.' },
                 { title: 'Explicabilidad', text: 'Conecta la vista ejecutiva con el análisis IA trazable por caso.' },
               ].map((item) => (
-                <div key={item.title} className="institutional-card p-5">
+                <div key={item.title} className="institutional-card p-4">
                   <Bot className="h-5 w-5 text-[var(--on-secondary-container)]" />
-                  <h3 className="mt-3 font-display text-xl font-semibold">{item.title}</h3>
+                  <h3 className="mt-2 font-display text-lg font-semibold">{item.title}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">{item.text}</p>
                 </div>
               ))}

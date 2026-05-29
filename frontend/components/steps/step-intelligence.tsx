@@ -38,8 +38,8 @@ export function StepIntelligence() {
   const graph = buildClaimGraph(payload)
 
   return (
-    <section className="px-4 py-8 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <section className="px-3 py-5 lg:px-6">
+      <div className="mx-auto max-w-7xl space-y-4">
         <header>
           <span className="label-mono uppercase tracking-widest text-muted-foreground">Inteligencia antifraude</span>
           <h1 className="display-heading text-3xl lg:text-4xl">Paso 4: Inteligencia de Relaciones</h1>
@@ -54,17 +54,17 @@ export function StepIntelligence() {
             <TabsTrigger value="ranking">Concentración</TabsTrigger>
             <TabsTrigger value="spider">Patrones (Araña)</TabsTrigger>
           </TabsList>
-          <TabsContent value="graph" className="mt-4 institutional-card space-y-3 p-6">
+          <TabsContent value="graph" className="mt-3 institutional-card space-y-2 p-4">
             <p className="text-sm text-muted-foreground">Vista completa de la red del siniestro (zoom y desplazamiento habilitados).</p>
             <ClaimNetworkReactFlow nodes={graph.nodes} edges={graph.edges} />
           </TabsContent>
           <TabsContent value="rings" className="mt-4">
             <FraudRingsView />
           </TabsContent>
-          <TabsContent value="entities" className="mt-4 institutional-card p-6">
+          <TabsContent value="entities" className="mt-3 institutional-card p-4">
             <RecurringEntitiesList entities={payload.recurring_entities} limit={12} />
           </TabsContent>
-          <TabsContent value="ranking" className="mt-4 institutional-card p-6">
+          <TabsContent value="ranking" className="mt-3 institutional-card p-4">
             <ProviderRankingChart entities={payload.recurring_entities} />
           </TabsContent>
           <TabsContent value="spider" className="mt-4">
