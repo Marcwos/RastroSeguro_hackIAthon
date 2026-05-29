@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useAppState } from '@/lib/app-context'
 import { alertToText } from '@/lib/api'
 import { getRiskBadgeClasses, getActionPanelClasses, getRiskColor, getRiskLabel } from '@/lib/claims-data'
+import { downloadCaseReportPdf } from '@/lib/case-report-export'
 import { AlertTriangle, ArrowLeft, ArrowRight, Bot, BrainCircuit, Download, Info } from 'lucide-react'
 import { cn, sanitizeAiText } from '@/lib/utils'
 import { safeGraphPayload } from '@/components/graph/graph-utils'
@@ -11,12 +12,11 @@ import { ScoreWaterfall } from '@/components/explainability/score-waterfall'
 import { RuleTrace } from '@/components/explainability/rule-trace'
 import { NarrativeCompare, type SimilarMatch } from '@/components/explainability/narrative-compare'
 import { resolveMainDriverLabel } from '@/lib/graph-insights'
-import { COMPONENT_LABELS } from '@/lib/score-weights'
-
 const num = (value: unknown) => Number(value ?? 0)
 
 export function StepAnalysis() {
   const { claims, selectedClaim, selectedClaimId, selectedExplanation, isLoadingExplanation, apiError, apiHint, loadClaimExplanation, setCurrentStep, setShowChat } = useAppState()
+  const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
     if (selectedClaim && selectedClaimId && selectedExplanation?.id_siniestro !== selectedClaimId) {
@@ -90,45 +90,16 @@ export function StepAnalysis() {
       : null
 
   const exportCertificate = () => {
-    const lines = [
-      `# Resumen del caso`,
-      ``,
-      `**Caso:** ${selectedClaim.id_siniestro}`,
-      `**Ramo / cobertura:** ${selectedClaim.ramo ?? '-'} / ${selectedClaim.cobertura ?? '-'}`,
-      `**Puntaje:** ${Math.round(scoreFinal)}/100`,
-      `**Nivel:** ${getRiskLabel(nivelRiesgo)}`,
-      ``,
-      `## Explicación`,
-      explicacion,
-      ``,
-      `## Recomendación`,
-      accion,
-      ``,
-      `## Factores del puntaje (0-100)`,
-      `- ${COMPONENT_LABELS.score_reglas}: ${num(waterfallComponents.reglas)}`,
-      `- ${COMPONENT_LABELS.score_modelo}: ${num(waterfallComponents.modelo)}`,
-      `- ${COMPONENT_LABELS.score_anomalia}: ${num(waterfallComponents.anomalia)}`,
-      `- ${COMPONENT_LABELS.score_nlp}: ${num(waterfallComponents.nlp)}`,
-      `- ${COMPONENT_LABELS.score_grafo}: ${num(waterfallComponents.grafo)}`,
-      `- ${COMPONENT_LABELS.score_categorico}: ${num(waterfallComponents.categorico)}`,
-      ``,
-      `## Señales detectadas`,
-      ...(alertas.length
-        ? alertas.map((a) => `- ${alertToText(a)}`)
-        : ['- Sin señales principales detectadas.']),
-      ``,
-      `---`,
-      `Documento generado por RastroSeguro. Este resultado solo apoya la revisión humana y no toma decisiones automáticas.`,
-    ]
-    const blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `resumen-${selectedClaim.id_siniestro}.md`
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    URL.revokeObjectURL(url)
+    if (isExporting) return
+    setIsExporting(true)
+    void downloadCaseReportPdf({
+      claim: selectedClaim,
+      explanation: selectedExplanation,
+      graphPayload,
+      claims,
+    })
+      .catch(() => undefined)
+      .finally(() => setIsExporting(false))
   }
 
   return (
@@ -251,7 +222,7 @@ export function StepAnalysis() {
                 <p className="mt-1 text-sm italic text-muted-foreground">Este resultado ayuda a priorizar la revisión humana; no acusa ni rechaza automáticamente.</p>
               </div>
             </div>
-            <button onClick={exportCertificate} className="focus-ring mt-5 flex w-full items-center justify-center gap-2 border border-border py-2 label-mono-md text-foreground transition-colors hover:bg-[var(--surface-container)]"><Download className="h-4 w-4" />Descargar resumen</button>
+            <button onClick={exportCertificate} disabled={isExporting} className="focus-ring mt-5 flex w-full items-center justify-center gap-2 border border-border py-2 label-mono-md text-foreground transition-colors hover:bg-[var(--surface-container)] disabled:cursor-not-allowed disabled:opacity-50"><Download className="h-4 w-4" />{isExporting ? 'Generando PDF…' : 'Descargar resumen (PDF)'}</button>
           </aside>
         </div>
 

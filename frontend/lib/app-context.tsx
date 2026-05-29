@@ -231,7 +231,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [loadClaims, markAnalystSubmittedCases])
 
   const addChatMessage = useCallback((message: ChatMessage) => {
-    setChatMessages((prev) => [...prev, message])
+    setChatMessages((prev) => {
+      // Guard against duplicate appends: the assistant mounts twice (floating +
+      // sidebar) and React Strict Mode double-invokes effects, so the same
+      // stable-id guide message can be pushed more than once.
+      if (prev.some((m) => m.id === message.id)) return prev
+      return [...prev, message]
+    })
   }, [])
 
   const replaceChatMessages = useCallback((messages: ChatMessage[]) => {

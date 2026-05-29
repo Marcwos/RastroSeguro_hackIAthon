@@ -119,6 +119,10 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
   const stepContext = getStepContext(currentStep)
   const isExecutive = userRole === 'executive'
   const currentContextTitle = isExecutive ? getExecutiveStepTitle(currentStep) : stepContext.title
+  // Both variants stay mounted at once (floating for mobile, sidebar for
+  // desktop). Only the one visible at the current viewport may write guide
+  // messages to the shared chat state, otherwise the message is duplicated.
+  const isActiveVariant = isDesktopViewport ? variant === 'sidebar' : variant === 'floating'
 
   const quickQuestions = useMemo(() => {
     const base = userRole === 'executive'
@@ -228,7 +232,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
   }, [showChat])
 
   useEffect(() => {
-    if (!showChat || threadId) return
+    if (!showChat || threadId || !isActiveVariant) return
 
     const guide = getStepGuideMessage(currentStep, selectedClaimId, userRole || 'analyst')
     const stepChanged = lastGuideStepRef.current !== currentStep
@@ -281,6 +285,8 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
     chatMessages,
     addChatMessage,
     replaceChatMessages,
+    isActiveVariant,
+    userRole,
   ])
 
   const openClaim = (id: string) => {
