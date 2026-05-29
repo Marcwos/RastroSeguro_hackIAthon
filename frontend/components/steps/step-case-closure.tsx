@@ -1,6 +1,6 @@
 'use client'
 
-import { FileSearch, FileText } from 'lucide-react'
+import { FileSearch, FileText, RotateCcw } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAppState } from '@/lib/app-context'
 import { StepCaseReportTab } from '@/components/steps/step-case-report-tab'
@@ -46,14 +46,24 @@ export function StepCaseClosure() {
           </TabsContent>
         </Tabs>
 
-        <footer className="border-t border-border pt-4">
+        <footer className="flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
           <button
             type="button"
             onClick={() => setCurrentStep(isExecutive ? 0 : 4)}
-            className="label-mono-md text-muted-foreground hover:text-primary"
+            className="label-mono-md text-left text-muted-foreground hover:text-primary"
           >
             {isExecutive ? '← Volver al panel' : '← Volver a relaciones'}
           </button>
+          {!isExecutive && (
+            <button
+              type="button"
+              onClick={() => setCurrentStep(1)}
+              className="focus-ring inline-flex items-center justify-center gap-2 border border-border px-5 py-2.5 label-mono-md text-foreground hover:bg-[var(--surface-container)]"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Analizar otro siniestro
+            </button>
+          )}
         </footer>
       </div>
     </section>

@@ -90,9 +90,12 @@ export function StepUpload() {
   const [draft, setDraft] = useState<ExtractedClaimDraft>({})
   const [selectedCandidateIndex, setSelectedCandidateIndex] = useState(0)
 
+  // Re-mark the step valid whenever claims are already loaded (uploaded file or
+  // demo data) and we're not mid-review. Lets the user return here from step 5
+  // to pick another claim without re-uploading.
   useEffect(() => {
-    if (uploadedFile && claims.length > 0 && !review) setStatus('valid')
-  }, [claims.length, review, uploadedFile])
+    if (claims.length > 0 && !review) setStatus('valid')
+  }, [claims.length, review])
 
   useEffect(() => {
     if (isApiReady || isLoadingClaims || review || claims.length > 0) return
