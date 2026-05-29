@@ -87,23 +87,23 @@ QUALITY_FIELDS = [
 VALID_RAMOS = {"vida", "salud", "hogar", "vehiculos", "vehículos", "generales"}
 
 FIELD_PATTERNS: dict[str, list[str]] = {
-    "id_siniestro": [r"(?:id\s*)?siniestro\s*[:#-]\s*([A-Z0-9_-]+)", r"(?:nro\.?\s*)?reclamo\s*[:#-]\s*([A-Z0-9_-]+)", r"claim[_\s-]*id\s*[:#-]\s*([A-Z0-9_-]+)"],
-    "id_poliza": [r"(?:id\s*)?p[oó]liza\s*[:#-]\s*([A-Z0-9_-]+)", r"policy[_\s-]*id\s*[:#-]\s*([A-Z0-9_-]+)"],
-    "id_asegurado": [r"(?:id\s*)?asegurad[oa]\s*[:#-]\s*([A-Z0-9_-]+)", r"insured[_\s-]*id\s*[:#-]\s*([A-Z0-9_-]+)"],
+    "id_siniestro": [r"(?:id\s*)?siniestro\s*(?:n[º°o]\.?|nro\.?|#)?\s*[:#-]\s*([A-Z0-9][A-Z0-9_-]*)", r"(?:nro\.?\s*)?reclamo\s*(?:n[º°o]\.?|#)?\s*[:#-]\s*([A-Z0-9][A-Z0-9_-]*)", r"claim[_\s-]*id\s*[:#-]\s*([A-Z0-9][A-Z0-9_-]*)"],
+    "id_poliza": [r"(?:id\s*)?p[oó]liza\s*(?:n[º°o]\.?|nro\.?|#)?\s*[:#-]\s*([A-Z0-9][A-Z0-9_-]*)", r"policy[_\s-]*id\s*[:#-]\s*([A-Z0-9][A-Z0-9_-]*)"],
+    "id_asegurado": [r"(?:id\s*)?asegurad[oa]\s*(?:n[º°o]\.?|nro\.?|#)?\s*[:#-]\s*([A-Z]{2,}[-_]\d+)", r"(?:id\s*)?asegurad[oa]\s*[:#-]\s*([^\n;]{2,80})", r"insured[_\s-]*id\s*[:#-]\s*([A-Z0-9_-]+)"],
     "ramo": [r"ramo\s*[:#-]\s*([^\n;]+)", r"l[ií]nea\s+(?:de\s+)?negocio\s*[:#-]\s*([^\n;]+)"],
     "cobertura": [r"cobertura\s*[:#-]\s*([^\n;]+)"],
     "fecha_ocurrencia": [r"fecha\s+(?:de\s+)?(?:ocurrencia|siniestro|evento)\s*[:#-]\s*(\d{4}-\d{2}-\d{2}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4})"],
     "fecha_reporte": [r"fecha\s+(?:de\s+)?(?:reporte|aviso|notificaci[oó]n)\s*[:#-]\s*(\d{4}-\d{2}-\d{2}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4})"],
-    "monto_reclamado": [r"monto\s+reclamad[oa]\s*[:#-]?\s*\$?\s*([0-9.,]+)", r"valor\s+reclamad[oa]\s*[:#-]?\s*\$?\s*([0-9.,]+)", r"importe\s*[:#-]?\s*\$?\s*([0-9.,]+)"],
-    "monto_estimado": [r"monto\s+estimad[oa]\s*[:#-]?\s*\$?\s*([0-9.,]+)"],
-    "suma_asegurada": [r"suma\s+asegurada\s*[:#-]?\s*\$?\s*([0-9.,]+)"],
+    "monto_reclamado": [r"monto\s+reclamad[oa]\s*[:#-]?\s*(?:usd|us\$|\$|€|d[oó]lares?)?\s*([0-9][0-9.,]*)", r"valor\s+reclamad[oa]\s*[:#-]?\s*(?:usd|us\$|\$|€|d[oó]lares?)?\s*([0-9][0-9.,]*)", r"importe\s*[:#-]?\s*(?:usd|us\$|\$|€|d[oó]lares?)?\s*([0-9][0-9.,]*)"],
+    "monto_estimado": [r"monto\s+estimad[oa]\s*[:#-]?\s*(?:usd|us\$|\$|€|d[oó]lares?)?\s*([0-9][0-9.,]*)"],
+    "suma_asegurada": [r"suma\s+asegurada\s*[:#-]?\s*(?:usd|us\$|\$|€|d[oó]lares?)?\s*([0-9][0-9.,]*)"],
     "estado": [r"estado\s*[:#-]\s*([^\n;]+)"],
     "sucursal": [r"sucursal\s*[:#-]\s*([^\n;]+)"],
     "ciudad": [r"ciudad\s*[:#-]\s*([^\n;]+)"],
     "descripcion": [r"descripci[oó]n\s*[:#-]\s*([\s\S]{10,500})"],
     "documentos_completos": [r"documentos\s+completos\s*[:#-]\s*(s[ií]|no|true|false|completo|incompleto)"],
     "beneficiario": [r"beneficiari[oa]\s*[:#-]\s*([^\n;]+)"],
-    "id_proveedor": [r"(?:id\s*)?proveedor\s*[:#-]\s*([A-Z0-9_-]+)"],
+    "id_proveedor": [r"(?:id\s*)?proveedor\s*(?:n[º°o]\.?|nro\.?|#)?\s*[:#-]\s*([A-Z0-9][A-Z0-9_-]*)"],
 }
 
 PROMPT_INJECTION_PATTERNS = [
@@ -720,20 +720,46 @@ def _table_evidence(field: str, value: Any, source: str, confidence: float, infe
 def _clean_value(field: str, value: str) -> Any:
     cleaned = value.strip().strip('"').strip()
     if field in {"monto_reclamado", "monto_estimado", "suma_asegurada"}:
-        compact = cleaned.replace("$", "").replace(" ", "")
-        if compact.count(",") == 1 and compact.count(".") == 0:
-            compact = compact.replace(",", ".")
-        else:
-            compact = compact.replace(",", "")
-        try:
-            return float(compact)
-        except ValueError:
-            return cleaned
+        parsed = _parse_amount(cleaned)
+        return parsed if parsed is not None else cleaned
     if field == "documentos_completos":
         return cleaned.lower() in {"si", "sí", "true", "completo"}
     if field.startswith("fecha_"):
         return _normalize_date(cleaned)
     return re.split(r"\s{2,}|;", cleaned)[0].strip()
+
+
+def _parse_amount(value: str) -> float | None:
+    """Parse a money string into a float, tolerating currency tokens and both
+    US (1,234.56 / 1725.82) and Latin/European (1.234,56 / 8.450,00) formats.
+    """
+    compact = re.sub(r"[^\d.,-]", "", value)
+    if not re.search(r"\d", compact):
+        return None
+    has_comma = "," in compact
+    has_dot = "." in compact
+    if has_comma and has_dot:
+        # The right-most separator is the decimal mark.
+        if compact.rfind(",") > compact.rfind("."):
+            compact = compact.replace(".", "").replace(",", ".")  # EU: dot=thousands
+        else:
+            compact = compact.replace(",", "")                     # US: comma=thousands
+    elif has_comma:
+        # Single comma with 1-2 trailing digits is a decimal mark; else thousands.
+        if compact.count(",") == 1 and len(compact.split(",")[-1]) in (1, 2):
+            compact = compact.replace(",", ".")
+        else:
+            compact = compact.replace(",", "")
+    elif compact.count(".") > 1:
+        compact = compact.replace(".", "")                         # 1.234.567 -> thousands
+    elif "." in compact and len(compact.split(".")[-1]) == 3 and compact.count(".") == 1:
+        # Single dot with exactly 3 trailing digits reads as a thousands group
+        # (e.g. "8.450" -> 8450); 1-2 trailing digits stays decimal ("1725.82").
+        compact = compact.replace(".", "")
+    try:
+        return float(compact)
+    except ValueError:
+        return None
 
 
 def _normalize_date(value: str) -> str:

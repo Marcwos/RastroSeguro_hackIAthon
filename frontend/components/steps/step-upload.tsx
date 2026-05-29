@@ -12,6 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 const REVIEW_FIELDS: Array<{ key: keyof ExtractedClaimDraft; label: string; required?: boolean; type?: 'number' | 'date' | 'textarea' | 'boolean' }> = [
   { key: 'id_siniestro', label: 'ID siniestro', required: true },
@@ -230,32 +239,37 @@ export function StepUpload() {
 
   return (
     <section className="px-4 py-8 lg:px-8">
-      {review && (
-        <div className="fixed inset-0 z-[100] bg-black/65 backdrop-blur-sm">
-          <div className="mx-auto flex h-dvh w-full max-w-[1400px] flex-col overflow-hidden border-x border-border bg-background shadow-2xl">
-            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-border bg-background p-4">
-              <div>
+      <Dialog open={!!review} onOpenChange={(open) => { if (!open) { resetReview(); setStatus('idle') } }}>
+        <DialogContent
+          showCloseButton={false}
+          className="flex max-h-[92vh] w-[calc(100%-2rem)] max-w-[1200px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[1200px]"
+        >
+          {review && (<>
+            <DialogHeader className="flex flex-row items-start justify-between gap-4 space-y-0 border-b border-border p-5 text-left">
+              <div className="min-w-0">
                 <p className="label-mono-md uppercase text-primary">Revisión humana obligatoria</p>
-                <h2 className="font-display text-2xl font-semibold">Documento extraído: {review.filename}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <DialogTitle className="mt-1 truncate font-display text-2xl font-semibold">
+                  Documento extraído: {review.filename}
+                </DialogTitle>
+                <DialogDescription className="mt-1 text-sm text-muted-foreground">
                   Confianza global {formatConfidence(activeQuality?.score ?? review.overall_confidence)} · {activeQuality?.verdict || 'revisión humana'} · confirme antes de pasar al Paso 2.
-                </p>
+                </DialogDescription>
               </div>
-              <button type="button" onClick={() => { resetReview(); setStatus('idle') }} className="rounded-md border border-border p-2 text-muted-foreground hover:text-foreground">
+              <DialogClose className="focus-ring shrink-0 rounded-md border border-border p-2 text-muted-foreground transition-colors hover:text-foreground" aria-label="Cerrar revisión">
                 <X className="h-5 w-5" />
-              </button>
-            </div>
+              </DialogClose>
+            </DialogHeader>
 
             <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-2">
-              <div className="min-h-0 border-b border-border bg-[var(--surface-low)] p-4 lg:border-b-0 lg:border-r">
+              <div className="flex min-h-0 flex-col border-b border-border bg-[var(--surface-low)] p-4 lg:border-b-0 lg:border-r">
                 <div className="mb-3 flex items-center gap-2">
                   <FileText className="h-5 w-5 text-primary" />
                   <h3 className="font-display text-lg font-semibold">Previsualización</h3>
                 </div>
                 {review.preview_base64 ? (
-                  <iframe title="Previsualización del documento" src={review.preview_base64} className="h-full min-h-[420px] w-full rounded-lg border border-border bg-white" />
+                  <iframe title="Previsualización del documento" src={review.preview_base64} className="min-h-[420px] w-full flex-1 rounded-lg border border-border bg-white" />
                 ) : (
-                  <pre className="h-full min-h-[420px] overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-background p-4 text-sm text-foreground">
+                  <pre className="min-h-[420px] flex-1 overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-background p-4 text-sm text-foreground">
                     {(() => {
                       const description = String(draft.descripcion || '')
                       return description || 'Vista previa TXT no disponible.'
@@ -379,7 +393,7 @@ export function StepUpload() {
               </div>
             </div>
 
-            <div className="sticky bottom-0 z-10 flex flex-col gap-3 border-t border-border bg-background p-4 sm:flex-row sm:justify-end">
+            <DialogFooter className="gap-3 border-t border-border p-4">
               <button type="button" onClick={() => { resetReview(); setStatus('idle') }} className="border border-border bg-[var(--surface-container)] px-5 py-2 label-mono-md text-foreground">
                 Cancelar
               </button>
@@ -389,10 +403,10 @@ export function StepUpload() {
               <button type="button" onClick={handleConfirmExtracted} disabled={processing || missingRequired.length > 0} className="bg-primary px-5 py-2 label-mono-md text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50">
                 {processing ? 'Procesando…' : 'Confirmar y procesar'}
               </button>
-            </div>
-          </div>
-        </div>
-      )}
+            </DialogFooter>
+          </>)}
+        </DialogContent>
+      </Dialog>
 
       <div className="mx-auto max-w-6xl space-y-6">
         <header className="space-y-2">
