@@ -3,8 +3,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAppState } from '@/lib/app-context'
 import { ApiClientError, confirmExtractedClaim, extractClaimDocument, type DocumentExtractionReview, type ExtractedClaimDraft, type FieldEvidence } from '@/lib/api'
-import { AlertTriangle, CheckCircle2, CloudUpload, FileText, Gavel, Loader2, ServerCrash, ShieldCheck, X } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, CloudUpload, FileText, Gavel, History, Loader2, ServerCrash, ShieldCheck, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { RiskBadge } from '@/components/ui/risk-badge'
+import { formatCurrency } from '@/lib/claims-data'
 import {
   Select,
   SelectContent,
@@ -78,6 +80,7 @@ export function StepUpload() {
     isLoadingClaims,
     apiError,
     apiHint,
+    analystSavedAnalyses,
   } = useAppState()
   const [status, setStatus] = useState<'idle' | 'validating' | 'reviewing' | 'valid'>('idle')
   const [drag, setDrag] = useState(false)
@@ -120,6 +123,21 @@ export function StepUpload() {
   const selectClaim = (id: string) => {
     setSelectedClaimId(id)
     setStatus('valid')
+  }
+
+  // Last analyses closed in this browser (localStorage). Shown here so the user
+  // can reopen a previous case's report without re-running the flow.
+  const recentAnalyses = useMemo(() => {
+    return analystSavedAnalyses.slice(0, 6).map((saved) => ({
+      saved,
+      claim: claims.find((c) => c.id_siniestro === saved.id) || null,
+    }))
+  }, [analystSavedAnalyses, claims])
+
+  const reopenAnalysis = (id: string) => {
+    setSelectedClaimId(id)
+    setIsDataLoaded(true)
+    setCurrentStep(5)
   }
 
   const rememberLocalError = (error: unknown) => {
@@ -577,6 +595,42 @@ export function StepUpload() {
               <div>
                 <p className="font-semibold">{effectiveError}</p>
                 {effectiveHint && <p className="mt-1 text-sm">{effectiveHint}</p>}
+              </div>
+            </div>
+          )}
+
+          {recentAnalyses.length > 0 && (
+            <div className="institutional-card col-span-12 overflow-hidden">
+              <div className="section-header flex items-center gap-2">
+                <History className="h-4 w-4" />
+                Siniestros que ya analizaste
+                <span className="ml-auto font-normal normal-case text-muted-foreground">Guardados en este navegador · clic para reabrir el reporte</span>
+              </div>
+              <div className="flex gap-3 overflow-x-auto p-3">
+                {recentAnalyses.map(({ saved, claim }) => {
+                  const score = saved.score ?? claim?.score_final
+                  return (
+                    <button
+                      key={`${saved.id}-${saved.savedAt}`}
+                      type="button"
+                      onClick={() => reopenAnalysis(saved.id)}
+                      className="group flex w-[230px] shrink-0 flex-col border border-border bg-[var(--surface-low)] p-3 text-left transition-colors hover:border-primary hover:bg-[var(--surface-high)]"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-mono text-sm font-bold text-foreground">{saved.id}</p>
+                        <RiskBadge level={saved.riskLevel || claim?.nivel_riesgo || 'medio'} size="sm" />
+                      </div>
+                      <div className="mt-2 grid grid-cols-2 gap-1 text-xs text-muted-foreground">
+                        <div><span className="label-mono block">Ramo</span>{saved.branch || claim?.ramo || '—'}</div>
+                        <div><span className="label-mono block">Puntaje</span>{score != null ? `${Math.round(Number(score))}/100` : '—'}</div>
+                        <div><span className="label-mono block">Monto</span>{formatCurrency(saved.amount ?? claim?.monto_reclamado)}</div>
+                        <div><span className="label-mono block">Ciudad</span>{saved.city || claim?.ciudad || '—'}</div>
+                      </div>
+                      <p className="mt-2 line-clamp-2 text-xs text-foreground">{saved.summary || 'Sin resumen.'}</p>
+                      <p className="mt-auto pt-2 text-xs font-semibold text-primary opacity-90 group-hover:underline">Abrir reporte →</p>
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )}
