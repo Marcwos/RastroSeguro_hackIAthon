@@ -5,7 +5,7 @@ import { AlertTriangle, ArrowRight, BarChart3, Bot, Building2, CircleDollarSign,
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import { useAppState } from '@/lib/app-context'
-import { ClaimSummary, ExecutiveReport, RiskAggregateRow, SimulationResponse, getBranchRiskDistribution, getCityRiskDistribution, getExecutiveReport, getProviderRiskRanking, simulateClaim } from '@/lib/api'
+import { ClaimSummary, ExecutiveReport, RiskAggregateRow, SimulationResponse, alertToText, getBranchRiskDistribution, getCityRiskDistribution, getExecutiveReport, getProviderRiskRanking, simulateClaim } from '@/lib/api'
 import { formatCurrency, getRiskColor, getRiskLabel } from '@/lib/claims-data'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
@@ -13,6 +13,7 @@ import { RiskBadge } from '@/components/ui/risk-badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const num = (value: unknown) => Number(value ?? 0)
 function normalizeRisk(level?: string | null) {
@@ -128,12 +129,18 @@ function ReportTable({ title, rows, primary, secondary }: { title: string; rows:
 function SimulatorDialog() {
   const [form, setForm] = useState({
     ramo: 'vehiculo',
+    cobertura: 'choque',
     ciudad: 'Ambato',
     monto_reclamado: '18000',
     suma_asegurada: '20000',
-    proveedor: 'PROV-001',
+    proveedor: 'PROV-012',
     dias_desde_inicio_poliza: '3',
+    dias_entre_ocurrencia_reporte: '0',
     documentos_presentes: 'false',
+    tercero_identificado: 'false',
+    ocurrio_noche: 'true',
+    hay_testigos: 'false',
+    reporte_policial: 'false',
     narrativa: 'Vehículo impactado por tercero no identificado durante la noche. No existen testigos directos.',
   })
   const [result, setResult] = useState<SimulationResponse | null>(null)
@@ -150,7 +157,12 @@ function SimulatorDialog() {
         monto_reclamado: Number(form.monto_reclamado),
         suma_asegurada: Number(form.suma_asegurada),
         dias_desde_inicio_poliza: Number(form.dias_desde_inicio_poliza),
+        dias_entre_ocurrencia_reporte: Number(form.dias_entre_ocurrencia_reporte),
         documentos_presentes: form.documentos_presentes === 'true',
+        tercero_identificado: form.tercero_identificado === 'true',
+        ocurrio_noche: form.ocurrio_noche === 'true',
+        hay_testigos: form.hay_testigos === 'true',
+        reporte_policial: form.reporte_policial === 'true',
       })
       setResult(response)
     } catch (err) {
@@ -175,21 +187,52 @@ function SimulatorDialog() {
         <div className="grid gap-5 lg:grid-cols-[1fr_.9fr]">
           <div className="space-y-3">
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field name="ramo" label="Ramo" value={form.ramo} onChange={(v) => update('ramo', v)} />
+              <SelectField
+                label="Ramo"
+                value={form.ramo}
+                onChange={(v) => update('ramo', v)}
+                options={[
+                  ['vehiculo', 'Vehículo'],
+                  ['salud', 'Salud'],
+                  ['hogar', 'Hogar'],
+                  ['vida', 'Vida'],
+                ]}
+              />
+              <SelectField
+                label="Cobertura / evento"
+                value={form.cobertura}
+                onChange={(v) => update('cobertura', v)}
+                options={[
+                  ['choque', 'Choque'],
+                  ['robo', 'Robo'],
+                  ['incendio', 'Incendio'],
+                  ['atencion_medica', 'Atención médica'],
+                  ['fallecimiento', 'Fallecimiento'],
+                ]}
+              />
               <Field name="ciudad" label="Ciudad" value={form.ciudad} onChange={(v) => update('ciudad', v)} />
               <Field name="monto_reclamado" label="Monto reclamado" value={form.monto_reclamado} type="number" inputMode="decimal" onChange={(v) => update('monto_reclamado', v)} />
               <Field name="suma_asegurada" label="Suma asegurada" value={form.suma_asegurada} type="number" inputMode="decimal" onChange={(v) => update('suma_asegurada', v)} />
               <Field name="proveedor" label="Proveedor" value={form.proveedor} onChange={(v) => update('proveedor', v)} />
-              <Field name="dias_desde_inicio_poliza" label="Dias desde inicio poliza" value={form.dias_desde_inicio_poliza} type="number" inputMode="numeric" onChange={(v) => update('dias_desde_inicio_poliza', v)} />
+              <Field name="dias_desde_inicio_poliza" label="Días desde inicio póliza" value={form.dias_desde_inicio_poliza} type="number" inputMode="numeric" onChange={(v) => update('dias_desde_inicio_poliza', v)} />
+              <Field name="dias_entre_ocurrencia_reporte" label="Días hasta reporte" value={form.dias_entre_ocurrencia_reporte} type="number" inputMode="numeric" onChange={(v) => update('dias_entre_ocurrencia_reporte', v)} />
             </div>
             <label className="block">
               <span className="label-mono-md font-bold uppercase text-muted-foreground">Narrativa</span>
               <Textarea name="narrativa" value={form.narrativa} onChange={(e) => update('narrativa', e.target.value)} className="mt-1 min-h-[110px]" />
             </label>
-            <label className="flex items-center gap-2 text-sm">
-              <Checkbox checked={form.documentos_presentes === 'true'} onCheckedChange={(checked) => update('documentos_presentes', String(checked === true))} />
-              Documentación completa
-            </label>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <BooleanField label="Documentación completa" checked={form.documentos_presentes === 'true'} onChange={(checked) => update('documentos_presentes', String(checked))} />
+              <BooleanField label="Tercero identificado" checked={form.tercero_identificado === 'true'} onChange={(checked) => update('tercero_identificado', String(checked))} />
+              <BooleanField label="Ocurrió de noche" checked={form.ocurrio_noche === 'true'} onChange={(checked) => update('ocurrio_noche', String(checked))} />
+              <BooleanField label="Hay testigos" checked={form.hay_testigos === 'true'} onChange={(checked) => update('hay_testigos', String(checked))} />
+              <BooleanField label="Reporte policial" checked={form.reporte_policial === 'true'} onChange={(checked) => update('reporte_policial', String(checked))} />
+            </div>
+            {Number(form.suma_asegurada) > 0 && Number(form.monto_reclamado) > 0 && Number(form.suma_asegurada) > Number(form.monto_reclamado) * 100 ? (
+              <p className="rounded-md border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900">
+                La suma asegurada es más de 100 veces el monto reclamado. Revisa si agregaste ceros de más, porque esto reduce las alertas por monto.
+              </p>
+            ) : null}
             <Button onClick={run} disabled={loading} className="h-auto w-full px-4 py-2 text-[13px] font-semibold">
               {loading && <Loader2 className="h-4 w-4 animate-spin" />} Ejecutar simulación
             </Button>
@@ -207,6 +250,21 @@ function SimulatorDialog() {
                   <RiskBadge level={normalizeRisk(result.nivel_riesgo)} className="px-3 py-2" />
                 </div>
                 <p className="text-sm leading-relaxed text-muted-foreground">{result.explicacion}</p>
+                {result.alertas?.length ? (
+                  <div>
+                    <p className="label-mono-md mb-2 font-bold uppercase">Alertas activadas</p>
+                    <ul className="space-y-2 text-xs">
+                      {result.alertas.slice(0, 5).map((alert, index) => {
+                        const item = (alert || {}) as Record<string, unknown>
+                        return (
+                          <li key={`${String(item.code || item.name || index)}-${index}`} className="border border-border bg-[var(--surface-low)] p-2">
+                            <span className="font-semibold">{String(item.code || 'ALERTA')}:</span> {alertToText(alert)}
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
+                ) : null}
                 <div>
                   <p className="label-mono-md mb-2 font-bold uppercase">Próximos pasos</p>
                   <ul className="space-y-2 text-sm">
@@ -221,6 +279,34 @@ function SimulatorDialog() {
         </div>
       </DialogContent>
     </Dialog>
+  )
+}
+
+
+function SelectField({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: [string, string][] }) {
+  return (
+    <label className="block">
+      <span className="label-mono-md font-bold uppercase text-muted-foreground">{label}</span>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className="mt-1 w-full">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map(([optionValue, optionLabel]) => (
+            <SelectItem key={optionValue} value={optionValue}>{optionLabel}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </label>
+  )
+}
+
+function BooleanField({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) {
+  return (
+    <label className="flex items-center gap-2 rounded-md border border-border bg-[var(--surface-low)] px-3 py-2 text-sm">
+      <Checkbox checked={checked} onCheckedChange={(next) => onChange(next === true)} />
+      {label}
+    </label>
   )
 }
 

@@ -23,6 +23,8 @@ FIELD_ALIASES = {
     "ciudad_evento": "ciudad",
     "relato": "descripcion",
     "narrativa": "descripcion",
+    "evento": "tipo_evento",
+    "tipo": "tipo_evento",
 }
 
 BOOL_FIELDS = {
@@ -42,6 +44,8 @@ NUMERIC_FIELDS = {
     "historial_siniestros_asegurado",
     "historial_siniestros_vehiculo",
     "dias_desde_inicio_poliza",
+    "dias_entre_ocurrencia_reporte",
+    "dias_desde_fin_poliza",
 }
 
 
@@ -66,6 +70,8 @@ def normalize_simulated_claim(claim_data: dict[str, Any]) -> dict[str, Any]:
         if field in normalized:
             normalized[field] = _as_number(normalized[field])
 
+    _infer_vehicle_flags_from_description(normalized)
+
     return normalized
 
 
@@ -88,3 +94,20 @@ def _as_number(value: Any) -> Any:
     except ValueError:
         return value
     return int(number) if number.is_integer() else number
+
+
+
+def _infer_vehicle_flags_from_description(claim: dict[str, Any]) -> None:
+    """Derive common simulator flags from the free-text narrative when omitted."""
+    text = str(claim.get("descripcion", "")).lower()
+    if not text:
+        return
+
+    if "ocurrio_noche" not in claim and any(token in text for token in ("noche", "madrugada", "nocturn")):
+        claim["ocurrio_noche"] = True
+    if "hay_testigos" not in claim and any(token in text for token in ("sin testigos", "no existen testigos", "no hay testigos")):
+        claim["hay_testigos"] = False
+    if "tercero_identificado" not in claim and any(token in text for token in ("tercero no identificado", "vehículo desconocido", "vehiculo desconocido", "se dio a la fuga")):
+        claim["tercero_identificado"] = False
+    if "reporte_policial" not in claim and any(token in text for token in ("sin reporte policial", "sin denuncia", "no hay denuncia")):
+        claim["reporte_policial"] = False

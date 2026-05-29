@@ -24,6 +24,7 @@ def simulate_new_claim(claim_data: dict[str, Any], data_path: Path = OUTPUT_PATH
     """Evaluate a new claim through rules, model scores, NLP, graph and categories."""
     claim = normalize_simulated_claim(claim_data)
     database_claims, context = load_historical_claims(data_path)
+    _normalize_provider_against_history(claim, database_claims)
 
     all_claims = database_claims + [claim]
     all_claims = enrich_claims_with_graph(all_claims)
@@ -36,3 +37,38 @@ def simulate_new_claim(claim_data: dict[str, Any], data_path: Path = OUTPUT_PATH
     simulated_enriched = all_claims[-1]
     explanation = explain_unsaved_claim(simulated_enriched)
     return build_simulation_response(explanation, simulated_enriched, claim, context)
+
+
+
+def _normalize_provider_against_history(claim: dict[str, Any], historical_claims: list[dict[str, Any]]) -> None:
+    """Map UI provider typos like PROV-0012 to a provider code present in history."""
+    raw = str(claim.get("id_proveedor", "")).strip().upper()
+    if not raw:
+        return
+
+    known_counts: dict[str, int] = {}
+    for item in historical_claims:
+        provider = str(item.get("id_proveedor", "")).strip().upper()
+        if provider:
+            known_counts[provider] = known_counts.get(provider, 0) + 1
+
+    if raw in known_counts:
+        claim["id_proveedor"] = raw
+        return
+
+    import re
+
+    match = re.match(r"^([A-Z]+)-0*(\d+)$", raw)
+    if not match:
+        claim["id_proveedor"] = raw
+        return
+
+    prefix, number = match.groups()
+    number_int = int(number)
+    candidates = [
+        f"{prefix}-{number_int}",
+        f"{prefix}-{number_int:02d}",
+        f"{prefix}-{number_int:03d}",
+    ]
+    present = [candidate for candidate in candidates if candidate in known_counts]
+    claim["id_proveedor"] = max(present, key=lambda candidate: known_counts[candidate]) if present else candidates[-1]
