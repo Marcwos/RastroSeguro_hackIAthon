@@ -345,6 +345,7 @@ function sourceLabel(source: string) {
   if (source === 'csv') return 'Archivo de datos'
   if (source === 'txt') return 'TXT'
   if (source === 'pdf') return 'PDF'
+  if (source === 'analysis') return 'Análisis guardado'
   return 'Documento'
 }
 
@@ -439,7 +440,7 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
 }
 
 export function StepCommandCenter() {
-  const { claims, loadClaims, isLoadingClaims, apiError, apiHint, setCurrentStep, setSelectedClaimId, setIsDataLoaded, userRole, analystSubmittedCases } = useAppState()
+  const { claims, loadClaims, isLoadingClaims, apiError, apiHint, setCurrentStep, setSelectedClaimId, setIsDataLoaded, userRole, analystSubmittedCases, analystSavedAnalyses } = useAppState()
   const [providerRanking, setProviderRanking] = useState<RiskAggregateRow[] | null>(null)
   const [cityRanking, setCityRanking] = useState<RiskAggregateRow[] | null>(null)
   const [branchRanking, setBranchRanking] = useState<RiskAggregateRow[] | null>(null)
@@ -528,6 +529,13 @@ export function StepCommandCenter() {
       return { submitted, claim }
     })
   }, [analystSubmittedCases, claims])
+
+  const savedAnalysisRows = useMemo(() => {
+    return analystSavedAnalyses.slice(0, 6).map((saved) => {
+      const claim = claims.find((item) => item.id_siniestro === saved.id) || null
+      return { saved, claim }
+    })
+  }, [analystSavedAnalyses, claims])
 
   const isAnalyst = userRole === 'analyst'
 
@@ -713,10 +721,52 @@ export function StepCommandCenter() {
             {!isAnalyst && (
               <div className="institutional-card overflow-hidden">
                 <div className="section-header flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
-                  <span className="flex items-center gap-2"><Inbox className="h-4 w-4" />Casos enviados por el analista</span>
-                  <span>Últimos casos cargados o confirmados</span>
+                  <span className="flex items-center gap-2"><Inbox className="h-4 w-4" />Análisis cerrados por el analista</span>
+                  <span>Guardados en este navegador para revisión ejecutiva</span>
                 </div>
-                {submittedCaseRows.length ? (
+                {savedAnalysisRows.length ? (
+                  <div className="grid gap-3 p-3 lg:grid-cols-3">
+                    {savedAnalysisRows.map(({ saved, claim }) => {
+                      const risk = normalizeRisk(saved.riskLevel || claim?.nivel_riesgo)
+                      const score = saved.score ?? claim?.score_final
+                      return (
+                        <button
+                          key={`${saved.id}-${saved.savedAt}`}
+                          type="button"
+                          onClick={() => {
+                            setSelectedClaimId(saved.id)
+                            setIsDataLoaded(true)
+                            setCurrentStep(5)
+                          }}
+                          className="group flex min-h-[260px] flex-col border border-border bg-[var(--surface-low)] p-3 text-left transition-colors hover:border-primary hover:bg-[var(--surface-high)]"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="label-mono text-muted-foreground">Análisis cerrado · {formatSubmittedAt(saved.savedAt)}</p>
+                              <p className="mt-1 font-mono text-sm font-bold text-foreground">{saved.id}</p>
+                            </div>
+                            <RiskBadge level={risk} size="sm" />
+                          </div>
+                          <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                            <div><span className="label-mono block">Ramo</span>{saved.branch || claim?.ramo || 'Pendiente'}</div>
+                            <div><span className="label-mono block">Ciudad</span>{saved.city || claim?.ciudad || 'Pendiente'}</div>
+                            <div><span className="label-mono block">Monto</span>{formatCurrency(saved.amount ?? claim?.monto_reclamado)}</div>
+                            <div><span className="label-mono block">Puntaje</span>{score != null ? `${Math.round(num(score))}/100` : '—'}</div>
+                          </div>
+                          <p className="mt-3 line-clamp-3 text-sm text-foreground">{saved.summary || 'Resumen del análisis no disponible.'}</p>
+                          <div className="mt-3 rounded border border-border bg-background p-2 text-xs text-muted-foreground">
+                            <span className="label-mono block text-foreground">Recomendación</span>
+                            <span className="line-clamp-2">{saved.recommendation || 'Revisión humana sugerida.'}</span>
+                          </div>
+                          {saved.topAlerts.length ? (
+                            <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">Señales: {saved.topAlerts.slice(0, 2).join(' · ')}</p>
+                          ) : null}
+                          <p className="mt-auto pt-3 text-xs font-semibold text-primary opacity-90 group-hover:underline">Abrir reporte ejecutivo →</p>
+                        </button>
+                      )
+                    })}
+                  </div>
+                ) : submittedCaseRows.length ? (
                   <div className="grid gap-3 p-3 lg:grid-cols-3">
                     {submittedCaseRows.map(({ submitted, claim }) => {
                       const risk = normalizeRisk(claim?.nivel_riesgo)
@@ -752,7 +802,7 @@ export function StepCommandCenter() {
                   </div>
                 ) : (
                   <div className="p-4 text-sm text-muted-foreground">
-                    Todavía no hay casos marcados como enviados por el analista en este navegador. Cuando el analista cargue un CSV o confirme un PDF/TXT, aparecerán aquí aunque no entren al top de riesgo.
+                    Todavía no hay análisis cerrados por el analista en este navegador. Cuando el analista use “Guardar y cerrar” en Resultado y motivos, aparecerán aquí con resumen, recomendación y señales clave.
                   </div>
                 )}
               </div>

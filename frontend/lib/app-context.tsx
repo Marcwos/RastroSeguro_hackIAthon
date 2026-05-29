@@ -8,8 +8,22 @@ export type UserRole = 'analyst' | 'executive'
 export interface AnalystSubmittedCase {
   id: string
   submittedAt: string
-  source: 'csv' | 'pdf' | 'txt' | 'document'
+  source: 'csv' | 'pdf' | 'txt' | 'document' | 'analysis'
   filename?: string | null
+}
+
+export interface AnalystSavedAnalysis {
+  id: string
+  savedAt: string
+  score?: number | null
+  riskLevel?: string | null
+  summary: string
+  recommendation: string
+  topAlerts: string[]
+  amount?: number | null
+  branch?: string | null
+  city?: string | null
+  provider?: string | null
 }
 
 export interface PendingChatPrompt {
@@ -29,6 +43,8 @@ interface AppState {
   uploadCsvAndRefresh: (file: File) => Promise<boolean>
   analystSubmittedCases: AnalystSubmittedCase[]
   markAnalystSubmittedCases: (cases: Array<{ id: string; source: AnalystSubmittedCase['source']; filename?: string | null }>) => void
+  analystSavedAnalyses: AnalystSavedAnalysis[]
+  saveAnalystCaseAnalysis: (analysis: Omit<AnalystSavedAnalysis, 'savedAt'>) => void
   selectedClaimId: string | null
   setSelectedClaimId: (id: string | null) => void
   selectedClaim: ClaimSummary | null
@@ -66,6 +82,7 @@ export interface ChatMessage {
 }
 
 const ANALYST_SUBMITTED_CASES_KEY = 'rastroseguro:analystSubmittedCases'
+const ANALYST_SAVED_ANALYSES_KEY = 'rastroseguro:analystSavedAnalyses'
 
 const AppContext = createContext<AppState | undefined>(undefined)
 
@@ -87,14 +104,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [showChat, setShowChat] = useState(false)
   const [showCommandBar, setShowCommandBar] = useState(false)
   const [analystSubmittedCases, setAnalystSubmittedCases] = useState<AnalystSubmittedCase[]>([])
+  const [analystSavedAnalyses, setAnalystSavedAnalyses] = useState<AnalystSavedAnalysis[]>([])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
     try {
       const raw = window.localStorage.getItem(ANALYST_SUBMITTED_CASES_KEY)
-      if (!raw) return
-      const parsed = JSON.parse(raw) as AnalystSubmittedCase[]
-      if (Array.isArray(parsed)) setAnalystSubmittedCases(parsed.filter((item) => item?.id).slice(0, 20))
+      if (raw) {
+        const parsed = JSON.parse(raw) as AnalystSubmittedCase[]
+        if (Array.isArray(parsed)) setAnalystSubmittedCases(parsed.filter((item) => item?.id).slice(0, 20))
+      }
+      const savedRaw = window.localStorage.getItem(ANALYST_SAVED_ANALYSES_KEY)
+      if (savedRaw) {
+        const parsedSaved = JSON.parse(savedRaw) as AnalystSavedAnalysis[]
+        if (Array.isArray(parsedSaved)) setAnalystSavedAnalyses(parsedSaved.filter((item) => item?.id).slice(0, 20))
+      }
     } catch {
       // Ignore malformed local history; it is only a UX convenience.
     }
@@ -103,6 +127,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const persistAnalystSubmittedCases = (items: AnalystSubmittedCase[]) => {
     if (typeof window === 'undefined') return
     window.localStorage.setItem(ANALYST_SUBMITTED_CASES_KEY, JSON.stringify(items.slice(0, 20)))
+  }
+
+  const persistAnalystSavedAnalyses = (items: AnalystSavedAnalysis[]) => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(ANALYST_SAVED_ANALYSES_KEY, JSON.stringify(items.slice(0, 20)))
   }
 
   const selectUserRole = useCallback((role: UserRole) => {
@@ -213,6 +242,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+
+  const saveAnalystCaseAnalysis = useCallback((analysis: Omit<AnalystSavedAnalysis, 'savedAt'>) => {
+    const cleanId = String(analysis.id || '').trim()
+    if (!cleanId) return
+
+    setAnalystSavedAnalyses((prev) => {
+      const next: AnalystSavedAnalysis[] = [
+        {
+          ...analysis,
+          id: cleanId,
+          summary: String(analysis.summary || '').trim(),
+          recommendation: String(analysis.recommendation || '').trim(),
+          topAlerts: (analysis.topAlerts || []).map((item) => String(item)).filter(Boolean).slice(0, 5),
+          savedAt: new Date().toISOString(),
+        },
+        ...prev.filter((item) => item.id !== cleanId),
+      ].slice(0, 20)
+      persistAnalystSavedAnalyses(next)
+      return next
+    })
+
+    markAnalystSubmittedCases([{ id: cleanId, source: 'analysis' }])
+  }, [markAnalystSubmittedCases])
+
   const uploadCsvAndRefresh = useCallback(async (file: File) => {
     setApiError(null)
     setApiHint(null)
@@ -275,6 +328,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         uploadCsvAndRefresh,
         analystSubmittedCases,
         markAnalystSubmittedCases,
+        analystSavedAnalyses,
+        saveAnalystCaseAnalysis,
         selectedClaimId,
         setSelectedClaimId,
         selectedClaim,

@@ -38,6 +38,9 @@ function MainContent() {
     setShowChat,
     isDataLoaded,
     selectedClaimId,
+    setSelectedClaimId,
+    setIsDataLoaded,
+    claims,
   } = useAppState()
 
   const flowReady = isDataLoaded && selectedClaimId !== null
@@ -47,6 +50,12 @@ function MainContent() {
       setCurrentStep(0)
     }
   }, [currentStep, setCurrentStep, userRole])
+
+  useEffect(() => {
+    if (userRole !== 'executive' || currentStep !== 5 || selectedClaimId || !claims.length) return
+    setSelectedClaimId(claims[0].id_siniestro)
+    setIsDataLoaded(true)
+  }, [claims, currentStep, selectedClaimId, setIsDataLoaded, setSelectedClaimId, userRole])
 
   useEffect(() => {
     if (!userRole) return

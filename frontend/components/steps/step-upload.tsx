@@ -298,7 +298,7 @@ export function StepUpload() {
       <Dialog open={!!review} onOpenChange={(open) => { if (!open) { resetReview(); setStatus('idle') } }}>
         <DialogContent
           showCloseButton={false}
-          className="flex max-h-[80vh] w-[calc(100%-1rem)] max-w-[900px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[900px]"
+          className="flex h-[80vh] max-h-[80vh] w-[calc(100%-1rem)] max-w-[900px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[900px]"
         >
           {review && (<>
             <DialogHeader className="flex flex-row items-start justify-between gap-4 space-y-0 border-b border-border p-5 text-left">
@@ -323,9 +323,9 @@ export function StepUpload() {
                   <h3 className="font-display text-lg font-semibold">Previsualización</h3>
                 </div>
                 {review.preview_base64 ? (
-                  <iframe title="Previsualización del documento" src={review.preview_base64} className="min-h-[300px] w-full rounded-lg border border-border bg-white" />
+                  <iframe title="Previsualización del documento" src={review.preview_base64} className="min-h-0 flex-1 rounded-lg border border-border bg-white" />
                 ) : (
-                  <pre className="min-h-[300px] overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-background p-3 text-sm text-foreground">
+                  <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-background p-3 text-sm text-foreground">
                     {(() => {
                       const description = String(draft.descripcion || '')
                       return description || 'Vista previa TXT no disponible.'

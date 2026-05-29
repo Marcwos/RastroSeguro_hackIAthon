@@ -8,10 +8,11 @@ import { HelpPanel } from '@/components/help-panel'
 import { cn } from '@/lib/utils'
 
 export function Header() {
-  const { currentStep, setCurrentStep, isDataLoaded, selectedClaimId, setShowCommandBar, setShowChat, showChat, userRole, resetUserRole } = useAppState()
+  const { currentStep, setCurrentStep, isDataLoaded, selectedClaimId, setSelectedClaimId, setIsDataLoaded, claims, setShowCommandBar, setShowChat, showChat, userRole, resetUserRole } = useAppState()
   const isAnalyst = userRole === 'analyst'
   const roleLabel = isAnalyst ? 'Analista' : 'Ejecutivo'
   const flowReady = isDataLoaded && selectedClaimId !== null
+  const executiveReportReady = flowReady || (!isAnalyst && claims.length > 0)
   const [shortcutLabel, setShortcutLabel] = useState('Ctrl K')
 
   const tabs = useMemo(() => {
@@ -26,9 +27,17 @@ export function Header() {
     return [
       { step: 0, label: 'Panel', enabled: true },
       { step: 6, label: 'Impacto', enabled: true },
-      { step: 5, label: 'Reporte', enabled: flowReady },
+      { step: 5, label: 'Reporte', enabled: executiveReportReady },
     ]
-  }, [flowReady, isAnalyst])
+  }, [executiveReportReady, flowReady, isAnalyst])
+
+  const openTab = (step: number) => {
+    if (!isAnalyst && step === 5 && !selectedClaimId && claims.length > 0) {
+      setSelectedClaimId(claims[0].id_siniestro)
+      setIsDataLoaded(true)
+    }
+    setCurrentStep(step)
+  }
 
   useEffect(() => {
     if (typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)) {
@@ -55,7 +64,7 @@ export function Header() {
               key={tab.step}
               disabled={!tab.enabled}
               aria-current={currentStep === tab.step ? 'page' : undefined}
-              onClick={() => tab.enabled && setCurrentStep(tab.step)}
+              onClick={() => tab.enabled && openTab(tab.step)}
               title={tab.enabled ? tab.label : 'Carga o sincroniza datos para habilitar este paso'}
               className={cn(
                 'focus-ring rounded-sm pb-1 font-display text-[13px] font-semibold transition-colors',

@@ -5,7 +5,7 @@ import { useAppState } from '@/lib/app-context'
 import { alertToText } from '@/lib/api'
 import { getRiskBadgeClasses, getActionPanelClasses, getRiskColor, getRiskLabel } from '@/lib/claims-data'
 import { downloadCaseReportPdf } from '@/lib/case-report-export'
-import { AlertTriangle, ArrowLeft, ArrowRight, Bot, BrainCircuit, Download, Info } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, ArrowRight, Bot, BrainCircuit, CheckCircle2, Download, Info } from 'lucide-react'
 import { cn, sanitizeAiText } from '@/lib/utils'
 import { safeGraphPayload } from '@/components/graph/graph-utils'
 import { ScoreWaterfall } from '@/components/explainability/score-waterfall'
@@ -15,7 +15,7 @@ import { resolveMainDriverLabel } from '@/lib/graph-insights'
 const num = (value: unknown) => Number(value ?? 0)
 
 export function StepAnalysis() {
-  const { claims, selectedClaim, selectedClaimId, selectedExplanation, isLoadingExplanation, apiError, apiHint, loadClaimExplanation, setCurrentStep, setShowChat } = useAppState()
+  const { claims, selectedClaim, selectedClaimId, selectedExplanation, isLoadingExplanation, apiError, apiHint, loadClaimExplanation, setCurrentStep, setShowChat, saveAnalystCaseAnalysis } = useAppState()
   const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
@@ -100,6 +100,22 @@ export function StepAnalysis() {
     })
       .catch(() => undefined)
       .finally(() => setIsExporting(false))
+  }
+
+  const saveAndCloseAnalysis = () => {
+    saveAnalystCaseAnalysis({
+      id: selectedClaim.id_siniestro,
+      score: scoreFinal,
+      riskLevel: nivelRiesgo,
+      summary: explicacion,
+      recommendation: accion,
+      topAlerts: topAlerts.map((alert) => alertToText(alert)),
+      amount: selectedClaim.monto_reclamado ?? null,
+      branch: selectedClaim.ramo ?? null,
+      city: selectedClaim.ciudad ?? null,
+      provider: selectedClaim.id_proveedor || selectedClaim.beneficiario || null,
+    })
+    setCurrentStep(5)
   }
 
   return (
@@ -230,6 +246,9 @@ export function StepAnalysis() {
           <button onClick={() => setCurrentStep(2)} className="focus-ring flex items-center gap-2 px-4 py-2 label-mono-md text-muted-foreground hover:text-primary"><ArrowLeft className="h-4 w-4" />Anterior</button>
           <div className="flex flex-wrap items-center gap-2">
             <button onClick={() => setShowChat(true)} className="focus-ring flex items-center gap-2 border border-border px-4 py-2 label-mono-md text-foreground hover:bg-[var(--surface-container)]"><Bot className="h-4 w-4" />Preguntar al asistente</button>
+            <button onClick={saveAndCloseAnalysis} className="focus-ring flex items-center gap-2 border border-[var(--risk-verde)] px-4 py-2 label-mono-md text-[var(--risk-verde)] hover:bg-[var(--surface-container)]">
+              <CheckCircle2 className="h-4 w-4" />Guardar y cerrar
+            </button>
             <button onClick={() => setCurrentStep(4)} className="focus-ring flex items-center gap-2 bg-primary px-6 py-2 label-mono-md text-primary-foreground">
               Continuar a conexiones
               <ArrowRight className="h-4 w-4" />

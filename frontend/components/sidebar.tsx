@@ -54,11 +54,20 @@ function NavButton({
 }
 
 export function Sidebar() {
-  const { currentStep, setCurrentStep, isDataLoaded, selectedClaimId, userRole, resetUserRole } = useAppState()
+  const { currentStep, setCurrentStep, isDataLoaded, selectedClaimId, setSelectedClaimId, setIsDataLoaded, claims, userRole, resetUserRole } = useAppState()
   const inFlow = currentStep > 0 && currentStep < 5
   const flowReady = isDataLoaded && selectedClaimId !== null
   const isAnalyst = userRole === 'analyst'
+  const executiveReportReady = flowReady || (!isAnalyst && claims.length > 0)
   const roleLabel = isAnalyst ? 'Analista antifraude' : 'Vista ejecutiva'
+
+  const openExecutiveReport = () => {
+    if (!selectedClaimId && claims.length > 0) {
+      setSelectedClaimId(claims[0].id_siniestro)
+      setIsDataLoaded(true)
+    }
+    setCurrentStep(5)
+  }
 
   return (
     <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-border bg-[var(--surface-low)] p-3 lg:flex">
@@ -133,7 +142,7 @@ export function Sidebar() {
             <div className="space-y-2">
               <p className="label-mono-md px-3 font-bold uppercase text-muted-foreground">Vista ejecutiva</p>
               <NavButton active={currentStep === 6} icon={Star} label="Impacto ejecutivo" onClick={() => setCurrentStep(6)} />
-              <NavButton active={currentStep === 5} disabled={!flowReady} icon={FileSearch} label="Reporte / Caso" onClick={() => setCurrentStep(5)} disabledReason="Selecciona un caso o espera datos del analista para abrir el reporte" />
+              <NavButton active={currentStep === 5} disabled={!executiveReportReady} icon={FileSearch} label="Reporte / Caso" onClick={openExecutiveReport} disabledReason="Selecciona un caso o espera datos del analista para abrir el reporte" />
             </div>
           </>
         )}
