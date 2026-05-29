@@ -104,7 +104,7 @@ export function Sidebar() {
               </button>
               <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                 <span className={cn('h-2 w-2 shrink-0 rounded-full', flowReady ? 'bg-[var(--tertiary-fixed-dim)]' : 'bg-border')} />
-                {flowReady ? `Caso activo: ${selectedClaimId}` : 'Sin caso activo todavia'}
+                {flowReady ? `Caso activo: ${selectedClaimId}` : 'Sin caso activo aun'}
               </div>
             </div>
 
@@ -122,7 +122,7 @@ export function Sidebar() {
             <div className="rounded-md border border-border bg-[var(--surface-high)] p-3">
               <p className="label-mono-md font-bold uppercase text-foreground">Vista ejecutiva</p>
               <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                Revisa indicadores, impacto de negocio, casos criticos y narrativa para decision.
+                Revisa indicadores, impacto de negocio, casos criticos y narrativa para decidir.
               </p>
               <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                 <span className={cn('h-2 w-2 shrink-0 rounded-full', flowReady ? 'bg-[var(--tertiary-fixed-dim)]' : 'bg-border')} />
@@ -131,7 +131,7 @@ export function Sidebar() {
             </div>
 
             <div className="space-y-2">
-              <p className="label-mono-md px-3 font-bold uppercase text-muted-foreground">Decision ejecutiva</p>
+              <p className="label-mono-md px-3 font-bold uppercase text-muted-foreground">Vista ejecutiva</p>
               <NavButton active={currentStep === 6} icon={Star} label="Impacto ejecutivo" onClick={() => setCurrentStep(6)} />
               <NavButton active={currentStep === 5} disabled={!flowReady} icon={FileSearch} label="Reporte / Caso" onClick={() => setCurrentStep(5)} disabledReason="Selecciona un caso o espera datos del analista para abrir el reporte" />
             </div>

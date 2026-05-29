@@ -24,7 +24,7 @@ interface AppState {
   selectUserRole: (role: UserRole) => void
   resetUserRole: () => void
   claims: ClaimSummary[]
-  loadClaims: () => Promise<void>
+  loadClaims: () => Promise<ClaimSummary[]>
   loadClaimExplanation: (id: string) => Promise<ClaimExplanation | null>
   uploadCsvAndRefresh: (file: File) => Promise<boolean>
   analystSubmittedCases: AnalystSubmittedCase[]
@@ -154,11 +154,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setApiError('El API respondió sin siniestros priorizados.')
         setApiHint('Verifica que la evaluación de riesgo haya generado datos procesados.')
       }
+      return records
     } catch (error) {
       setIsApiReady(false)
       setClaims([])
       setIsDataLoaded(false)
       rememberApiError(error)
+      return []
     } finally {
       setIsLoadingClaims(false)
     }

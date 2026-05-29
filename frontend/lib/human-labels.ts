@@ -1,4 +1,4 @@
-/** Etiquetas en español claro para audiencia no técnica. */
+/** Etiquetas en espanol claro para audiencia no tecnica. */
 
 const ENTITY_TYPE_LABELS: Record<string, string> = {
   proveedor: 'Proveedor',
@@ -7,8 +7,8 @@ const ENTITY_TYPE_LABELS: Record<string, string> = {
   ciudad: 'Ciudad',
   asegurado: 'Asegurado',
   id_asegurado: 'Asegurado',
-  vehiculo: 'Vehículo',
-  id_vehiculo: 'Vehículo',
+  vehiculo: 'Vehiculo',
+  id_vehiculo: 'Vehiculo',
   ramo: 'Ramo',
   cobertura: 'Cobertura',
   claim: 'Siniestro',
@@ -17,13 +17,13 @@ const ENTITY_TYPE_LABELS: Record<string, string> = {
 
 const COMPONENT_KEY_LABELS: Record<string, string> = {
   reglas: 'Reglas de negocio',
-  modelo: 'Patrones históricos',
+  modelo: 'Patrones historicos',
   anomalia: 'Comportamiento inusual',
   nlp: 'Narrativa del relato',
   grafo: 'Relaciones',
   categorico: 'Contexto del caso',
   score_reglas: 'Reglas de negocio',
-  score_modelo: 'Patrones históricos',
+  score_modelo: 'Patrones historicos',
   score_anomalia: 'Comportamiento inusual',
   score_nlp: 'Narrativa del relato',
   score_grafo: 'Relaciones',
@@ -37,7 +37,7 @@ export function humanizeEntityType(type?: string | null): string {
 }
 
 export function humanizeComponentKey(key?: string | null): string {
-  if (!key) return 'Señal'
+  if (!key) return 'Senal'
   const normalized = key.trim().toLowerCase().replace(/^score_/, '')
   return COMPONENT_KEY_LABELS[normalized] ?? COMPONENT_KEY_LABELS[key.trim().toLowerCase()] ?? key
 }
@@ -51,26 +51,26 @@ export function formatRecurrenceLabel(entity: { type?: string; value?: string; f
 export const UI_COPY = {
   scoreObjective: 'Puntaje del caso',
   scoreBreakdown: 'Desglose del puntaje',
-  mainSignals: 'Señales que más destacan',
-  topRecurrence: 'Principales recurrencias',
-  topRecurrenceSubtitle: 'Ranking global: posición en la cartera y veces que aparece',
+  mainSignals: 'Senales que mas destacan',
+  topRecurrence: 'Elementos que mas se repiten',
+  topRecurrenceSubtitle: 'Ranking general: posicion en la cartera y veces que aparece',
   recurrenceCount: 'Veces en otros siniestros',
   vsAverage: 'respecto al promedio',
-  comparePortfolio: 'Comparación con la cartera',
+  comparePortfolio: 'Comparacion con la cartera',
   caseConnections: 'Conexiones del caso',
   relatedGroups: 'Grupos relacionados',
   repeatingElements: 'Elementos que se repiten',
-  topThreeSignals: 'Principales 3 señales',
+  topThreeSignals: 'Tres senales principales',
   askAssistant: 'Preguntar al asistente',
   caseSummary: 'Resumen del caso',
   resultAndReasons: 'Resultado y motivos',
-  alertReview: 'Revisión de alertas',
+  alertReview: 'Revision de alertas',
   dataFile: 'Archivo de datos',
   portfolio: 'Cartera de siniestros',
-  riskEvaluation: 'Evaluación de riesgo',
-  whatInfluenced: 'Qué influyó',
+  riskEvaluation: 'Evaluacion de riesgo',
+  whatInfluenced: 'Que influyo',
   weight: 'Peso',
   contribution: 'Aporte al puntaje',
   mainPortfolioCases: 'Principales casos de la cartera',
-  assistantSynthesis: 'Síntesis del asistente',
+  assistantSynthesis: 'Sintesis del asistente',
 } as const

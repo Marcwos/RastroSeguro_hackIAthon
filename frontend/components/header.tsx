@@ -42,7 +42,7 @@ export function Header() {
         <span className="font-display text-lg font-bold tracking-tight text-primary lg:hidden">RastroSeguro</span>
         <div className="hidden items-center gap-2 xl:flex">
           <span className="label-mono-md uppercase text-muted-foreground">
-            {isAnalyst ? 'Navegacion analista' : 'Vista ejecutiva'}
+            {isAnalyst ? 'Flujo analista' : 'Vista ejecutiva'}
           </span>
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--tertiary-fixed-dim)]" />
           <span className="label-mono text-muted-foreground">

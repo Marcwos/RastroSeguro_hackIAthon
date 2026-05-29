@@ -24,7 +24,7 @@ const roles: Array<{
   {
     id: 'executive',
     title: 'Vista Ejecutiva',
-    eyebrow: 'Perfil de decision',
+    eyebrow: 'Perfil ejecutivo',
     description: 'Entra directo al panorama consolidado para revisar exposicion, concentraciones y casos prioritarios.',
     bullets: ['Ver indicadores y concentracion de alertas', 'Revisar impacto y casos principales', 'Consultar resumen para gerencia o auditoria'],
     cta: 'Entrar al panel ejecutivo',

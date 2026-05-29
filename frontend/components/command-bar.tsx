@@ -1,25 +1,53 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Command as CommandIcon, CornerDownLeft, Loader2, Search, ShieldCheck, Sparkles, X, Zap } from 'lucide-react'
 import { AgentResult } from '@/components/agent/agent-result'
-import { ApiClientError, askAgent, getQuickQuestions, type AgentResponse } from '@/lib/api'
+import { ApiClientError, chatAgent, getQuickQuestions, type AgentResponse } from '@/lib/api'
 import { useAppState } from '@/lib/app-context'
 import { cn } from '@/lib/utils'
 
+const THREAD_STORAGE_KEY = 'rastroseguro-commandbar-thread-id'
+const USER_STORAGE_KEY = 'rastroseguro-agent-user-id'
+const DEVICE_STORAGE_KEY = 'rastroseguro-agent-device-id'
+
 const PRIORITY_PROMPTS = [
-  '¿Qué proveedores concentran la mayor cantidad de alertas?',
-  '¿Cuáles son los casos que debo revisar primero?',
-  'Resume los hallazgos más importantes del conjunto de casos.',
+  'Que proveedores concentran la mayor cantidad de alertas?',
+  'Cuales son los casos que debo revisar primero?',
+  'Resume los hallazgos mas importantes del conjunto de casos.',
 ]
 
 const EXPLORE_PROMPTS = [
-  'Genera un resumen general de los casos más delicados.',
-  '¿Qué tipos de seguro tienen más casos sospechosos?',
-  '¿Qué ciudades presentan más alertas?',
-  '¿Qué documentos faltan en los casos más delicados?',
+  'Genera un resumen general de los casos mas delicados.',
+  'Que tipos de seguro tienen mas casos sospechosos?',
+  'Que ciudades presentan mas alertas?',
+  'Que documentos faltan en los casos mas delicados?',
 ]
+
+function ensureLocalDeviceId(): string {
+  try {
+    const saved = window.localStorage.getItem(DEVICE_STORAGE_KEY) || window.localStorage.getItem(USER_STORAGE_KEY)
+    if (saved) {
+      window.localStorage.setItem(DEVICE_STORAGE_KEY, saved)
+      return saved
+    }
+    const generated = crypto.randomUUID()
+    window.localStorage.setItem(DEVICE_STORAGE_KEY, generated)
+    return generated
+  } catch {
+    return 'anonymous'
+  }
+}
+
+function scopedCommandUserId(deviceId: string, role: 'analyst' | 'executive' | null): string {
+  if (!role) return `${deviceId}:commandbar`
+  return `${deviceId}:${role}:commandbar`
+}
+
+function getCommandClaimContext(role: 'analyst' | 'executive' | null, claimId: string | null) {
+  return role === 'executive' ? null : claimId
+}
 
 export function CommandBar() {
   const { showCommandBar, setShowCommandBar, selectedClaimId, setSelectedClaimId, setCurrentStep, userRole } = useAppState()
@@ -29,8 +57,29 @@ export function CommandBar() {
   const [error, setError] = useState<string | null>(null)
   const [lastQuestion, setLastQuestion] = useState<string | null>(null)
   const [apiPrompts, setApiPrompts] = useState<string[]>([])
+  const [userId, setUserId] = useState('anonymous:commandbar')
+  const [threadId, setThreadId] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const reduceMotion = useReducedMotion()
+  const activeClaimId = getCommandClaimContext(userRole, selectedClaimId)
+
+  useEffect(() => {
+    const resolvedUserId = scopedCommandUserId(ensureLocalDeviceId(), userRole)
+    setUserId(resolvedUserId)
+    setThreadId(window.localStorage.getItem(`${THREAD_STORAGE_KEY}:${resolvedUserId}`))
+  }, [userRole])
+
+  useEffect(() => {
+    try {
+      if (threadId) {
+        window.localStorage.setItem(`${THREAD_STORAGE_KEY}:${userId}`, threadId)
+      } else {
+        window.localStorage.removeItem(`${THREAD_STORAGE_KEY}:${userId}`)
+      }
+    } catch {
+      // Ignore storage restrictions.
+    }
+  }, [threadId, userId])
 
   useEffect(() => {
     if (!showCommandBar) return
@@ -51,9 +100,20 @@ export function CommandBar() {
       setError(null)
       setLastQuestion(question)
       try {
-        const contextual = selectedClaimId ? `${question}\n\nContexto: siniestro ${selectedClaimId}.` : question
-        const result = await askAgent(contextual, undefined, userRole || 'analyst')
-        setResponse(result)
+        const session = await chatAgent({
+          message: question,
+          userId,
+          threadId,
+          selectedClaimId: activeClaimId,
+          runtime: 'classic',
+          userRole,
+          uiContext: {
+            step: userRole === 'executive' ? 0 : 3,
+            step_title: userRole === 'executive' ? 'Consulta general de cartera' : 'Consulta puntual del caso',
+          },
+        })
+        setThreadId(session.thread_id)
+        setResponse(session.reply)
       } catch (err) {
         setResponse(null)
         setError(
@@ -65,21 +125,23 @@ export function CommandBar() {
         setIsLoading(false)
       }
     },
-    [isLoading, selectedClaimId, userRole],
+    [activeClaimId, isLoading, threadId, userId, userRole],
   )
 
   const handleOpenClaim = useCallback(
     (id: string) => {
       setSelectedClaimId(id)
-      setCurrentStep(3)
+      setCurrentStep(userRole === 'executive' ? 5 : 3)
       close()
     },
-    [close, setCurrentStep, setSelectedClaimId],
+    [close, setCurrentStep, setSelectedClaimId, userRole],
   )
 
   const suggestions = useMemo(() => {
     const explore = [...EXPLORE_PROMPTS]
-    for (const q of apiPrompts) if (!explore.includes(q) && !PRIORITY_PROMPTS.includes(q)) explore.unshift(q)
+    for (const q of apiPrompts) {
+      if (!explore.includes(q) && !PRIORITY_PROMPTS.includes(q)) explore.unshift(q)
+    }
     return { priority: PRIORITY_PROMPTS, explore: explore.slice(0, 4) }
   }, [apiPrompts])
 
@@ -120,13 +182,13 @@ export function CommandBar() {
                   ref={inputRef}
                   value={input}
                   onChange={(event) => setInput(event.target.value)}
-                  placeholder="Pregunta en lenguaje natural sobre tus siniestros..."
+                  placeholder="Pregunta en lenguaje natural sobre la cartera o un caso puntual..."
                   className="h-9 w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                 />
               </form>
-              {selectedClaimId && (
+              {activeClaimId && (
                 <span className="hidden shrink-0 rounded-full border border-border bg-[var(--surface-low)] px-2.5 py-1 label-mono text-[11px] text-muted-foreground sm:inline">
-                  Caso {selectedClaimId}
+                  Caso {activeClaimId}
                 </span>
               )}
               <button
@@ -143,7 +205,7 @@ export function CommandBar() {
               {isLoading && (
                 <div className="flex items-center gap-3 px-4 py-6 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Revisando la información...
+                  Revisando la informacion...
                 </div>
               )}
 
@@ -173,7 +235,7 @@ export function CommandBar() {
                   />
                   <PromptGroup
                     icon={<Search className="h-3.5 w-3.5 text-muted-foreground" />}
-                    title="Consulta rápida"
+                    title="Consulta rapida"
                     prompts={suggestions.explore}
                     onPick={(question) => {
                       setInput(question)
@@ -187,7 +249,7 @@ export function CommandBar() {
             <div className="flex items-center justify-between gap-3 border-t border-border bg-card px-4 py-2.5">
               <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                 <ShieldCheck className="h-3.5 w-3.5" />
-                Respuestas apoyadas en la información cargada.
+                Respuestas apoyadas en la informacion cargada.
               </span>
               <span className="hidden items-center gap-2 text-[11px] text-muted-foreground sm:flex">
                 <kbd className="inline-flex items-center gap-1 rounded border border-border bg-[var(--surface-low)] px-1.5 py-0.5">
@@ -211,7 +273,7 @@ function PromptGroup({
   prompts,
   onPick,
 }: {
-  icon: React.ReactNode
+  icon: ReactNode
   title: string
   prompts: string[]
   onPick: (question: string) => void

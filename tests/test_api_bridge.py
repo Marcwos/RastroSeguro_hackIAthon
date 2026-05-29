@@ -110,12 +110,12 @@ class ApiBridgeTest(unittest.TestCase):
     def test_agent_endpoint_wraps_success_response(self):
         agent_response = {"ok": True, "message": "Respuesta", "source": "tools"}
         with patch("api.routes.agent.answer_question", return_value=agent_response) as answer:
-            response = self.client.post("/api/agent/ask", json={"question": "top casos"})
+            response = self.client.post("/api/agent/ask", json={"question": "top casos", "selected_claim_id": "SIN-0099"})
 
         answer.assert_called_once_with(
             "top casos",
             history=None,
-            selected_claim_id=None,
+            selected_claim_id="SIN-0099",
             runtime="classic",
             user_role="analyst",
         )
@@ -283,6 +283,67 @@ class ApiBridgeTest(unittest.TestCase):
         self.assertTrue(payload["ok"])
         self.assertEqual(payload["data"]["history"], [])
         self.assertEqual(payload["data"]["sections"], [])
+
+    def test_agent_chat_can_clear_selected_claim_from_existing_thread(self):
+        responses = [
+            {
+                "ok": True,
+                "intent": "explicar_siniestro",
+                "message": "Caso",
+                "data": {"id_siniestro": "SIN-0045"},
+                "source": "tools",
+                "runtime": {"requested": "classic", "active": "classic", "status": "ok"},
+                "context": {"resolved_claim_id": "SIN-0045"},
+                "llm": {"status": "disabled_by_config"},
+            },
+            {
+                "ok": True,
+                "intent": "top_riesgo",
+                "message": "Portafolio",
+                "data": [],
+                "source": "tools",
+                "runtime": {"requested": "classic", "active": "classic", "status": "ok"},
+                "context": {"resolved_claim_id": None},
+                "llm": {"status": "disabled_by_config"},
+            },
+        ]
+        with patch("api.routes.agent.answer_question", side_effect=responses):
+            first = self.client.post(
+                "/api/agent/chat",
+                json={"user_id": "analyst-a", "message": "Explica SIN-0045", "selected_claim_id": "SIN-0045"},
+            ).json()["data"]
+            second = self.client.post(
+                "/api/agent/chat",
+                json={"user_id": "analyst-a", "thread_id": first["thread_id"], "message": "top casos", "selected_claim_id": None},
+            ).json()["data"]
+
+        self.assertIsNone(second["context"]["selected_claim_id"])
+
+    def test_agent_thread_returns_most_recent_messages_when_history_exceeds_limit(self):
+        agent_response = {
+            "ok": True,
+            "intent": "top_riesgo",
+            "message": "Respuesta persistida",
+            "data": [],
+            "source": "tools",
+            "runtime": {"requested": "classic", "active": "classic", "status": "ok"},
+            "context": {"resolved_claim_id": None},
+            "llm": {"status": "disabled_by_config"},
+        }
+        with patch("api.routes.agent.answer_question", return_value=agent_response):
+            first = self.client.post("/api/agent/chat", json={"user_id": "analyst-a", "message": "pregunta 0"}).json()["data"]
+            thread_id = first["thread_id"]
+            for index in range(1, 60):
+                self.client.post(
+                    "/api/agent/chat",
+                    json={"user_id": "analyst-a", "thread_id": thread_id, "message": f"pregunta {index}"},
+                )
+
+        response = self.client.get(f"/api/agent/threads/{thread_id}?user_id=analyst-a")
+        payload = response.json()["data"]
+        self.assertEqual(len(payload["history"]), 100)
+        self.assertEqual(payload["history"][0]["content"], "pregunta 10")
+        self.assertEqual(payload["history"][-2]["content"], "pregunta 59")
 
     def test_agent_domain_error_becomes_api_error_with_details(self):
         agent_response = {"ok": False, "message": "Falta id", "hint": "Usa SIN-0045"}

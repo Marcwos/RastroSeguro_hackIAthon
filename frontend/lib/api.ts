@@ -408,10 +408,19 @@ export interface AgentChatSession extends AgentChatThread {
   reply: AgentResponse
 }
 
-export function askAgent(question: string, history?: ChatTurn[], userRole: 'analyst' | 'executive' = 'analyst') {
+export function askAgent(
+  question: string,
+  history?: ChatTurn[],
+  userRole: 'analyst' | 'executive' = 'analyst',
+  selectedClaimId?: string | null,
+) {
   return apiRequest<AgentResponse>('/api/agent/ask', {
     method: 'POST',
-    body: JSON.stringify(history && history.length ? { question, history, user_role: userRole } : { question, user_role: userRole }),
+    body: JSON.stringify(
+      history && history.length
+        ? { question, history, user_role: userRole, selected_claim_id: selectedClaimId || null }
+        : { question, user_role: userRole, selected_claim_id: selectedClaimId || null },
+    ),
   })
 }
 

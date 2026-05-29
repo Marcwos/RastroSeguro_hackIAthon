@@ -14,6 +14,7 @@ from uuid import uuid4
 
 DEFAULT_HISTORY_DB = Path("db/chat_history.sqlite")
 DEFAULT_USER_ID = "anonymous"
+_UNSET = object()
 
 
 def _utc_now() -> str:
@@ -132,7 +133,7 @@ class ChatHistoryStore:
         thread_id: str | None = None,
         *,
         user_id: str = DEFAULT_USER_ID,
-        selected_claim_id: str | None = None,
+        selected_claim_id: str | None | object = _UNSET,
         runtime: str = "classic",
         title: str | None = None,
         user_role: str = "analyst",
@@ -169,16 +170,25 @@ class ChatHistoryStore:
             else:
                 next_state = _json_load(row["state_json"], {})
                 next_state["user_role"] = user_role
+                selected_claim_clause = (
+                    "selected_claim_id = ?,"
+                    if selected_claim_id is not _UNSET
+                    else "selected_claim_id = selected_claim_id,"
+                )
+                params: list[Any] = [now]
+                if selected_claim_id is not _UNSET:
+                    params.append(selected_claim_id)
+                params.extend([runtime, _json_dump(next_state), resolved_thread_id, resolved_user_id])
                 connection.execute(
-                    """
+                    f"""
                     UPDATE agent_threads
                     SET updated_at = ?,
-                        selected_claim_id = COALESCE(?, selected_claim_id),
+                        {selected_claim_clause}
                         runtime = ?,
                         state_json = ?
                     WHERE thread_id = ? AND user_id = ?
                     """,
-                    (now, selected_claim_id, runtime, _json_dump(next_state), resolved_thread_id, resolved_user_id),
+                    params,
                 )
         return self.get_thread(resolved_thread_id, user_id=resolved_user_id)
 
@@ -276,7 +286,7 @@ class ChatHistoryStore:
         thread_id: str,
         *,
         user_id: str = DEFAULT_USER_ID,
-        selected_claim_id: str | None = None,
+        selected_claim_id: str | None | object = _UNSET,
         last_claim_id: str | None = None,
         last_intent: str | None = None,
         current_section_id: str | None = None,
@@ -290,7 +300,7 @@ class ChatHistoryStore:
         if state:
             current_state.update(state)
 
-        next_selected_claim_id = selected_claim_id or current_context.get("selected_claim_id")
+        next_selected_claim_id = current_context.get("selected_claim_id") if selected_claim_id is _UNSET else selected_claim_id
         next_last_claim_id = last_claim_id or current_context.get("last_claim_id")
         next_last_intent = last_intent or current_context.get("last_intent")
         next_section_id = current_section_id or current_context.get("current_section_id")
@@ -485,10 +495,14 @@ class ChatHistoryStore:
             rows = connection.execute(
                 """
                 SELECT id, section_id, role, content, created_at, intent, source, metadata_json, data_json
-                FROM agent_messages
-                WHERE thread_id = ?
+                FROM (
+                    SELECT id, section_id, role, content, created_at, intent, source, metadata_json, data_json
+                    FROM agent_messages
+                    WHERE thread_id = ?
+                    ORDER BY id DESC
+                    LIMIT ?
+                ) recent_messages
                 ORDER BY id ASC
-                LIMIT ?
                 """,
                 (thread_id, limit),
             ).fetchall()

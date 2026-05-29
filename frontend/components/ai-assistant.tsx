@@ -115,9 +115,11 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
   const lastConsumedPromptIdRef = useRef<string | null>(null)
   const lastGuideStepRef = useRef<number | null>(null)
   const prevClaimRef = useRef<string | null | undefined>(undefined)
+  const isRestoringSessionRef = useRef(false)
   const reduceMotion = useReducedMotion()
   const stepContext = getStepContext(currentStep)
   const isExecutive = userRole === 'executive'
+  const activeClaimId = isExecutive ? null : selectedClaimId
   const currentContextTitle = isExecutive ? getExecutiveStepTitle(currentStep) : stepContext.title
   // Both variants stay mounted at once (floating for mobile, sidebar for
   // desktop). Only the one visible at the current viewport may write guide
@@ -127,19 +129,19 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
   const quickQuestions = useMemo(() => {
     const base = userRole === 'executive'
       ? [
-          'Genera un resumen ejecutivo de casos críticos.',
-          '¿Cuál es el impacto de negocio del top 10% priorizado?',
-          '¿Qué proveedores o ramos concentran más exposición?',
-          '¿Qué decisión recomienda para priorizar revisión?',
+          'Genera un resumen ejecutivo de la cartera priorizada.',
+          'Cual es el impacto de negocio de los casos mas urgentes?',
+          'Que proveedores o ramos concentran mayor exposicion?',
+          'Que decision recomiendas para priorizar la revision?',
         ]
-      : getStepQuickQuestions(currentStep, selectedClaimId)
+      : getStepQuickQuestions(currentStep, activeClaimId)
     if (!apiQuickQuestions.length) return base
     const merged = [...base]
     for (const q of apiQuickQuestions) {
       if (!merged.includes(q)) merged.push(q)
     }
     return merged.slice(0, 5)
-  }, [apiQuickQuestions, currentStep, selectedClaimId, userRole])
+  }, [activeClaimId, apiQuickQuestions, currentStep, userRole])
 
   useEffect(() => {
     const media = window.matchMedia('(min-width: 1024px)')
@@ -184,6 +186,15 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
   // scoped to the case in focus, so the previous case's thread (and the history
   // sent to the LLM) should not bleed into the new one.
   useEffect(() => {
+    if (isExecutive) {
+      prevClaimRef.current = selectedClaimId
+      return
+    }
+    if (isRestoringSessionRef.current) {
+      prevClaimRef.current = selectedClaimId
+      isRestoringSessionRef.current = false
+      return
+    }
     if (prevClaimRef.current === undefined) {
       prevClaimRef.current = selectedClaimId
       return
@@ -195,7 +206,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
     setShowSessionHistory(false)
     lastGuideStepRef.current = null
     replaceChatMessages([])
-  }, [selectedClaimId, replaceChatMessages])
+  }, [isExecutive, replaceChatMessages, selectedClaimId])
 
   const refreshSessions = () => {
     void getAgentSessions(userId)
@@ -215,6 +226,16 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
     if (!showChat || !threadId) return
     void getAgentThread(threadId, userId)
       .then((session) => {
+        const restoredClaimId = session.context.selected_claim_id || null
+        if (restoredClaimId !== selectedClaimId) {
+          isRestoringSessionRef.current = true
+          setSelectedClaimId(restoredClaimId)
+          if (restoredClaimId) {
+            setCurrentStep(userRole === 'executive' ? 5 : 3)
+          } else if (userRole === 'executive') {
+            setCurrentStep(0)
+          }
+        }
         setSections(session.sections)
         replaceChatMessages(session.history.map(toUiMessage))
       })
@@ -223,7 +244,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
         setSections([])
         replaceChatMessages([])
       })
-  }, [showChat, threadId, userId, replaceChatMessages])
+  }, [showChat, threadId, userId, replaceChatMessages, selectedClaimId, setCurrentStep, setSelectedClaimId, userRole])
 
   useEffect(() => {
     if (!showChat) {
@@ -234,7 +255,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
   useEffect(() => {
     if (!showChat || threadId || !isActiveVariant) return
 
-    const guide = getStepGuideMessage(currentStep, selectedClaimId, userRole || 'analyst')
+    const guide = getStepGuideMessage(currentStep, activeClaimId, userRole || 'analyst')
     const stepChanged = lastGuideStepRef.current !== currentStep
     const hasUserMessages = chatMessages.some((m) => m.role === 'user')
 
@@ -279,7 +300,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
     }
   }, [
     currentStep,
-    selectedClaimId,
+    activeClaimId,
     showChat,
     threadId,
     chatMessages,
@@ -327,7 +348,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
         message: text,
         userId,
         threadId,
-        selectedClaimId,
+        selectedClaimId: activeClaimId,
         runtime: 'classic',
         userRole,
         uiContext: { step: currentStep, step_title: currentContextTitle },

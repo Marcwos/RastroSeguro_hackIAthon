@@ -15,15 +15,15 @@ export function StepCaseClosure() {
       <div className="mx-auto max-w-7xl space-y-4">
         <header>
           <span className="label-mono uppercase tracking-widest text-muted-foreground">
-            {isExecutive ? 'Resumen ejecutivo' : 'Cierre demo'}
+            {isExecutive ? 'Resumen ejecutivo' : 'Cierre del caso'}
           </span>
           <h1 className="display-heading text-3xl lg:text-4xl">
-            {isExecutive ? 'Reporte ejecutivo del caso' : 'Paso 5: Reporte y cierre'}
+            {isExecutive ? 'Reporte ejecutivo del caso' : 'Paso 5: Reporte final'}
           </h1>
           <p className="mt-2 max-w-3xl text-base text-readable text-muted-foreground">
             {isExecutive
-              ? 'Resumen del caso seleccionado, señales principales, impacto y expediente de respaldo para decisión.'
-              : 'Consolidación de score, recorrido por etapas, gráficos explicados y exportación del reporte demo.'}
+              ? 'Resumen del caso seleccionado, senales principales, impacto y expediente de respaldo para decision.'
+              : 'Consolidacion del puntaje, recorrido por etapas, graficos explicados y exportacion del reporte del caso.'}
           </p>
         </header>
 

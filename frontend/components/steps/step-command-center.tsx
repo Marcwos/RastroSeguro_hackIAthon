@@ -94,10 +94,10 @@ function ReportDialog({ report, loading, onLoad }: { report: ExecutiveReport | n
               </div>
             ) : null}
             <div className="grid gap-4 lg:grid-cols-2">
-              <ReportTable title="Top casos" rows={report.top_casos || []} primary="id_siniestro" secondary="score_final" />
-              <ReportTable title="Top proveedores" rows={report.top_proveedores || []} primary="id_proveedor" secondary="score_promedio" />
+              <ReportTable title="Casos prioritarios" rows={report.top_casos || []} primary="id_siniestro" secondary="score_final" />
+              <ReportTable title="Proveedores con mayor alerta" rows={report.top_proveedores || []} primary="id_proveedor" secondary="score_promedio" />
               <ReportTable title="Riesgo por ramo" rows={report.riesgo_por_ramo || []} primary="ramo" secondary="score_promedio" />
-              <ReportTable title="Top ciudades" rows={report.top_ciudades || []} primary="ciudad" secondary="score_promedio" />
+              <ReportTable title="Ciudades con mayor alerta" rows={report.top_ciudades || []} primary="ciudad" secondary="score_promedio" />
             </div>
           </div>
         ) : (
@@ -342,7 +342,7 @@ function formatSubmittedAt(value: string) {
 }
 
 function sourceLabel(source: string) {
-  if (source === 'csv') return 'CSV'
+  if (source === 'csv') return 'Archivo de datos'
   if (source === 'txt') return 'TXT'
   if (source === 'pdf') return 'PDF'
   return 'Documento'
@@ -366,7 +366,7 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
   const prompt = [
     'Explica el gráfico "Mapa global de relaciones" del Centro de Control.',
     'Quiero una explicación ejecutiva y accionable: qué representa, qué patrones se observan, qué casos parecen más prioritarios y qué preguntas debería hacer el analista.',
-    `Top nodos visibles: ${topClaims.map((claim) => `${claim.id_siniestro} score ${Math.round(num(claim.score_final))} nivel ${getRiskLabel(normalizeRisk(claim.nivel_riesgo))}`).join('; ') || 'sin datos'}.`,
+    `Nodos visibles: ${topClaims.map((claim) => `${claim.id_siniestro} puntaje ${Math.round(num(claim.score_final))} nivel ${getRiskLabel(normalizeRisk(claim.nivel_riesgo))}`).join('; ') || 'sin datos'}.`,
   ].join('\n')
 
   return (
@@ -383,7 +383,7 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
         <text x={center.x} y={center.y + 12} textAnchor="middle" className="fill-[var(--primary-fixed-dim)] text-[9px]">RIESGO</text>
         {satellites.map((node) => {
           const isActive = hoveredClaim?.id_siniestro === node.claim.id_siniestro
-          const score = Math.round(num(node.claim.score_final))
+          const puntaje = Math.round(num(node.claim.score_final))
           return (
             <g
               key={node.claim.id_siniestro}
@@ -398,7 +398,7 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
                 {node.claim.id_siniestro.replace('SIN-', 'SIN')}
               </text>
               <text x={node.x} y={node.y + 9} textAnchor="middle" className="fill-white text-[8px] font-bold">
-                {score}/100
+                {puntaje}/100
               </text>
             </g>
           )
@@ -490,7 +490,7 @@ export function StepCommandCenter() {
     return {
       total: summary?.total_siniestros ?? 0,
       totalAmount: summary?.monto_total_reclamado ?? 0,
-      averageScore: Math.round(Number(summary?.score_promedio_portafolio ?? 0)),
+      averagePuntaje: Math.round(Number(summary?.score_promedio_portafolio ?? 0)),
       riskDistribution,
       providerRows,
       branchRows,
@@ -535,7 +535,7 @@ export function StepCommandCenter() {
     { label: 'Siniestros evaluados', value: analytics.total.toString(), note: 'Cartera priorizada', Icon: FileSearch },
     { label: 'Casos alto/crítico', value: analytics.criticalCount.toString(), note: 'Revisión prioritaria', Icon: AlertTriangle },
     { label: 'Monto expuesto', value: formatCurrency(analytics.totalAmount), note: 'Total reclamado', Icon: CircleDollarSign },
-    { label: 'Puntaje promedio', value: `${analytics.averageScore}/100`, note: 'Riesgo global', Icon: Target },
+    { label: 'Puntaje medio', value: `${analytics.averagePuntaje}/100`, note: 'Riesgo global', Icon: Target },
     { label: 'Ahorro potencial', value: formatCurrency(analytics.savingsEstimate), note: 'Estimación ilustrativa', Icon: CircleDollarSign },
   ]
 
@@ -548,7 +548,7 @@ export function StepCommandCenter() {
               <GitBranch className="h-5 w-5" />
               <span className="label-mono-md uppercase">Revisión de alertas</span>
             </div>
-            <h1 className="dark-panel-heading display-heading mt-3 text-3xl lg:text-4xl">Centro de Control Antifraude</h1>
+            <h1 className="dark-panel-heading display-heading mt-3 text-3xl lg:text-4xl">Centro de control de alertas</h1>
             <p className="dark-panel-muted mt-2 max-w-2xl text-sm">
               {isAnalyst ? 'Bandeja operativa de riesgo, carga de datos y casos prioritarios para revisión con el asistente.' : 'Panorama ejecutivo de riesgo, recurrencia de alertas e impacto para decisión gerencial.'}
             </p>
@@ -598,7 +598,7 @@ export function StepCommandCenter() {
             <UploadCloud className="h-12 w-12 text-muted-foreground" />
             <div>
               <h2 className="font-display text-xl font-semibold">Sin datos para visualizar</h2>
-              <p className="mt-2 text-sm text-muted-foreground">Cargue los datos para activar el Centro de Control.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Carga la informacion para activar el centro de control.</p>
             </div>
             {isAnalyst ? (
               <Button onClick={() => setCurrentStep(1)} className="h-auto px-4 py-2 text-[13px] font-semibold">Ir a carga de datos</Button>
@@ -660,9 +660,9 @@ export function StepCommandCenter() {
                 <div className="section-header flex items-center gap-2"><Building2 className="h-4 w-4" />Riesgo por proveedor</div>
                 <div className="relative p-3">
                   <AIChartExplainButton
-                    prompt={`Explica el gráfico "Riesgo por proveedor". Identifica proveedores con mayor puntaje promedio, concentración de casos rojos y posibles acciones de auditoría. Datos principales: ${analytics.providerRows.slice(0, 6).map((row) => `${row.name}: score ${row.avgRisk}, ${row.total} casos, ${row.casosRojos} rojos`).join('; ') || 'sin datos'}.`}
+                    prompt={`Explica el gráfico "Riesgo por proveedor". Identifica proveedores con mayor puntaje promedio, concentración de casos rojos y posibles acciones de auditoría. Datos principales: ${analytics.providerRows.slice(0, 6).map((row) => `${row.name}: puntaje ${row.avgRisk}, ${row.total} casos, ${row.casosRojos} rojos`).join('; ') || 'sin datos'}.`}
                   />
-                  <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-4)' } }} className="h-[200px] w-full">
+                  <ChartContainer config={{ avgRisk: { label: 'Puntaje medio', color: 'var(--chart-4)' } }} className="h-[200px] w-full">
                     <BarChart data={analytics.providerRows} layout="vertical" margin={{ left: 8, right: 8 }}>
                       <CartesianGrid horizontal={false} />
                       <XAxis type="number" domain={[0, 100]} hide />
@@ -677,9 +677,9 @@ export function StepCommandCenter() {
                 <div className="section-header flex items-center gap-2"><UsersRound className="h-4 w-4" />Riesgo por ramo</div>
                 <div className="relative p-3">
                   <AIChartExplainButton
-                    prompt={`Explica el gráfico "Riesgo por ramo". Indica qué ramos concentran más riesgo, cómo interpretarlo sin acusar fraude y qué priorización sugieres. Datos principales: ${analytics.branchRows.slice(0, 6).map((row) => `${row.name}: score ${row.avgRisk}, ${row.total} casos, ${row.casosRojos} rojos`).join('; ') || 'sin datos'}.`}
+                    prompt={`Explica el gráfico "Riesgo por ramo". Indica qué ramos concentran más riesgo, cómo interpretarlo sin acusar fraude y qué priorización sugieres. Datos principales: ${analytics.branchRows.slice(0, 6).map((row) => `${row.name}: puntaje ${row.avgRisk}, ${row.total} casos, ${row.casosRojos} rojos`).join('; ') || 'sin datos'}.`}
                   />
-                  <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-3)' } }} className="h-[200px] w-full">
+                  <ChartContainer config={{ avgRisk: { label: 'Puntaje medio', color: 'var(--chart-3)' } }} className="h-[200px] w-full">
                     <BarChart data={analytics.branchRows} margin={{ left: 4, right: 4 }}>
                       <CartesianGrid vertical={false} />
                       <XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={10} />
@@ -694,9 +694,9 @@ export function StepCommandCenter() {
                 <div className="section-header flex items-center gap-2"><MapPin className="h-4 w-4" />Riesgo por ciudad</div>
                 <div className="relative p-3">
                   <AIChartExplainButton
-                    prompt={`Explica el gráfico "Riesgo por ciudad". Señala ciudades con mayor exposición, posibles sesgos/limitaciones y siguientes pasos de revisión humana. Datos principales: ${analytics.cityRows.slice(0, 6).map((row) => `${row.name}: score ${row.avgRisk}, ${row.total} casos, ${row.casosRojos} rojos`).join('; ') || 'sin datos'}.`}
+                    prompt={`Explica el gráfico "Riesgo por ciudad". Señala ciudades con mayor exposición, posibles sesgos/limitaciones y siguientes pasos de revisión humana. Datos principales: ${analytics.cityRows.slice(0, 6).map((row) => `${row.name}: puntaje ${row.avgRisk}, ${row.total} casos, ${row.casosRojos} rojos`).join('; ') || 'sin datos'}.`}
                   />
-                  <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-1)' } }} className="h-[200px] w-full">
+                  <ChartContainer config={{ avgRisk: { label: 'Puntaje medio', color: 'var(--chart-1)' } }} className="h-[200px] w-full">
                     <BarChart data={analytics.cityRows} margin={{ left: 4, right: 4 }}>
                       <CartesianGrid vertical={false} />
                       <XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={10} />
@@ -742,7 +742,7 @@ export function StepCommandCenter() {
                             <div><span className="label-mono block">Ramo</span>{claim?.ramo || 'Pendiente'}</div>
                             <div><span className="label-mono block">Ciudad</span>{claim?.ciudad || 'Pendiente'}</div>
                             <div><span className="label-mono block">Monto</span>{claim ? formatCurrency(claim.monto_reclamado) : '—'}</div>
-                            <div><span className="label-mono block">Score</span>{claim?.score_final != null ? `${Math.round(num(claim.score_final))}/100` : '—'}</div>
+                            <div><span className="label-mono block">Puntaje</span>{claim?.score_final != null ? `${Math.round(num(claim.score_final))}/100` : '—'}</div>
                           </div>
                           {submitted.filename ? <p className="mt-3 truncate text-[11px] text-muted-foreground">Origen: {submitted.filename}</p> : null}
                           <p className="mt-3 text-xs font-semibold text-primary opacity-90 group-hover:underline">Abrir reporte ejecutivo →</p>
@@ -759,7 +759,7 @@ export function StepCommandCenter() {
             )}
 
             <div className="institutional-card overflow-hidden">
-              <div className="section-header flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><span>10 casos prioritarios (Historial)</span><span>{isLoadingClaims ? 'Sincronizando...' : 'Ordenado por puntaje de riesgo'}</span></div>
+              <div className="section-header flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><span>10 casos prioritarios (Historial)</span><span>{isLoadingClaims ? 'Sincronizando...' : 'Ordenado por nivel de prioridad'}</span></div>
               <div className="border-b border-border bg-[var(--surface-low)] p-3">
                 <div className="flex flex-col gap-2 md:flex-row md:items-center">
                   <Input

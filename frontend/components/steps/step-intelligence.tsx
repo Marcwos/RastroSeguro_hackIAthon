@@ -51,7 +51,7 @@ export function StepIntelligence() {
           <span className="label-mono uppercase tracking-widest text-muted-foreground">{UI_COPY.alertReview}</span>
           <h1 className="display-heading text-3xl lg:text-4xl">Paso 4: {UI_COPY.caseConnections}</h1>
           <p className="mt-2 text-base text-readable text-muted-foreground">
-            Red de relaciones, elementos repetidos y comparación con la cartera.
+            Red de relaciones, elementos repetidos y comparacion con la cartera.
           </p>
         </header>
 
@@ -59,7 +59,7 @@ export function StepIntelligence() {
           <TabsList>
             <TabsTrigger value="graph">Red del caso</TabsTrigger>
             <TabsTrigger value="rings">{UI_COPY.relatedGroups}</TabsTrigger>
-            <TabsTrigger value="recurrence">Top recurrencias</TabsTrigger>
+            <TabsTrigger value="recurrence">Elementos que mas se repiten</TabsTrigger>
             <TabsTrigger value="spider">{UI_COPY.comparePortfolio}</TabsTrigger>
           </TabsList>
           <TabsContent value="graph" className="mt-3 space-y-2">
@@ -79,12 +79,12 @@ export function StepIntelligence() {
             <div className="institutional-card space-y-4 p-4">
               <RecurrenceTopChart claims={claims} currentClaimId={selectedClaimId} />
               <div>
-                <h3 className="label-mono-md mb-2 font-bold uppercase text-muted-foreground">Ranking global de la cartera</h3>
+                <h3 className="label-mono-md mb-2 font-bold uppercase text-muted-foreground">Ranking general de la cartera</h3>
                 <GlobalRecurrenceList claims={claims} currentClaimId={selectedClaimId} limit={12} />
               </div>
               {payload.recurring_entities.length > 0 && (
                 <div>
-                  <h3 className="label-mono-md mb-2 font-bold uppercase text-muted-foreground">{UI_COPY.repeatingElements} (este caso)</h3>
+                  <h3 className="label-mono-md mb-2 font-bold uppercase text-muted-foreground">{UI_COPY.repeatingElements} (en este caso)</h3>
                   <RecurringEntitiesList entities={payload.recurring_entities} limit={8} />
                 </div>
               )}

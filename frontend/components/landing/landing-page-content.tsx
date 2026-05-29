@@ -10,15 +10,15 @@ const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 const problemQuestions = [
   {
-    question: '¿Como separo prioridad de ruido?',
+    question: 'Como separo prioridad de ruido?',
     consequence: 'Sin una forma clara de filtrar, los casos urgentes se mezclan con los rutinarios.',
   },
   {
-    question: '¿Por que este caso me genera dudas?',
+    question: 'Por que este caso me genera dudas?',
     consequence: 'Las señales estan dispersas. Reunirlas manualmente toma horas que no hay.',
   },
   {
-    question: '¿Como sustento mi decision?',
+    question: 'Como sustento mi decision?',
     consequence: 'La intuicion sola no es evidencia. Sin razones claras, la decision queda expuesta.',
   },
 ]
@@ -34,7 +34,7 @@ const solutionPillars = [
   },
   {
     title: 'La decision siempre la toma una persona',
-    detail: 'La IA orienta; el criterio humano decide.',
+    detail: 'El sistema orienta; la decision final sigue en manos del equipo.',
   },
 ]
 
@@ -123,7 +123,7 @@ export function LandingPageContent() {
                 <motion.h1
                   className="landing-hero-title mt-4 select-none text-balance text-4xl lg:text-6xl xl:text-[4.75rem]"
                 >
-                  ¿Cuales reclamos hay que revisar primero? RastroSeguro lo dice y explica por que.
+                  Cuales reclamos hay que revisar primero? RastroSeguro lo dice y explica por que.
                 </motion.h1>
                 <p className="dark-panel-muted mt-5 max-w-xl text-lg leading-8 lg:text-xl">
                   Carga tu cartera de siniestros y en segundos tienes una bandeja ordenada por nivel de riesgo, con las razones detras de cada alerta y una recomendacion de revision clara para el analista.
@@ -223,7 +223,7 @@ export function LandingPageContent() {
           variants={sectionVariants}
         >
           <motion.article className="landing-closing-panel mx-auto max-w-7xl overflow-hidden" variants={itemVariants}>
-            <div className="section-header">¿Lista para ver como funciona?</div>
+            <div className="section-header">Lista para ver como funciona?</div>
             <div className="grid gap-8 p-6 lg:grid-cols-[1.2fr_.8fr] lg:p-8">
               <div>
                 <h2 className="display-heading max-w-3xl text-balance text-3xl lg:text-4xl">

@@ -91,6 +91,11 @@ export function StepUpload() {
     if (uploadedFile && claims.length > 0 && !review) setStatus('valid')
   }, [claims.length, review, uploadedFile])
 
+  useEffect(() => {
+    if (isApiReady || isLoadingClaims || review || claims.length > 0) return
+    void loadClaims()
+  }, [claims.length, isApiReady, isLoadingClaims, loadClaims, review])
+
   const buildCsvPreview = async (file: File) => {
     const text = await file.text()
     const lines = text
@@ -228,6 +233,25 @@ export function StepUpload() {
     }, 500)
   }
 
+  const handleUseDemo = async () => {
+    setProcessing(true)
+    setLocalError(null)
+    setLocalHint(null)
+    try {
+      const records = await loadClaims()
+      if (!records.length) {
+        setStatus('idle')
+        setSelectedClaimId(null)
+        return
+      }
+      setSelectedClaimId(records[0].id_siniestro)
+      setIsDataLoaded(true)
+      setStatus('valid')
+    } finally {
+      setProcessing(false)
+    }
+  }
+
   const clearAll = () => {
     setCsvHeaders([])
     setCsvRows([])
@@ -248,6 +272,11 @@ export function StepUpload() {
   const uploadComplete = status === 'valid' && uploadedFile && !isUploading
   const effectiveError = localError || apiError
   const effectiveHint = localHint || apiHint
+  const systemStatus = isUploading
+    ? 'Actualizando datos...'
+    : isApiReady
+      ? 'Sistema listo'
+      : 'API disponible para cargar o usar demo'
 
   return (
     <section className="px-4 py-8 lg:px-8">
@@ -534,12 +563,12 @@ export function StepUpload() {
             </div>
           )}
 
-          {claims.length > 0 && uploadedFile && status === 'valid' && (
+          {claims.length > 0 && status === 'valid' && (
             <div className="institutional-card col-span-12 bg-[var(--surface-low)] p-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <h4 className="label-mono-md font-bold uppercase">Siniestro a procesar</h4>
-                  <p className="mt-1 text-sm text-muted-foreground">{claims.length} registro(s) disponibles luego del procesamiento</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{claims.length} registro(s) disponibles para revision</p>
                 </div>
                 <Select value={selectedClaimId || undefined} onValueChange={selectClaim}>
                   <SelectTrigger className="w-full sm:w-[320px]"><SelectValue placeholder="Seleccione un siniestro" /></SelectTrigger>
@@ -556,7 +585,7 @@ export function StepUpload() {
           <div className="institutional-card col-span-12 overflow-hidden">
             <div className="section-header flex justify-between">
               <span>Previsualización de Estructura</span>
-              <span className="rounded-sm border border-border bg-background px-2 py-1 text-xs uppercase text-muted-foreground">{status === 'reviewing' ? 'Revisión pendiente' : 'Mapeo automatico'}</span>
+              <span className="rounded-sm border border-border bg-background px-2 py-1 text-xs uppercase text-muted-foreground">{status === 'reviewing' ? 'Revision pendiente' : 'Mapeo automatico'}</span>
             </div>
             {showPreview ? (
               <div className="overflow-x-auto">
@@ -576,19 +605,22 @@ export function StepUpload() {
                 </table>
               </div>
             ) : (
-              <p className="p-6 text-sm text-muted-foreground">{isLoadingClaims || status === 'validating' ? 'Procesando archivo…' : 'Cargue un archivo de datos para ver columnas, o PDF o texto para abrir el modal de revisión.'}</p>
+              <p className="p-6 text-sm text-muted-foreground">{isLoadingClaims || status === 'validating' ? 'Procesando archivo...' : 'Cargue un archivo para ver columnas, o use los datos demo para entrar directo al flujo.'}</p>
             )}
           </div>
         </div>
 
         <footer className="flex flex-col gap-4 border-t border-border pt-6 md:flex-row md:items-center md:justify-between">
           <div className="flex min-w-0 items-center gap-2">
-            <span className={cn('h-2 w-2 rounded-full', isApiReady ? 'bg-[var(--tertiary-fixed-dim)]' : 'bg-destructive')} />
-            <span className="label-mono truncate text-foreground">{isApiReady ? 'Sistema listo' : 'Conectando con RastroSeguro...'}</span>
+            <span className={cn('h-2 w-2 rounded-full', isApiReady ? 'bg-[var(--tertiary-fixed-dim)]' : 'bg-amber-500')} />
+            <span className="label-mono truncate text-foreground">{systemStatus}</span>
             {(status === 'validating' || isLoadingClaims) && <Loader2 className="h-4 w-4 animate-spin" />}
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             <button type="button" onClick={clearAll} className="focus-ring border border-border bg-[var(--surface-container)] px-8 py-2 label-mono-md text-foreground">Limpiar</button>
+            <button type="button" onClick={() => void handleUseDemo()} disabled={processing || isUploading} className="focus-ring border border-border bg-background px-8 py-2 label-mono-md text-foreground disabled:cursor-not-allowed disabled:opacity-50">
+              {processing && status !== 'valid' ? 'Preparando demo...' : 'Usar datos demo'}
+            </button>
             <button type="button" disabled={status !== 'valid' || processing || !selectedClaimId} onClick={handleNext} className="focus-ring bg-primary px-8 py-2 label-mono-md text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50">
               {processing ? 'Procesando...' : selectedClaimId ? `Continuar con ${selectedClaimId}` : 'Selecciona un siniestro'}
             </button>

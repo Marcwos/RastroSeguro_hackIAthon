@@ -76,6 +76,23 @@ function toReportChatMessage(message: AgentChatMessage): ReportChatMessage {
   }
 }
 
+function mergeReportChatMessages(
+  persistedMessages: ReportChatMessage[],
+  liveMessages: ReportChatMessage[],
+): ReportChatMessage[] {
+  const seen = new Set<string>()
+  const merged: ReportChatMessage[] = []
+
+  for (const message of [...persistedMessages, ...liveMessages]) {
+    const key = message.id || `${message.role}|${message.sectionId || ''}|${message.content}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    merged.push(message)
+  }
+
+  return merged
+}
+
 export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
   const {
     selectedClaim,
@@ -171,7 +188,7 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
   )
 
   const reportChatMessages = useMemo(
-    () => [...persistedChatMessages, ...chatMessages],
+    () => mergeReportChatMessages(persistedChatMessages, chatMessages),
     [persistedChatMessages, chatMessages],
   )
 
@@ -179,7 +196,7 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
     return (
       <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 text-muted-foreground">
         <FileText className="h-12 w-12" />
-        <p>Selecciona un caso para generar el reporte demo.</p>
+        <p>Selecciona un caso para generar el reporte.</p>
       </div>
     )
   }
@@ -274,7 +291,7 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
 
           <div className="grid gap-4 lg:grid-cols-2">
             <div className="space-y-2 rounded-lg border border-border bg-[var(--surface-low)] p-4">
-              <p className="label-mono-md font-bold uppercase text-muted-foreground">Recurrencias en cartera</p>
+              <p className="label-mono-md font-bold uppercase text-muted-foreground">Elementos repetidos en la cartera</p>
               <RecurrenceTopChart claims={claims} currentClaimId={selectedClaimId} limit={isExecutive ? 6 : 8} />
               <ChartInsight text={chartInsights.recurrence} />
             </div>
@@ -291,7 +308,7 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
 
       {portfolio?.summary && (
         <section className="institutional-card overflow-hidden">
-          <div className="section-header">Contexto portafolio</div>
+          <div className="section-header">Contexto de la cartera</div>
           <div className="grid gap-3 p-4 md:grid-cols-4">
             <Kpi label="Total" value={portfolio.summary.total_siniestros.toLocaleString()} />
             <Kpi label="Casos rojos" value={portfolio.summary.casos_rojos.toLocaleString()} />
@@ -330,7 +347,7 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
           className="focus-ring inline-flex items-center gap-2 border border-border px-5 py-2.5 label-mono-md text-foreground hover:bg-[var(--surface-container)]"
         >
           {exportingMd ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-          Descargar texto (.md)
+          Descargar resumen (.md)
         </button>
         <button
           type="button"
