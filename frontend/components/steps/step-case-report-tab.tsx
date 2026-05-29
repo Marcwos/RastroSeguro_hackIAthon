@@ -15,6 +15,8 @@ import { useAppState } from '@/lib/app-context'
 import {
   ClaimDossier,
   ExecutiveReport,
+  type AgentChatMessage,
+  getAgentThread,
   getClaimDossier,
   getExecutiveReport,
 } from '@/lib/api'
@@ -28,9 +30,45 @@ import { alertToText } from '@/lib/api'
 import { sanitizeAiText } from '@/lib/utils'
 
 const num = (v: unknown) => Number(v ?? 0)
+const THREAD_STORAGE_KEY = 'rastroseguro-agent-thread-id'
+const USER_STORAGE_KEY = 'rastroseguro-agent-user-id'
+const DEVICE_STORAGE_KEY = 'rastroseguro-agent-device-id'
+
+type ReportChatMessage = {
+  id?: string
+  role: 'user' | 'assistant'
+  content: string
+  sectionId?: string | null
+  response?: unknown
+}
 
 function yes(value: unknown) {
   return ['si', 'sí', 'true', '1', 'yes', 'completo'].includes(String(value ?? '').trim().toLowerCase()) || value === true
+}
+
+function getScopedChatIdentity(role: 'analyst' | 'executive' | null): { userId: string; threadId: string | null } {
+  try {
+    const deviceId = window.localStorage.getItem(DEVICE_STORAGE_KEY) || window.localStorage.getItem(USER_STORAGE_KEY) || 'anonymous'
+    const userId = role ? `${deviceId}:${role}` : deviceId
+    return {
+      userId,
+      threadId: window.localStorage.getItem(`${THREAD_STORAGE_KEY}:${userId}`),
+    }
+  } catch {
+    return { userId: 'anonymous', threadId: null }
+  }
+}
+
+function toReportChatMessage(message: AgentChatMessage): ReportChatMessage {
+  return {
+    id: message.id,
+    role: message.role,
+    content: message.content,
+    sectionId: message.section_id || null,
+    response: message.role === 'assistant'
+      ? { intent: message.intent, data: message.data, message: message.content }
+      : undefined,
+  }
 }
 
 export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
@@ -43,6 +81,7 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
     uploadedFile,
     isDataLoaded,
     userRole,
+    chatMessages,
     setShowChat,
   } = useAppState()
 
@@ -51,6 +90,7 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
   const [loading, setLoading] = useState(false)
   const [exportingMd, setExportingMd] = useState(false)
   const [exportingPdf, setExportingPdf] = useState(false)
+  const [persistedChatMessages, setPersistedChatMessages] = useState<ReportChatMessage[]>([])
 
   const isExecutive = userRole === 'executive'
 
@@ -75,6 +115,33 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
       .finally(() => setLoading(false))
   }, [selectedClaimId])
 
+
+  useEffect(() => {
+    if (!selectedClaimId) {
+      setPersistedChatMessages([])
+      return
+    }
+
+    const { userId, threadId } = getScopedChatIdentity(userRole)
+    if (!threadId) {
+      setPersistedChatMessages([])
+      return
+    }
+
+    let cancelled = false
+    void getAgentThread(threadId, userId)
+      .then((thread) => {
+        if (!cancelled) setPersistedChatMessages(thread.history.map(toReportChatMessage))
+      })
+      .catch(() => {
+        if (!cancelled) setPersistedChatMessages([])
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [selectedClaimId, userRole])
+
   const graphPayload = useMemo(() => {
     const hasCurrentExplanation = selectedExplanation?.id_siniestro === selectedClaimId
     const details = hasCurrentExplanation
@@ -91,6 +158,11 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
   const chartInsights = useMemo(
     () => buildChartInsights(selectedClaim, claims, graphPayload),
     [selectedClaim, claims, graphPayload],
+  )
+
+  const reportChatMessages = useMemo(
+    () => [...persistedChatMessages, ...chatMessages],
+    [persistedChatMessages, chatMessages],
   )
 
   if (!selectedClaim || !selectedClaimId) {
@@ -119,6 +191,7 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
         claims,
         uploadedFileName: uploadedFile?.name ?? null,
         portfolioReport: portfolio,
+        chatMessages: reportChatMessages,
       })
       downloadCaseReportMarkdown(markdown, selectedClaim.id_siniestro)
     } finally {
@@ -137,6 +210,7 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
         claims,
         uploadedFileName: uploadedFile?.name ?? null,
         portfolioReport: portfolio,
+        chatMessages: reportChatMessages,
       })
     } finally {
       setExportingPdf(false)

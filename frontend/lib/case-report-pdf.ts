@@ -314,6 +314,52 @@ function drawPortfolioKpis(doc: jsPDF, data: CaseReportData, y: number, autoTabl
   return (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y
 }
 
+
+function drawChatSummary(doc: jsPDF, data: CaseReportData, y: number): number {
+  if (!data.chatSummary.length) return y
+
+  y = ensureSpace(doc, y, 14)
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(8.5)
+  setColor(doc, SLATE_500)
+  y = wrapText(
+    doc,
+    'Solo se incluyen preguntas y respuestas asociadas al siniestro de este reporte. Conversaciones de otros casos no se agregan.',
+    MARGIN,
+    y,
+    CONTENT_W,
+    4,
+  ) + 2
+
+  data.chatSummary.forEach((item, index) => {
+    const question = `${index + 1}. Pregunta: ${item.question}`
+    const answer = `Respuesta: ${item.answer}`
+    const questionLines = doc.splitTextToSize(question, CONTENT_W - 10) as string[]
+    const answerLines = doc.splitTextToSize(answer, CONTENT_W - 10) as string[]
+    const boxH = 8 + (questionLines.length + answerLines.length) * 4.2
+    y = ensureSpace(doc, y, boxH + 4)
+
+    setFill(doc, SLATE_50)
+    doc.setDrawColor(SLATE_100[0], SLATE_100[1], SLATE_100[2])
+    doc.setLineWidth(0.3)
+    doc.roundedRect(MARGIN, y, CONTENT_W, boxH, 1.5, 1.5, 'FD')
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(8.5)
+    setColor(doc, SLATE_900)
+    doc.text(questionLines, MARGIN + 5, y + 6)
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8.2)
+    setColor(doc, SLATE_700)
+    doc.text(answerLines, MARGIN + 5, y + 6 + questionLines.length * 4.2 + 3)
+
+    y += boxH + 4
+  })
+
+  return y
+}
+
 function drawDisclaimer(doc: jsPDF, y: number): number {
   y = ensureSpace(doc, y, 20)
   setFill(doc, [254, 252, 232])
@@ -394,8 +440,13 @@ export async function renderCaseReportPdf(data: CaseReportData): Promise<jsPDF> 
     if (data.dossier.ethical_guardrail) y = drawCallout(doc, 'Marco ético', data.dossier.ethical_guardrail, y, SLATE_700)
   }
 
+  if (data.chatSummary.length) {
+    y = drawSectionHeader(doc, data.dossier ? 4 : 3, 'Resumen del chat sobre este siniestro', y)
+    y = drawChatSummary(doc, data, y)
+  }
+
   if (data.portfolioReport?.summary) {
-    y = drawSectionHeader(doc, data.dossier ? 4 : 3, 'Contexto del portafolio', y)
+    y = drawSectionHeader(doc, data.dossier ? (data.chatSummary.length ? 5 : 4) : (data.chatSummary.length ? 4 : 3), 'Contexto del portafolio', y)
     y = drawPortfolioKpis(doc, data, y, autoTable) + 6
     if (data.portfolioReport.ethics_note) y = drawCallout(doc, 'Nota de cartera', data.portfolioReport.ethics_note, y)
   }

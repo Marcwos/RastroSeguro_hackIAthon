@@ -259,8 +259,8 @@ export function StepAnalysis() {
           <button onClick={() => setCurrentStep(2)} className="focus-ring flex items-center gap-2 px-4 py-2 label-mono-md text-muted-foreground hover:text-primary"><ArrowLeft className="h-4 w-4" />Anterior</button>
           <div className="flex flex-wrap items-center gap-2">
             <button onClick={() => setShowChat(true)} className="focus-ring flex items-center gap-2 border border-border px-4 py-2 label-mono-md text-foreground hover:bg-[var(--surface-container)]"><Bot className="h-4 w-4" />Preguntar al asistente</button>
-            <button onClick={() => setCurrentStep(5)} className="focus-ring flex items-center gap-2 bg-primary px-6 py-2 label-mono-md text-primary-foreground">
-              Continuar al reporte
+            <button onClick={() => setCurrentStep(4)} className="focus-ring flex items-center gap-2 bg-primary px-6 py-2 label-mono-md text-primary-foreground">
+              Continuar a conexiones
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>

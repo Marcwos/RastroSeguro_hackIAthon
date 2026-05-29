@@ -8,8 +8,75 @@ import { sanitizeAiText } from '@/lib/utils'
 
 const num = (v: unknown) => Number(v ?? 0)
 
+type ReportChatMessage = {
+  id?: string
+  role: 'user' | 'assistant'
+  content: string
+  sectionId?: string | null
+  response?: unknown
+}
+
+export interface CaseReportChatQa {
+  question: string
+  answer: string
+}
+
 function yes(value: unknown) {
   return ['si', 'sí', 'true', '1', 'yes', 'completo'].includes(String(value ?? '').trim().toLowerCase()) || value === true
+}
+
+function truncateText(text: string, max: number): string {
+  const clean = sanitizeAiText(text).replace(/\s+/g, ' ').trim()
+  if (clean.length <= max) return clean
+  return `${clean.slice(0, max - 1).trim()}…`
+}
+
+function messageMatchesClaim(message: ReportChatMessage, claimId: string): boolean {
+  const needle = claimId.toUpperCase()
+  const body = `${message.content || ''} ${JSON.stringify(message.response ?? '')}`.toUpperCase()
+  return body.includes(needle)
+}
+
+export function buildClaimChatSummary(messages: ReportChatMessage[] = [], claimId: string, limit = 6): CaseReportChatQa[] {
+  if (!claimId || !messages.length) return []
+
+  const claimSections = new Set(
+    messages
+      .filter((message) => message.sectionId && messageMatchesClaim(message, claimId))
+      .map((message) => message.sectionId as string),
+  )
+
+  const seen = new Set<string>()
+  const relevant = messages.filter((message) => {
+    if (!message.content?.trim()) return false
+    const matches = messageMatchesClaim(message, claimId) || Boolean(message.sectionId && claimSections.has(message.sectionId))
+    if (!matches) return false
+    const key = message.id || `${message.role}|${message.sectionId || ''}|${message.content}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+
+  const pairs: CaseReportChatQa[] = []
+  let pendingQuestion: string | null = null
+
+  for (const message of relevant) {
+    if (message.role === 'user') {
+      pendingQuestion = truncateText(message.content, 180)
+      continue
+    }
+
+    if (message.role === 'assistant' && pendingQuestion) {
+      pairs.push({
+        question: pendingQuestion,
+        answer: truncateText(message.content, 360),
+      })
+      pendingQuestion = null
+      if (pairs.length >= limit) break
+    }
+  }
+
+  return pairs
 }
 
 export interface CaseReportExportInput {
@@ -21,6 +88,7 @@ export interface CaseReportExportInput {
   uploadedFileName?: string | null
   portfolioReport?: ExecutiveReport | null
   portfolioMarkdown?: string | null
+  chatMessages?: ReportChatMessage[]
 }
 
 export interface CaseReportData {
@@ -42,10 +110,11 @@ export interface CaseReportData {
   dossier?: ClaimDossier | null
   portfolioReport?: ExecutiveReport | null
   portfolioMarkdown?: string | null
+  chatSummary: CaseReportChatQa[]
 }
 
 export function collectCaseReportData(input: CaseReportExportInput): CaseReportData {
-  const { claim, explanation, dossier, graphPayload, claims, uploadedFileName, portfolioReport, portfolioMarkdown } = input
+  const { claim, explanation, dossier, graphPayload, claims, uploadedFileName, portfolioReport, portfolioMarkdown, chatMessages } = input
   const scoreFinal = num(explanation?.score_final ?? claim.score_final)
   const nivelRiesgo = explanation?.nivel_riesgo || claim.nivel_riesgo || 'Sin clasificar'
   const explicacion = sanitizeAiText(explanation?.explicacion || claim.explicacion || '')
@@ -94,6 +163,7 @@ export function collectCaseReportData(input: CaseReportExportInput): CaseReportD
     dossier,
     portfolioReport,
     portfolioMarkdown,
+    chatSummary: buildClaimChatSummary(chatMessages, claim.id_siniestro),
   }
 }
 
@@ -158,6 +228,18 @@ export function buildCaseReportMarkdown(input: CaseReportExportInput): string {
       ...(data.dossier.evidence?.slice(0, 5).map((e, i) => `${i + 1}. **${e.senal || e.codigo}:** ${e.mensaje || ''} (+${Math.round(num(e.puntos))})`) ?? []),
       '',
       data.dossier.ethical_guardrail || '',
+      '',
+    )
+  }
+
+  if (data.chatSummary.length) {
+    lines.push(
+      '## Resumen del chat sobre este siniestro',
+      '',
+      ...data.chatSummary.flatMap((item, i) => [
+        `${i + 1}. **Pregunta:** ${item.question}`,
+        `   **Respuesta:** ${item.answer}`,
+      ]),
       '',
     )
   }
