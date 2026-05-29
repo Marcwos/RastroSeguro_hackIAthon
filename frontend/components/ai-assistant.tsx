@@ -276,6 +276,8 @@ export function AIAssistant() {
                 <div className="p-3">
                   <div className="rounded-2xl border border-border bg-[var(--surface-low)] px-3 py-3">
                     <textarea
+                      name="agent_question"
+                      aria-label="Pregunta para el asistente de riesgo"
                       rows={2}
                       value={input}
                       onChange={(e) => setInput(e.target.value)}

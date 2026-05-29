@@ -252,7 +252,7 @@ export default function LandingPage() {
       </header>
 
       <div id="contenido">
-        <section className="landing-hero-shell relative overflow-hidden border-b border-border bg-[var(--primary-container)] text-white">
+        <section className="dark-panel landing-hero-shell relative overflow-hidden border-b border-border">
           <div aria-hidden="true" className="landing-mesh absolute inset-0" />
           <div aria-hidden="true" className="landing-noise absolute inset-0 opacity-[0.14]" />
 
@@ -265,13 +265,13 @@ export default function LandingPage() {
               </div>
 
               <div className="max-w-3xl">
-                <p className="label-mono-md uppercase text-[#bfd6ff]">
+                <p className="dark-panel-kicker label-mono-md uppercase">
                   Inteligencia aplicada a siniestros, documentos y relaciones
                 </p>
                 <h1 className="landing-hero-title mt-4 select-none text-balance text-4xl lg:text-6xl xl:text-7xl">
                   Prioriza reclamos sospechosos antes de que consuman al equipo.
                 </h1>
-                <p className="mt-5 max-w-2xl text-lg leading-8 text-[#e2ebff]">
+                <p className="dark-panel-muted mt-5 max-w-2xl text-lg leading-8">
                   <span translate="no">RastroSeguro</span> cruza montos, fechas, documentos, proveedores, narrativa y redes de relacion para ordenar casos por riesgo. Cada prioridad llega con una razon defendible para que el analista sepa que revisar primero.
                 </p>
               </div>
@@ -279,7 +279,7 @@ export default function LandingPage() {
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/platform"
-                  className="focus-ring inline-flex items-center justify-center gap-2 bg-white px-5 py-3 label-mono-md font-bold uppercase text-primary transition-colors hover:bg-[var(--surface-high)]"
+                  className="dark-panel-cta focus-ring inline-flex items-center justify-center gap-2 px-5 py-3 label-mono-md font-bold uppercase transition-colors"
                 >
                   Abrir Plataforma <ArrowRight aria-hidden="true" className="h-4 w-4" />
                 </Link>
@@ -295,20 +295,20 @@ export default function LandingPage() {
                 {proofMetrics.map((metric, index) => (
                   <article
                     key={metric.label}
-                    className="landing-metric-card landing-reveal border border-white/10 bg-white/6 p-4 backdrop-blur-sm"
+                    className="dark-panel-card landing-metric-card landing-reveal p-4 backdrop-blur-sm"
                     style={{ animationDelay: `${120 + index * 110}ms` }}
                   >
                     <p className="landing-metric-value text-white">{metric.value}</p>
                     <p className="mt-2 text-sm font-semibold text-white">{metric.label}</p>
-                    <p className="mt-1 text-xs leading-6 text-[var(--primary-fixed-dim)]">{metric.note}</p>
+                    <p className="dark-panel-muted mt-1 text-xs leading-6">{metric.note}</p>
                   </article>
                 ))}
               </div>
             </div>
 
             <div className="landing-reveal lg:pl-4" style={{ animationDelay: '140ms' }}>
-              <div className="landing-spotlight institutional-card relative overflow-hidden border-white/10 bg-[#eef3fb] text-slate-900">
-                <div className="section-header flex items-center justify-between bg-slate-200 text-slate-900">
+              <div className="landing-product-shot landing-spotlight institutional-card relative overflow-hidden">
+                <div className="landing-shot-header section-header flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <Radar aria-hidden="true" className="h-4 w-4" />
                     Bandeja Prioritaria
@@ -318,16 +318,16 @@ export default function LandingPage() {
 
                 <div className="space-y-5 p-5">
                   <div className="grid gap-3 sm:grid-cols-3">
-                    <div className="bg-white p-3">
-                      <p className="label-mono text-muted-foreground">Score Riesgo</p>
-                      <p className="landing-metric-value text-slate-900">87</p>
+                    <div className="landing-shot-tile p-3">
+                      <p className="landing-shot-label label-mono">Score Riesgo</p>
+                      <p className="landing-shot-value landing-metric-value">87</p>
                     </div>
-                    <div className="bg-white p-3">
-                      <p className="label-mono text-muted-foreground">Nivel</p>
-                      <p className="font-display text-3xl font-semibold text-red-600">Rojo</p>
+                    <div className="landing-shot-tile p-3">
+                      <p className="landing-shot-label label-mono">Nivel</p>
+                      <p className="landing-shot-danger font-display text-3xl font-semibold">Rojo</p>
                     </div>
-                    <div className="bg-white p-3">
-                      <p className="label-mono text-muted-foreground">Proxima Accion</p>
+                    <div className="landing-shot-tile p-3">
+                      <p className="landing-shot-label label-mono">Proxima Accion</p>
                       <p className="font-display text-lg font-semibold">Revisar Evidencia</p>
                     </div>
                   </div>
@@ -341,11 +341,11 @@ export default function LandingPage() {
                     ].map(([label, value]) => (
                       <div key={label}>
                         <div className="mb-1 flex items-center justify-between">
-                          <span className="label-mono-md text-slate-600">{label}</span>
-                          <span className="label-mono-md landing-tabular text-slate-900">{value}</span>
+                          <span className="landing-shot-label label-mono-md">{label}</span>
+                          <span className="landing-shot-value label-mono-md landing-tabular">{value}</span>
                         </div>
-                        <div className="h-2 overflow-hidden bg-slate-200">
-                          <div className="h-full bg-slate-900 transition-[width] duration-700 ease-out" style={{ width: `${value}%` }} />
+                        <div className="landing-shot-bar h-2 overflow-hidden">
+                          <div className="landing-shot-bar-fill h-full transition-[width] duration-700 ease-out" style={{ width: `${value}%` }} />
                         </div>
                       </div>
                     ))}
@@ -353,13 +353,13 @@ export default function LandingPage() {
 
                   <div className="landing-evidence-grid grid gap-2 sm:grid-cols-2">
                     {evidenceStrip.map((item) => (
-                      <div key={item} className="border border-slate-200 bg-white px-3 py-2 label-mono-md text-slate-700">
+                      <div key={item} className="landing-shot-evidence landing-shot-border border px-3 py-2 label-mono-md">
                         {item}
                       </div>
                     ))}
                   </div>
 
-                  <div className="border-l-4 border-slate-900 bg-white p-4 text-sm leading-6 text-slate-700">
+                  <div className="landing-shot-note border-l-4 p-4 text-sm leading-6">
                     Prioridad sugerida por recurrencia de proveedor, narrativa similar, monto sensible frente a la poliza y patron atipico en el grafo. La salida orienta la revision; no decide el reclamo.
                   </div>
                 </div>
@@ -553,21 +553,21 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="border-y border-border bg-[var(--primary-container)] text-white">
+        <section className="dark-panel border-y border-border">
           <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 lg:grid-cols-[.75fr_1.25fr] lg:px-8">
             <div>
-              <p className="label-mono-md uppercase text-[#bfd6ff]">Agente de consulta</p>
+              <p className="dark-panel-kicker label-mono-md uppercase">Agente de consulta</p>
               <h2 className="landing-hero-title mt-3 text-balance text-3xl lg:text-4xl">
                 Preguntas que el equipo puede responder sin abrir diez archivos.
               </h2>
-              <p className="mt-4 text-sm leading-7 text-[#e2ebff]">
+              <p className="dark-panel-muted mt-4 text-sm leading-7">
                 La capa conversacional convierte el portafolio en respuestas accionables para analistas, riesgos y auditoria.
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               {questions.map((question) => (
-                <div key={question} className="flex items-start gap-3 border border-white/12 bg-white/6 p-4">
-                  <MessageSquareText aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[#bfd6ff]" />
+                <div key={question} className="dark-panel-card flex items-start gap-3 p-4">
+                  <MessageSquareText aria-hidden="true" className="dark-panel-kicker mt-0.5 h-4 w-4 shrink-0" />
                   <p className="text-sm leading-6 text-white">{question}</p>
                 </div>
               ))}
@@ -597,29 +597,29 @@ export default function LandingPage() {
                   <BarChart3 aria-hidden="true" className="h-4 w-4" />
                   Command Center
                 </div>
-                <div className="bg-[var(--primary-container)] p-6 text-white">
+                <div className="dark-panel p-6">
                   <div className="grid gap-4 sm:grid-cols-4">
                     {commandStats.map(([label, value]) => (
-                      <div key={label} className="border border-white/10 bg-white/5 p-4">
-                        <p className="label-mono text-[var(--primary-fixed-dim)]">{label}</p>
+                      <div key={label} className="dark-panel-card p-4">
+                        <p className="dark-panel-muted label-mono">{label}</p>
                         <p className="mt-2 font-display landing-tabular text-2xl font-semibold text-white">{value}</p>
                       </div>
                     ))}
                   </div>
 
                   <div className="mt-6 grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
-                    <div className="border border-white/10 bg-[#121a2a] p-4">
-                      <p className="label-mono-md uppercase text-[var(--primary-fixed-dim)]">Mapa de Relaciones</p>
+                    <div className="dark-panel-subcard p-4">
+                      <p className="dark-panel-muted label-mono-md uppercase">Mapa de Relaciones</p>
                       <div className="mt-4 grid grid-cols-4 gap-3">
                         {['88', '72', '91', '65', '57', '83', '76', '69'].map((value, index) => (
                           <div
                             key={`${value}-${index}`}
                             className={`landing-node flex aspect-square items-center justify-center rounded-full text-sm font-bold ${
                               Number(value) >= 80
-                                ? 'bg-red-600 text-white'
+                                ? 'risk-badge-rojo'
                                 : Number(value) >= 70
-                                  ? 'bg-amber-500 text-white'
-                                  : 'bg-emerald-600 text-white'
+                                  ? 'risk-badge-amarillo'
+                                  : 'risk-badge-verde'
                             }`}
                           >
                             {value}
@@ -628,15 +628,15 @@ export default function LandingPage() {
                       </div>
                     </div>
 
-                    <div className="border border-white/10 bg-[#121a2a] p-4">
+                    <div className="dark-panel-subcard p-4">
                       <div className="flex items-center justify-between gap-3">
-                        <p className="label-mono-md uppercase text-[var(--primary-fixed-dim)]">Caso Prioritario</p>
-                        <Waypoints aria-hidden="true" className="h-4 w-4 text-[var(--primary-fixed-dim)]" />
+                        <p className="dark-panel-muted label-mono-md uppercase">Caso Prioritario</p>
+                        <Waypoints aria-hidden="true" className="dark-panel-muted h-4 w-4" />
                       </div>
-                      <div className="mt-4 space-y-3 text-sm text-[var(--primary-fixed)]">
+                      <div className="dark-panel-muted mt-4 space-y-3 text-sm">
                         <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                          <span className="font-semibold">SIN-045</span>
-                          <span className="bg-red-600 px-2 py-1 label-mono text-white">ROJO</span>
+                          <span className="font-semibold text-white">SIN-045</span>
+                          <span className="risk-badge-rojo px-2 py-1 label-mono">ROJO</span>
                         </div>
                         {caseReasons.map((item) => (
                           <p key={item}>{item}</p>

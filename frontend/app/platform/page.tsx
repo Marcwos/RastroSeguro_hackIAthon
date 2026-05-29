@@ -14,6 +14,8 @@ import { StepExecutiveDemo } from '@/components/steps/step-executive-demo'
 import { AIAssistant } from '@/components/ai-assistant'
 import { CommandBar } from '@/components/command-bar'
 import { RoleSelector } from '@/components/role-selector'
+import { MobileNav } from '@/components/mobile-nav'
+import { FlowCoach } from '@/components/flow-coach'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 
 const STEP_VIEWS: Record<number, React.ComponentType> = {
@@ -60,6 +62,7 @@ function MainContent() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col lg:ml-64">
         <Header />
+        <FlowCoach />
         <main className="min-w-0 flex-1 pb-24 lg:pb-0">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -76,6 +79,7 @@ function MainContent() {
       </div>
       <AIAssistant />
       <CommandBar />
+      <MobileNav />
     </div>
   )
 }

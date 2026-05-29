@@ -2,10 +2,6 @@
 @import '@fontsource/ibm-plex-sans/500.css';
 @import '@fontsource/ibm-plex-sans/600.css';
 @import '@fontsource/ibm-plex-sans/700.css';
-@import '@fontsource/space-grotesk/400.css';
-@import '@fontsource/space-grotesk/500.css';
-@import '@fontsource/space-grotesk/600.css';
-@import '@fontsource/space-grotesk/700.css';
 @import '@fontsource/jetbrains-mono/400.css';
 @import '@fontsource/jetbrains-mono/500.css';
 @import '@fontsource/jetbrains-mono/700.css';
@@ -167,7 +163,7 @@
 
 @theme inline {
   --font-sans: 'IBM Plex Sans', sans-serif;
-  --font-display: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
+  --font-display: 'IBM Plex Sans', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -267,12 +263,62 @@
 }
 
 .display-heading {
-  font-family: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
+  font-family: 'IBM Plex Sans', sans-serif;
   font-weight: 600;
   letter-spacing: -0.025em;
   line-height: 1.08;
   text-wrap: balance;
   color: var(--foreground);
+}
+
+.dark-panel {
+  background: var(--primary-container);
+  color: #f8fafc;
+}
+
+.dark-panel .display-heading,
+.dark-panel-heading {
+  color: #ffffff !important;
+  text-shadow: 0 1px 18px rgba(2, 6, 23, 0.28);
+}
+
+.dark-panel .text-foreground {
+  color: #ffffff !important;
+}
+
+.dark-panel .text-muted-foreground {
+  color: color-mix(in oklch, var(--on-primary-container) 78%, transparent);
+}
+
+.dark-panel-kicker {
+  color: color-mix(in oklch, var(--primary-fixed) 86%, #ffffff 14%);
+}
+
+.dark-panel-muted {
+  color: color-mix(in oklch, var(--on-primary-container) 86%, transparent);
+}
+
+.dark-panel-border {
+  border-color: color-mix(in oklch, #ffffff 16%, transparent);
+}
+
+.dark-panel-card {
+  border: 1px solid color-mix(in oklch, #ffffff 14%, transparent);
+  background: color-mix(in oklch, #ffffff 7%, transparent);
+}
+
+.dark-panel-subcard {
+  border: 1px solid color-mix(in oklch, #ffffff 14%, transparent);
+  background: color-mix(in oklch, var(--primary-container) 78%, #020617 22%);
+}
+
+.dark-panel-cta {
+  background: #ffffff;
+  color: #1d3f8f;
+}
+
+.dark-panel-cta:hover {
+  background: #e8eefc;
 }
 
 .landing-hero-title {
@@ -374,6 +420,54 @@
   box-shadow:
     0 16px 40px rgba(15, 23, 42, 0.18),
     0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.landing-product-shot {
+  background: #eef3fb;
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #0f172a;
+}
+
+.landing-shot-header {
+  background: #dbe5f3;
+  border-bottom-color: #c7d2e4;
+  color: #0f172a;
+}
+
+.landing-shot-tile,
+.landing-shot-evidence,
+.landing-shot-note {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.landing-shot-label {
+  color: #475569;
+}
+
+.landing-shot-value {
+  color: #0f172a;
+}
+
+.landing-shot-danger {
+  color: #dc2626;
+}
+
+.landing-shot-border {
+  border-color: #cbd5e1;
+}
+
+.landing-shot-bar {
+  background: #cbd5e1;
+}
+
+.landing-shot-bar-fill {
+  background: #0f172a;
+}
+
+.landing-shot-note {
+  border-left-color: #0f172a;
+  color: #334155;
 }
 
 .landing-hero-shell ::selection {

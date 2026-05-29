@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useAppState } from '@/lib/app-context'
 import { Bell, CircleUserRound, Search } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useAppState } from '@/lib/app-context'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { HelpPanel } from '@/components/help-panel'
+import { cn } from '@/lib/utils'
 
 export function Header() {
   const { currentStep, setCurrentStep, isDataLoaded, selectedClaimId, setShowCommandBar, userRole, resetUserRole } = useAppState()
@@ -23,34 +24,39 @@ export function Header() {
       ]
     }
     return [
-      { step: 0, label: 'Dashboard', enabled: true },
-      { step: 6, label: 'Demo', enabled: true },
+      { step: 0, label: 'Panel', enabled: true },
+      { step: 6, label: 'Impacto', enabled: true },
       { step: 5, label: 'Caso', enabled: flowReady },
     ]
   }, [flowReady, isAnalyst])
 
   useEffect(() => {
     if (typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)) {
-      setShortcutLabel('⌘ K')
+      setShortcutLabel('Cmd K')
     }
   }, [])
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-border bg-background/90 px-4 backdrop-blur-md lg:px-8">
+    <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-border bg-background/92 px-4 backdrop-blur-xl lg:px-8">
       <div className="flex min-w-0 items-center gap-5">
         <span className="font-display text-xl font-bold tracking-tight text-primary lg:hidden">RastroSeguro</span>
         <div className="hidden items-center gap-2 xl:flex">
-          <span className="label-mono-md uppercase text-muted-foreground">{isAnalyst ? 'Navegación analista' : 'Navegación ejecutiva'}</span>
+          <span className="label-mono-md uppercase text-muted-foreground">
+            {isAnalyst ? 'Navegacion analista' : 'Vista ejecutiva'}
+          </span>
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--tertiary-fixed-dim)]" />
-          <span className="label-mono text-muted-foreground">{isAnalyst ? 'Carga y revisión' : 'KPIs e impacto'}</span>
+          <span className="label-mono text-muted-foreground">
+            {isAnalyst ? 'Carga, revision y expediente' : 'KPIs, impacto y caso foco'}
+          </span>
         </div>
-        <nav className="hidden items-center gap-5 md:flex" aria-label="Navegación superior por perfil">
+        <nav className="hidden items-center gap-5 md:flex" aria-label="Navegacion superior por perfil">
           {tabs.map((tab) => (
             <button
               key={tab.step}
               disabled={!tab.enabled}
               aria-current={currentStep === tab.step ? 'page' : undefined}
               onClick={() => tab.enabled && setCurrentStep(tab.step)}
+              title={tab.enabled ? tab.label : 'Carga o sincroniza datos para habilitar este paso'}
               className={cn(
                 'focus-ring rounded-sm pb-1 font-display text-[15px] font-semibold transition-colors',
                 currentStep === tab.step ? 'border-b-2 border-primary text-primary' : 'text-foreground hover:text-primary',
@@ -62,16 +68,20 @@ export function Header() {
           ))}
         </nav>
       </div>
+
       <div className="flex items-center gap-2">
+        <HelpPanel />
         <button
           type="button"
           onClick={() => setShowCommandBar(true)}
-          className="focus-ring hidden items-center gap-2 rounded-lg border border-border bg-[var(--surface-low)] px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-foreground sm:flex"
+          className="focus-ring hidden items-center gap-2 rounded-md border border-border bg-[var(--surface-low)] px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-foreground sm:flex"
           aria-label="Preguntar al agente antifraude"
         >
           <Search className="h-4 w-4" />
           <span className="hidden md:inline">Preguntar a la IA</span>
-          <kbd className="label-mono rounded border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground">{shortcutLabel}</kbd>
+          <kbd className="label-mono rounded border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground">
+            {shortcutLabel}
+          </kbd>
         </button>
         <button
           type="button"
@@ -82,7 +92,7 @@ export function Header() {
           <Search className="h-5 w-5" />
         </button>
         <ThemeToggle />
-        <button type="button" aria-label="Notificaciones" className="focus-ring rounded-md p-1.5 text-foreground hover:bg-[var(--surface-container)]">
+        <button type="button" disabled aria-label="Notificaciones" title="Sin notificaciones pendientes" className="rounded-md p-1.5 text-muted-foreground opacity-60">
           <Bell className="h-5 w-5" />
         </button>
         <button

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type HTMLAttributes, type HTMLInputTypeAttribute } from 'react'
 import { AlertTriangle, ArrowRight, BarChart3, Bot, Building2, CircleDollarSign, FileText, FlaskConical, MapPin, FileSearch, GitBranch, Loader2, ShieldCheck, Target, UploadCloud, UsersRound } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
@@ -60,10 +60,10 @@ function ReportDialog({ report, loading, onLoad }: { report: ExecutiveReport | n
       <DialogContent className="max-h-[86vh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Reporte ejecutivo RastroSeguro</DialogTitle>
-          <DialogDescription>Resumen generado desde el backend `/api/report` para sustentar la demo y auditoría.</DialogDescription>
+          <DialogDescription>Resumen generado desde el backend `/api/report` para auditoria y seguimiento ejecutivo.</DialogDescription>
         </DialogHeader>
         {loading ? (
-          <div className="flex items-center gap-2 p-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Generando reporte...</div>
+          <div className="flex items-center gap-2 p-8 text-muted-foreground" aria-live="polite"><Loader2 className="h-4 w-4 animate-spin" /> Generando reporte...</div>
         ) : report && summary ? (
           <div className="space-y-5">
             <div className="grid gap-3 md:grid-cols-4">
@@ -175,16 +175,16 @@ function SimulatorDialog() {
         <div className="grid gap-5 lg:grid-cols-[1fr_.9fr]">
           <div className="space-y-3">
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Ramo" value={form.ramo} onChange={(v) => update('ramo', v)} />
-              <Field label="Ciudad" value={form.ciudad} onChange={(v) => update('ciudad', v)} />
-              <Field label="Monto reclamado" value={form.monto_reclamado} onChange={(v) => update('monto_reclamado', v)} />
-              <Field label="Suma asegurada" value={form.suma_asegurada} onChange={(v) => update('suma_asegurada', v)} />
-              <Field label="Proveedor" value={form.proveedor} onChange={(v) => update('proveedor', v)} />
-              <Field label="Días desde inicio póliza" value={form.dias_desde_inicio_poliza} onChange={(v) => update('dias_desde_inicio_poliza', v)} />
+              <Field name="ramo" label="Ramo" value={form.ramo} onChange={(v) => update('ramo', v)} />
+              <Field name="ciudad" label="Ciudad" value={form.ciudad} onChange={(v) => update('ciudad', v)} />
+              <Field name="monto_reclamado" label="Monto reclamado" value={form.monto_reclamado} type="number" inputMode="decimal" onChange={(v) => update('monto_reclamado', v)} />
+              <Field name="suma_asegurada" label="Suma asegurada" value={form.suma_asegurada} type="number" inputMode="decimal" onChange={(v) => update('suma_asegurada', v)} />
+              <Field name="proveedor" label="Proveedor" value={form.proveedor} onChange={(v) => update('proveedor', v)} />
+              <Field name="dias_desde_inicio_poliza" label="Dias desde inicio poliza" value={form.dias_desde_inicio_poliza} type="number" inputMode="numeric" onChange={(v) => update('dias_desde_inicio_poliza', v)} />
             </div>
             <label className="block">
               <span className="label-mono-md font-bold uppercase text-muted-foreground">Narrativa</span>
-              <Textarea value={form.narrativa} onChange={(e) => update('narrativa', e.target.value)} className="mt-1 min-h-[110px]" />
+              <Textarea name="narrativa" value={form.narrativa} onChange={(e) => update('narrativa', e.target.value)} className="mt-1 min-h-[110px]" />
             </label>
             <label className="flex items-center gap-2 text-sm">
               <Checkbox checked={form.documentos_presentes === 'true'} onCheckedChange={(checked) => update('documentos_presentes', String(checked === true))} />
@@ -224,11 +224,25 @@ function SimulatorDialog() {
   )
 }
 
-function Field({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+function Field({
+  name,
+  label,
+  value,
+  onChange,
+  type = 'text',
+  inputMode,
+}: {
+  name: string
+  label: string
+  value: string
+  onChange: (value: string) => void
+  type?: HTMLInputTypeAttribute
+  inputMode?: HTMLAttributes<HTMLInputElement>['inputMode']
+}) {
   return (
     <label className="block">
       <span className="label-mono-md font-bold uppercase text-muted-foreground">{label}</span>
-      <Input value={value} onChange={(e) => onChange(e.target.value)} className="mt-1" />
+      <Input name={name} type={type} inputMode={inputMode} value={value} onChange={(e) => onChange(e.target.value)} className="mt-1" autoComplete="off" />
     </label>
   )
 }
@@ -250,7 +264,7 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
   const activeClaim = hoveredClaim
 
   return (
-    <div className="relative h-[360px] overflow-hidden bg-[var(--primary-container)] text-white">
+    <div className="dark-panel relative h-[360px] overflow-hidden">
       <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(var(--primary-fixed)_1px,transparent_1px),linear-gradient(90deg,var(--primary-fixed)_1px,transparent_1px)] [background-size:32px_32px]" />
       <svg viewBox="0 0 520 320" className="absolute inset-0 h-full w-full">
         {satellites.map((node) => (
@@ -284,31 +298,31 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
         })}
       </svg>
       <div className="absolute left-4 top-4">
-        <p className="label-mono-md uppercase text-[var(--primary-fixed)]">Mapa global de relaciones</p>
-        <p className="mt-1 max-w-xs text-xs text-[var(--primary-fixed-dim)]">Cada nodo representa un siniestro prioritario. Pase el cursor para ver detalles o haga click para analizar.</p>
+        <p className="dark-panel-kicker label-mono-md uppercase">Mapa global de relaciones</p>
+        <p className="dark-panel-muted mt-1 max-w-xs text-xs">Cada nodo representa un siniestro prioritario. Pase el cursor para ver detalles o haga click para analizar.</p>
       </div>
       {activeClaim && (
-        <div className="absolute right-4 top-4 w-[240px] rounded-lg border border-white/15 bg-[var(--primary-container)]/95 p-4 shadow-xl backdrop-blur">
+        <div className="dark-panel-card absolute right-4 top-4 w-[240px] rounded-lg p-4 shadow-xl backdrop-blur">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="label-mono text-[var(--primary-fixed-dim)]">CASO EN FOCO</p>
+              <p className="dark-panel-muted label-mono">CASO EN FOCO</p>
               <p className="font-display text-xl font-semibold">{activeClaim.id_siniestro}</p>
             </div>
             <RiskBadge level={normalizeRisk(activeClaim.nivel_riesgo)}>
               {Math.round(num(activeClaim.score_final))}
             </RiskBadge>
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-[var(--primary-fixed-dim)]">
+          <div className="dark-panel-muted mt-3 grid grid-cols-2 gap-2 text-xs">
             <div><span className="label-mono block text-white/60">RAMO</span>{activeClaim.ramo || 'N/D'}</div>
             <div><span className="label-mono block text-white/60">CIUDAD</span>{activeClaim.ciudad || 'N/D'}</div>
             <div className="col-span-2"><span className="label-mono block text-white/60">PROVEEDOR</span>{activeClaim.id_proveedor || activeClaim.beneficiario || 'N/D'}</div>
             <div><span className="label-mono block text-white/60">MONTO</span>{formatCurrency(activeClaim.monto_reclamado)}</div>
             <div><span className="label-mono block text-white/60">NIVEL</span>{getRiskLabel(normalizeRisk(activeClaim.nivel_riesgo))}</div>
           </div>
-          <p className="mt-3 text-[11px] text-[var(--primary-fixed-dim)]">Click en el nodo para abrir el flujo de análisis de este caso.</p>
+          <p className="dark-panel-muted mt-3 text-[11px]">Click en el nodo para abrir el flujo de análisis de este caso.</p>
         </div>
       )}
-      <div className="absolute bottom-4 left-4 flex gap-3 text-xs text-[var(--primary-fixed-dim)]">
+      <div className="dark-panel-muted absolute bottom-4 left-4 flex gap-3 text-xs">
         <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[var(--risk-rojo)]" /> Alto/Crítico</span>
         <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[var(--risk-amarillo)]" /> Medio</span>
         <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[var(--risk-verde)]" /> Bajo</span>
@@ -414,18 +428,18 @@ export function StepCommandCenter() {
     <section className="px-4 py-8 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
         <header className="grid gap-4 lg:grid-cols-[1.4fr_.6fr]">
-          <div className="border border-border bg-[var(--primary-container)] p-8 text-white">
-            <div className="flex items-center gap-2 text-[var(--primary-fixed)]">
+          <div className="dark-panel dark-panel-border border p-8">
+            <div className="dark-panel-kicker flex items-center gap-2">
               <GitBranch className="h-5 w-5" />
               <span className="label-mono-md uppercase">RastroSeguro Intelligence Layer</span>
             </div>
-            <h1 className="display-heading mt-4 text-4xl lg:text-5xl">Command Center Antifraude</h1>
-            <p className="mt-3 max-w-2xl text-base text-[var(--primary-fixed-dim)]">
-              {isAnalyst ? 'Bandeja operativa de riesgo, carga de CSV y casos prioritarios para revisión con IA.' : 'Panorama ejecutivo de riesgo, concentración de alertas e impacto para decisión gerencial o demo.'}
+            <h1 className="dark-panel-heading display-heading mt-4 text-4xl lg:text-5xl">Command Center Antifraude</h1>
+            <p className="dark-panel-muted mt-3 max-w-2xl text-base">
+              {isAnalyst ? 'Bandeja operativa de riesgo, carga de CSV y casos prioritarios para revision con IA.' : 'Panorama ejecutivo de riesgo, concentracion de alertas e impacto para decision gerencial.'}
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               {isAnalyst ? (
-                <Button onClick={() => setCurrentStep(1)} className="h-auto bg-white px-5 py-3 label-mono-md font-bold uppercase text-primary hover:bg-[var(--surface-high)]">
+                <Button onClick={() => setCurrentStep(1)} className="dark-panel-cta h-auto px-5 py-3 label-mono-md font-bold uppercase">
                   Cargar CSV / iniciar análisis <ArrowRight className="h-4 w-4" />
                 </Button>
               ) : (
@@ -439,7 +453,7 @@ export function StepCommandCenter() {
               <ReportDialog report={report} loading={reportLoading} onLoad={() => void loadCommandCenterData()} />
               <SimulatorDialog />
               <Button variant="outline-inverse" onClick={() => setCurrentStep(6)} className="h-auto px-5 py-3 label-mono-md font-bold uppercase">
-                Demo ejecutiva
+                Impacto ejecutivo
               </Button>
             </div>
           </div>
