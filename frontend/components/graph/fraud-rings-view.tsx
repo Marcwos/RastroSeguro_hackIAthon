@@ -59,7 +59,7 @@ export function FraudRingsView() {
   if (loading) {
     return (
       <div className="institutional-card p-8 text-center text-muted-foreground">
-        Analizando redes de fraude en el portafolio…
+        Analizando redes de fraude en la cartera…
       </div>
     )
   }

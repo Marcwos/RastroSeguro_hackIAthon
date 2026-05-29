@@ -301,7 +301,7 @@ export function StepUpload() {
 
   const previewHeaders = csvHeaders.length
     ? csvHeaders
-    : ['ID_SINIESTRO', 'RAMO', 'CIUDAD', 'PROVEEDOR', 'SCORE']
+    : ['ID_SINIESTRO', 'RAMO', 'CIUDAD', 'PROVEEDOR', 'PUNTAJE']
 
   const showPreview = csvRows.length > 0
   const isUploading = status === 'validating' || isLoadingClaims
@@ -640,7 +640,7 @@ export function StepUpload() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <h4 className="label-mono-md font-bold uppercase">Siniestro a procesar</h4>
-                  <p className="mt-1 text-sm text-muted-foreground">{claims.length} registro(s) disponibles para revision</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{claims.length} registro(s) disponibles para revisión</p>
                 </div>
                 <Select value={selectedClaimId || undefined} onValueChange={selectClaim}>
                   <SelectTrigger className="w-full sm:w-[320px]"><SelectValue placeholder="Seleccione un siniestro" /></SelectTrigger>
@@ -657,7 +657,7 @@ export function StepUpload() {
           <div className="institutional-card col-span-12 overflow-hidden">
             <div className="section-header flex justify-between">
               <span>Previsualización de Estructura</span>
-              <span className="rounded-sm border border-border bg-background px-2 py-1 text-xs uppercase text-muted-foreground">{status === 'reviewing' ? 'Revision pendiente' : 'Mapeo automatico'}</span>
+              <span className="rounded-sm border border-border bg-background px-2 py-1 text-xs uppercase text-muted-foreground">{status === 'reviewing' ? 'Revisión pendiente' : 'Mapeo automático'}</span>
             </div>
             {showPreview ? (
               <div className="overflow-x-auto">

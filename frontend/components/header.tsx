@@ -55,7 +55,7 @@ export function Header() {
           </span>
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--tertiary-fixed-dim)]" />
           <span className="label-mono text-muted-foreground">
-            {isAnalyst ? 'Carga, revision y expediente' : 'Indicadores, impacto y caso foco'}
+            {isAnalyst ? 'Carga, revisión y expediente' : 'Indicadores, impacto y caso foco'}
           </span>
         </div>
         <nav className="hidden items-center gap-4 md:flex" aria-label="Navegacion superior por perfil">

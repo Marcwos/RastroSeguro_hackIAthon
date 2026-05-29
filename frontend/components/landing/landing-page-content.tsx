@@ -10,38 +10,38 @@ const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 const problemQuestions = [
   {
-    question: 'Por donde empiezo?',
-    consequence: 'Llegan muchos reclamos y no siempre queda claro cual conviene revisar primero.',
+    question: '¿Por dónde empiezo?',
+    consequence: 'Llegan muchos reclamos y no siempre queda claro cuál conviene revisar primero.',
   },
   {
-    question: 'Que miro en este reclamo?',
-    consequence: 'Hay que cruzar póliza, historial, montos y documentos. Hacerlo a mano, uno por uno, consume el dia.',
+    question: '¿Qué miro en este reclamo?',
+    consequence: 'Hay que cruzar póliza, historial, montos y documentos. Hacerlo a mano, uno por uno, consume el día.',
   },
   {
-    question: 'Como explico por que revise este caso?',
-    consequence: 'Sin un resumen claro, cuesta contarle al equipo o en una auditoria el criterio que se uso.',
+    question: '¿Cómo explico por qué revisé este caso?',
+    consequence: 'Sin un resumen claro, cuesta contarle al equipo o en una auditoría el criterio que se usó.',
   },
 ]
 
 const solutionPillars = [
   {
     title: 'Ordena los casos por nivel de riesgo',
-    detail: 'Los casos con mas senales aparecen primero.',
+    detail: 'Los casos con más señales aparecen primero.',
   },
   {
     title: 'Explica por que un caso genera alerta',
     detail: 'Cada prioridad llega con razones visibles y auditables.',
   },
   {
-    title: 'La decision siempre la toma una persona',
-    detail: 'El sistema orienta; la decision final sigue en manos del equipo.',
+    title: 'La decisión siempre la toma una persona',
+    detail: 'El sistema orienta; la decisión final sigue en manos del equipo.',
   },
 ]
 
 const closingBenefits = [
   'Los casos de mayor riesgo aparecen primero, con sus razones.',
   'Cada alerta tiene evidencia revisable, no es una caja negra.',
-  'El analista mantiene el control y toma la decision final.',
+  'El analista mantiene el control y toma la decisión final.',
 ]
 
 const sectionVariants = {
@@ -123,10 +123,10 @@ export function LandingPageContent() {
                 <motion.h1
                   className="landing-hero-title mt-4 select-none text-balance text-4xl lg:text-6xl xl:text-[4.75rem]"
                 >
-                  Cuales reclamos hay que revisar primero? RastroSeguro lo dice y explica por que.
+                  ¿Cuáles reclamos hay que revisar primero? RastroSeguro lo dice y explica por qué.
                 </motion.h1>
                 <p className="dark-panel-muted mt-5 max-w-xl text-lg leading-8 lg:text-xl">
-                  Carga tu cartera de siniestros y en segundos tienes una bandeja ordenada por nivel de riesgo, con las razones detras de cada alerta y una recomendacion de revision clara para el analista.
+                  Carga tu cartera de siniestros y en segundos tienes una bandeja ordenada por nivel de riesgo, con las razones detrás de cada alerta y una recomendación de revisión clara para el analista.
                 </p>
               </div>
             </motion.div>
@@ -182,18 +182,18 @@ export function LandingPageContent() {
           <div className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
             <div className="grid gap-10 lg:grid-cols-[.92fr_1.08fr] lg:items-start">
               <motion.div className="max-w-2xl" variants={itemVariants}>
-                <p className="label-mono-md uppercase text-[var(--editorial-soft-kicker)]">La solucion</p>
+                <p className="label-mono-md uppercase text-[var(--editorial-soft-kicker)]">La solución</p>
                 <h2 className="landing-section-display-on-dark display-heading mt-4 text-balance text-4xl lg:text-6xl">
-                  Un sistema que prioriza antes, explica mejor y escala con la operacion.
+                  Un sistema que prioriza antes, explica mejor y escala con la operación.
                 </h2>
                 <p className="mt-5 max-w-xl text-base leading-7 text-[var(--editorial-soft-copy)] lg:text-lg">
-                  No es solo un dashboard. Es una forma mas inteligente de decidir que revisar, por que y con que evidencia.
+                  No es solo un panel. Es una forma más inteligente de decidir qué revisar, por qué y con qué evidencia.
                 </p>
                 <motion.div
                   className="mt-6 flex flex-wrap gap-3"
                   variants={staggerVariants}
                 >
-                  {['Priorizacion visible', 'Razones explicables', 'Decision humana'].map((chip) => (
+                  {['Priorización visible', 'Razones explicables', 'Decisión humana'].map((chip) => (
                     <motion.span key={chip} variants={itemVariants} className="landing-solution-chip">
                       {chip}
                     </motion.span>
@@ -223,14 +223,14 @@ export function LandingPageContent() {
           variants={sectionVariants}
         >
           <motion.article className="landing-closing-panel mx-auto max-w-7xl overflow-hidden" variants={itemVariants}>
-            <div className="section-header">Lista para ver como funciona?</div>
+            <div className="section-header">¿Lista para ver cómo funciona?</div>
             <div className="grid gap-8 p-6 lg:grid-cols-[1.2fr_.8fr] lg:p-8">
               <div>
                 <h2 className="display-heading max-w-3xl text-balance text-3xl lg:text-4xl">
-                  La inteligencia alerta y explica. La decision es tuya.
+                  La inteligencia alerta y explica. La decisión es tuya.
                 </h2>
                 <p className="landing-closing-copy mt-4 max-w-3xl text-sm leading-7">
-                  RastroSeguro no reemplaza al analista: le da una ventaja operativa. Sabe que revisar primero, por que importa y como sustentarlo ante riesgos, auditoria y gerencia.
+                  RastroSeguro no reemplaza al analista: le da una ventaja operativa. Sabe qué revisar primero, por qué importa y cómo sustentarlo ante riesgos, auditoría y gerencia.
                 </p>
                 <motion.div className="mt-6 space-y-3" variants={staggerVariants}>
                   {closingBenefits.map((item) => (
@@ -247,9 +247,9 @@ export function LandingPageContent() {
                   <div className="flex items-start gap-3">
                     <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[var(--tertiary-fixed-dim)]" aria-hidden />
                     <div>
-                      <p className="font-display font-semibold">Criterio etico integrado</p>
+                      <p className="font-display font-semibold">Criterio ético integrado</p>
                       <p className="mt-2 text-sm leading-7 text-muted-foreground">
-                        Cada pantalla deja claro que <span translate="no">RastroSeguro</span> genera alertas de revision. No acusa fraude, no rechaza reclamos y no sustituye al analista.
+                        Cada pantalla deja claro que <span translate="no">RastroSeguro</span> genera alertas de revisión. No acusa fraude, no rechaza reclamos y no sustituye al analista.
                       </p>
                     </div>
                   </div>

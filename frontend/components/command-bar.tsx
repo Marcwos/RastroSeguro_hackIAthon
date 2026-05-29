@@ -13,16 +13,16 @@ const USER_STORAGE_KEY = 'rastroseguro-agent-user-id'
 const DEVICE_STORAGE_KEY = 'rastroseguro-agent-device-id'
 
 const PRIORITY_PROMPTS = [
-  'Que proveedores concentran la mayor cantidad de alertas?',
-  'Cuales son los casos que debo revisar primero?',
-  'Resume los hallazgos mas importantes del conjunto de casos.',
+  '¿Qué proveedores concentran la mayor cantidad de alertas?',
+  '¿Cuáles son los casos que debo revisar primero?',
+  'Resume los hallazgos más importantes del conjunto de casos.',
 ]
 
 const EXPLORE_PROMPTS = [
-  'Genera un resumen general de los casos mas delicados.',
-  'Que tipos de seguro tienen mas casos sospechosos?',
-  'Que ciudades presentan mas alertas?',
-  'Que documentos faltan en los casos mas delicados?',
+  'Genera un resumen general de los casos más delicados.',
+  '¿Qué tipos de seguro tienen más casos sospechosos?',
+  '¿Qué ciudades presentan más alertas?',
+  '¿Qué documentos faltan en los casos más delicados?',
 ]
 
 function ensureLocalDeviceId(): string {
@@ -205,7 +205,7 @@ export function CommandBar() {
               {isLoading && (
                 <div className="flex items-center gap-3 px-4 py-6 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Revisando la informacion...
+                  Revisando la información...
                 </div>
               )}
 
@@ -235,7 +235,7 @@ export function CommandBar() {
                   />
                   <PromptGroup
                     icon={<Search className="h-3.5 w-3.5 text-muted-foreground" />}
-                    title="Consulta rapida"
+                    title="Consulta rápida"
                     prompts={suggestions.explore}
                     onPick={(question) => {
                       setInput(question)
@@ -249,7 +249,7 @@ export function CommandBar() {
             <div className="flex items-center justify-between gap-3 border-t border-border bg-card px-4 py-2.5">
               <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                 <ShieldCheck className="h-3.5 w-3.5" />
-                Respuestas apoyadas en la informacion cargada.
+                Respuestas apoyadas en la información cargada.
               </span>
               <span className="hidden items-center gap-2 text-[11px] text-muted-foreground sm:flex">
                 <kbd className="inline-flex items-center gap-1 rounded border border-border bg-[var(--surface-low)] px-1.5 py-0.5">

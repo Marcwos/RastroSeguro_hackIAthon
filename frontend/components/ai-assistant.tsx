@@ -130,9 +130,9 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
     const base = userRole === 'executive'
       ? [
           'Genera un resumen ejecutivo de la cartera priorizada.',
-          'Cual es el impacto de negocio de los casos mas urgentes?',
-          'Que proveedores o ramos concentran mayor exposicion?',
-          'Que decision recomiendas para priorizar la revision?',
+          '¿Cuál es el impacto de negocio de los casos más urgentes?',
+          '¿Qué proveedores o ramos concentran mayor exposición?',
+          '¿Qué decisión recomiendas para priorizar la revisión?',
         ]
       : getStepQuickQuestions(currentStep, activeClaimId)
     if (!apiQuickQuestions.length) return base

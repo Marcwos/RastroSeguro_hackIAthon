@@ -43,9 +43,9 @@ export function RoleSelector() {
             <UsersRound className="h-4 w-4" aria-hidden /> Experiencia por rol
           </div>
           <div>
-            <h1 className="display-heading text-balance text-4xl lg:text-6xl">Elige como quieres revisar el riesgo.</h1>
+            <h1 className="display-heading text-balance text-4xl lg:text-6xl">Elige cómo quieres revisar el riesgo.</h1>
             <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground lg:text-lg">
-              RastroSeguro adapta la navegacion segun la tarea: analisis operativo para preparar casos o vista ejecutiva para entender impacto y prioridades.
+              RastroSeguro adapta la navegación según la tarea: análisis operativo para preparar casos o vista ejecutiva para entender impacto y prioridades.
             </p>
           </div>
           <div className="institutional-card border-primary/30 bg-[var(--secondary-container)] p-4">

@@ -51,7 +51,7 @@ export function StepIntelligence() {
           <span className="label-mono uppercase tracking-widest text-muted-foreground">{UI_COPY.alertReview}</span>
           <h1 className="display-heading text-3xl lg:text-4xl">Paso 4: {UI_COPY.caseConnections}</h1>
           <p className="mt-2 text-base text-readable text-muted-foreground">
-            Red de relaciones, elementos repetidos y comparacion con la cartera.
+            Red de relaciones, elementos repetidos y comparación con la cartera.
           </p>
         </header>
 

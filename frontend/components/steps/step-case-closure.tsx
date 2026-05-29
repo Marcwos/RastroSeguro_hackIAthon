@@ -22,8 +22,8 @@ export function StepCaseClosure() {
           </h1>
           <p className="mt-2 max-w-3xl text-base text-readable text-muted-foreground">
             {isExecutive
-              ? 'Resumen del caso seleccionado, senales principales, impacto y expediente de respaldo para decision.'
-              : 'Consolidacion del puntaje, recorrido por etapas, graficos explicados y exportacion del reporte del caso.'}
+              ? 'Resumen del caso seleccionado, señales principales, impacto y expediente de respaldo para la decisión.'
+              : 'Consolidación del puntaje, recorrido por etapas, gráficos explicados y exportación del reporte del caso.'}
           </p>
         </header>
 

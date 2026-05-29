@@ -149,16 +149,16 @@ export function Sidebar() {
       </nav>
 
       <div className="mt-auto space-y-2 border-t border-border pt-4">
-        <button type="button" disabled title="Disponible en una siguiente version" className="font-display flex w-full cursor-not-allowed items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-semibold text-muted-foreground opacity-55">
+        <button type="button" disabled title="Disponible en una siguiente versión" className="font-display flex w-full cursor-not-allowed items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-semibold text-muted-foreground opacity-55">
           <Shield className="h-4 w-4" aria-hidden /> Registros de seguridad
         </button>
-        <button type="button" disabled title="Disponible en una siguiente version" className="font-display flex w-full cursor-not-allowed items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-semibold text-muted-foreground opacity-55">
-          <Terminal className="h-4 w-4" aria-hidden /> Documentacion
+        <button type="button" disabled title="Disponible en una siguiente versión" className="font-display flex w-full cursor-not-allowed items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-semibold text-muted-foreground opacity-55">
+          <Terminal className="h-4 w-4" aria-hidden /> Documentación
         </button>
         <div className="mt-3 rounded-md border border-border bg-[var(--surface-high)] p-2.5">
           <div className="mb-2 flex items-center gap-2 text-foreground">
             <LockKeyhole className="h-3.5 w-3.5 shrink-0" aria-hidden />
-            <span className="label-mono-md font-bold">Aviso etico</span>
+            <span className="label-mono-md font-bold">Aviso ético</span>
           </div>
           <p className="text-xs leading-snug text-muted-foreground">El asistente alerta y explica. No acusa ni rechaza reclamos.</p>
         </div>

@@ -317,7 +317,7 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
           </div>
           {portfolio.top_casos?.length ? (
             <div className="border-t border-border px-4 pb-4">
-              <p className="label-mono-md mb-2 font-bold uppercase text-muted-foreground">Principales casos del portafolio</p>
+              <p className="label-mono-md mb-2 font-bold uppercase text-muted-foreground">Principales casos de la cartera</p>
               <div className="flex flex-wrap gap-2">
                 {portfolio.top_casos.slice(0, 5).map((c) => (
                   <span key={String(c.id_siniestro)} className="rounded-md border border-border bg-[var(--surface-low)] px-2 py-1 font-mono text-xs">

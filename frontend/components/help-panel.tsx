@@ -9,7 +9,7 @@ const analystPath = [
   ['1', 'Cargar datos', 'Sube la base de siniestros para iniciar la revisión.'],
   ['2', 'Elegir caso', 'Selecciona un siniestro activo para revisar.'],
   ['3', 'Entender riesgo', 'Lee el puntaje, las reglas, documentos, narrativa y red de relaciones.'],
-  ['4', 'Cerrar evidencia', 'Usa el expediente para dejar una recomendacion trazable.'],
+  ['4', 'Cerrar evidencia', 'Usa el expediente para dejar una recomendación trazable.'],
 ]
 
 const executivePath = [
@@ -19,8 +19,8 @@ const executivePath = [
 ]
 
 const glossary = [
-  ['Puntaje de riesgo', 'Calificacion de 0 a 100. Un valor alto no significa fraude confirmado.'],
-  ['Semaforo', 'Rojo, amarillo o verde para priorizar revision humana.'],
+  ['Puntaje de riesgo', 'Calificación de 0 a 100. Un valor alto no significa fraude confirmado.'],
+  ['Semáforo', 'Rojo, amarillo o verde para priorizar revisión humana.'],
   ['Red de relaciones', 'Mapa de conexiones entre siniestros, proveedores, ciudades y patrones.'],
   ['Expediente', 'Resumen trazable del caso con alertas y evidencia para revisar.'],
 ]
@@ -37,17 +37,17 @@ export function HelpPanel() {
         <button
           type="button"
           className="focus-ring flex items-center gap-2 rounded-md border border-border bg-[var(--surface-low)] px-2.5 py-1.5 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:bg-[var(--surface-container)] md:px-3"
-          aria-label="Abrir guia de uso"
+          aria-label="Abrir guía de uso"
         >
           <HelpCircle className="h-4 w-4" aria-hidden />
-          <span className="hidden md:inline">Guia</span>
+          <span className="hidden md:inline">Guía</span>
         </button>
       </DialogTrigger>
       <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle className="display-heading text-2xl">Como usar RastroSeguro</DialogTitle>
+          <DialogTitle className="display-heading text-2xl">Cómo usar RastroSeguro</DialogTitle>
           <DialogDescription>
-            Ruta rapida para entender la plataforma sin conocer el sistema antes.
+            Ruta rápida para entender la plataforma sin conocer el sistema antes.
           </DialogDescription>
         </DialogHeader>
 
@@ -79,7 +79,7 @@ export function HelpPanel() {
                 <div>
                   <p className="font-display font-semibold text-foreground">Regla principal</p>
                   <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                    El sistema prioriza y explica. No acusa fraude, no rechaza reclamos y no reemplaza la decision humana.
+                    El sistema prioriza y explica. No acusa fraude, no rechaza reclamos y no reemplaza la decisión humana.
                   </p>
                 </div>
               </div>
@@ -94,8 +94,8 @@ export function HelpPanel() {
                     {hasCase
                       ? `Hay un caso activo: ${selectedClaimId}. Ya puedes revisar resumen, riesgo, relaciones y expediente.`
                       : isAnalyst
-                        ? 'Todavia no hay caso activo. Empieza cargando los datos.'
-                        : 'Todavia no hay caso activo. Puedes revisar el panel, pero el expediente se activa con datos cargados.'}
+                        ? 'Todavía no hay caso activo. Empieza cargando los datos.'
+                        : 'Todavía no hay caso activo. Puedes revisar el panel, pero el expediente se activa con datos cargados.'}
                   </p>
                 </div>
               </div>

@@ -407,7 +407,7 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
       </svg>
       <div className="absolute left-4 top-4">
         <p className="dark-panel-kicker label-mono-md uppercase">Mapa global de relaciones</p>
-        <p className="dark-panel-muted mt-1 max-w-xs text-xs">Cada nodo representa un siniestro prioritario. Pase el cursor para ver detalles o haga click para analizar.</p>
+        <p className="dark-panel-muted mt-1 max-w-xs text-xs">Cada punto representa un siniestro prioritario. Pase el cursor para ver detalles o haga clic para analizar.</p>
       </div>
       {activeClaim && (
         <div className="dark-panel-card absolute right-4 top-4 w-[240px] rounded-lg p-4 shadow-xl backdrop-blur">
@@ -427,7 +427,7 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
             <div><span className="label-mono block text-white/60">MONTO</span>{formatCurrency(activeClaim.monto_reclamado)}</div>
             <div><span className="label-mono block text-white/60">NIVEL</span>{getRiskLabel(normalizeRisk(activeClaim.nivel_riesgo))}</div>
           </div>
-          <p className="dark-panel-muted mt-3 text-[11px]">Click en el nodo para abrir el flujo de análisis de este caso.</p>
+          <p className="dark-panel-muted mt-3 text-[11px]">Haga clic en el punto para abrir el análisis de este caso.</p>
         </div>
       )}
       <div className="dark-panel-muted absolute bottom-4 left-4 flex gap-3 text-xs">
@@ -606,7 +606,7 @@ export function StepCommandCenter() {
             <UploadCloud className="h-12 w-12 text-muted-foreground" />
             <div>
               <h2 className="font-display text-xl font-semibold">Sin datos para visualizar</h2>
-              <p className="mt-2 text-sm text-muted-foreground">Carga la informacion para activar el centro de control.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Carga la información para activar el centro de control.</p>
             </div>
             {isAnalyst ? (
               <Button onClick={() => setCurrentStep(1)} className="h-auto px-4 py-2 text-[13px] font-semibold">Ir a carga de datos</Button>

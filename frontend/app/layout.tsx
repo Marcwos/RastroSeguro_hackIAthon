@@ -4,9 +4,9 @@ import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'RastroSeguro | Priorizacion clara de casos',
+  title: 'RastroSeguro | Priorización clara de casos',
   description:
-    'RastroSeguro ayuda a ordenar casos, explicar hallazgos y apoyar la revision humana sin decisiones automaticas.',
+    'RastroSeguro ayuda a ordenar casos, explicar hallazgos y apoyar la revisión humana sin decisiones automáticas.',
   icons: {
     icon: '/icon.svg',
     shortcut: '/icon.svg',

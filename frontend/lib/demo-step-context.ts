@@ -13,8 +13,8 @@ export const STEP_CONTEXT: Record<number, StepContext> = {
   0: {
     step: 0,
     title: 'Centro de control',
-    subtitle: 'Indicadores del portafolio y selección de casos.',
-    overview: 'Vista general del portafolio: distribución de riesgo, proveedores, ciudades y casos prioritarios. Desde aquí eliges qué siniestro revisar en detalle.',
+    subtitle: 'Indicadores de la cartera y selección de casos.',
+    overview: 'Vista general de la cartera: distribución de riesgo, proveedores, ciudades y casos prioritarios. Desde aquí eliges qué siniestro revisar en detalle.',
     focusPoints: [
       'Totales de casos verdes, amarillos y rojos',
       'Principales proveedores y ciudades con alertas',
@@ -23,14 +23,14 @@ export const STEP_CONTEXT: Record<number, StepContext> = {
     hints: [
       '¿Cuáles son los casos con mayor prioridad?',
       '¿Qué proveedores concentran más alertas?',
-      'Genera un resumen general del portafolio.',
+      'Genera un resumen general de la cartera.',
     ],
   },
   1: {
     step: 1,
     title: 'Carga de datos',
     subtitle: 'Recepción y validación de la cartera de siniestros.',
-    overview: 'Subes o sincronizas el archivo de datos de siniestros. El sistema valida columnas, normaliza identificadores y prepara la evaluación de riesgo para todo el portafolio.',
+    overview: 'Subes o sincronizas el archivo de datos de siniestros. El sistema valida columnas, normaliza identificadores y prepara la evaluación de riesgo para toda la cartera.',
     focusPoints: [
       'Archivo cargado y filas reconocidas',
       'Campos obligatorios para reglas y patrones históricos',
@@ -94,7 +94,7 @@ export const STEP_CONTEXT: Record<number, StepContext> = {
     step: 5,
     title: 'Reporte y cierre',
     subtitle: 'Síntesis del caso y exportación ejecutiva.',
-    overview: 'Cierre del recorrido: puntaje del caso desglosado, síntesis de etapas 1–4, gráficos explicados y contexto del portafolio. Puedes exportar un reporte .md para pitch o auditoría.',
+    overview: 'Cierre del recorrido: puntaje del caso desglosado, síntesis de etapas 1–4, gráficos explicados y contexto de la cartera. Puedes exportar un reporte .md para pitch o auditoría.',
     focusPoints: [
       'Puntaje del caso con aporte de cada señal',
       'Recorrido por etapas y gráficos explicados',
@@ -102,7 +102,7 @@ export const STEP_CONTEXT: Record<number, StepContext> = {
     ],
     hints: [
       'Resume este caso para un ejecutivo.',
-      'Genera un resumen ejecutivo del portafolio.',
+      'Genera un resumen ejecutivo de la cartera.',
       '¿Cuál es el impacto de negocio de los casos más prioritarios?',
     ],
   },
@@ -145,10 +145,10 @@ export function getStepGuideMessage(step: number, claimId: string | null, userRo
   const isExecutive = userRole === 'executive'
   const title = isExecutive ? getExecutiveStepTitle(step) : ctx.title
   const overview = isExecutive && step === 5
-    ? 'Resumen ejecutivo del caso seleccionado: puntaje, señales principales, relaciones relevantes, contexto del portafolio y expediente de respaldo para decisión.'
+    ? 'Resumen ejecutivo del caso seleccionado: puntaje, señales principales, relaciones relevantes, contexto de la cartera y expediente de respaldo para decisión.'
     : ctx.overview
   const focusPoints = isExecutive && step === 5
-    ? ['Puntaje y nivel de riesgo del caso', 'Señales principales y recomendación', 'Contexto del portafolio y expediente de respaldo']
+    ? ['Puntaje y nivel de riesgo del caso', 'Señales principales y recomendación', 'Contexto de la cartera y expediente de respaldo']
     : ctx.focusPoints
   const lines = [
     isExecutive ? title : `${stepLabel(step)}: ${title}`,
