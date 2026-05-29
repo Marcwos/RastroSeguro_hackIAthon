@@ -9,7 +9,7 @@ from pathlib import Path
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
 
-from src.models._training_common import (
+from pipelines.models._training_common import (
     DEFAULT_DATASET,
     MODELS_DIR,
     REPORTS_DIR,

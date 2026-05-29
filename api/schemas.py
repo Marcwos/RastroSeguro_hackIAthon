@@ -28,18 +28,6 @@ def json_safe(value: Any) -> Any:
     return value
 
 
-class ErrorDetail(BaseModel):
-    message: str
-    hint: str | None = None
-    details: Any | None = None
-
-
-class ApiEnvelope(BaseModel):
-    ok: bool
-    data: Any | None = None
-    error: ErrorDetail | None = None
-
-
 class ChatTurn(BaseModel):
     role: str
     content: str
@@ -65,18 +53,10 @@ class AgentChatRequest(BaseModel):
     ui_context: dict[str, Any] | None = None
 
 
-class SimulatorClaimRequest(BaseModel):
-    claim: dict[str, Any] | None = None
-
-
 class ConfirmExtractedDocumentRequest(BaseModel):
     document_id: str | None = None
     filename: str | None = None
     claim: dict[str, Any] = Field(default_factory=dict)
-
-
-class ReportResponseFormat(BaseModel):
-    format: str = "dict"
 
 
 def success(data: Any) -> dict[str, Any]:

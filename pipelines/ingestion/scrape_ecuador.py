@@ -30,7 +30,7 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-from src.ingestion.sources import CONFIRMED_SOURCES, DEFAULT_YEAR_END, DEFAULT_YEAR_START
+from pipelines.ingestion.sources import CONFIRMED_SOURCES, DEFAULT_YEAR_END, DEFAULT_YEAR_START
 
 logger = logging.getLogger(__name__)
 

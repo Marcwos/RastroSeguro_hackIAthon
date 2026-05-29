@@ -5,10 +5,10 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from src.agent import tools
+from src.application import risk_queries as tools
 from src.agent.entities import extract_claim_id, extract_limit
 from src.agent.langgraph_runtime import LangGraphUnavailableError, run_langgraph_turn
-from src.agent.llm import LLMRequest, build_llm_provider
+from src.infrastructure.llm import LLMRequest, build_llm_provider
 from src.agent.quick_questions import get_quick_questions
 from src.agent.rag import search_docs
 from src.agent.intents import CLAIM_REQUIRED_INTENTS, DOC_INTENTS, IntentMatch

@@ -5,7 +5,8 @@ from __future__ import annotations
 from fastapi import APIRouter, Query
 
 from api.routes._errors import run_endpoint
-from src.agent import tools
+from src.application import risk_queries as tools
+from src.infrastructure.repositories.scored_claims_repository import ScoredClaimsRepository
 from src.reports.audit_report import build_audit_report, render_audit_markdown
 from src.reports.generate_report import generate_report_dict, generate_report_markdown
 
@@ -37,10 +38,7 @@ def report_savings():
 @router.get("/report/audit")
 def report_audit(format: str = Query(default="dict", pattern="^(dict|markdown)$"), top_limit: int = Query(default=20, ge=1, le=100)):
     def _build():
-        import pandas as pd
-        from src.scoring.final_score import OUTPUT_PATH
-
-        df = pd.read_csv(OUTPUT_PATH)
+        df = ScoredClaimsRepository().read()
         payload = build_audit_report(df.to_dict("records"), top_limit=top_limit)
         if format == "markdown":
             return {"format": "markdown", "content": render_audit_markdown(payload)}

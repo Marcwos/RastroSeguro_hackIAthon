@@ -272,7 +272,7 @@ export function StepUpload() {
               </DialogClose>
             </DialogHeader>
 
-            <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-2">
+            <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden">
               <div className="flex min-h-0 flex-col border-b border-border bg-[var(--surface-low)] p-4 lg:border-b-0 lg:border-r">
                 <div className="mb-3 flex items-center gap-2">
                   <FileText className="h-5 w-5 text-primary" />
@@ -290,7 +290,7 @@ export function StepUpload() {
                 )}
               </div>
 
-              <div className="min-h-0 space-y-3 p-3">
+              <div className="min-h-0 space-y-3 p-3 lg:overflow-y-auto">
                 <div className="rounded-lg border border-border bg-[var(--surface-low)] p-3">
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <span className="label-mono-md uppercase">Calidad de extracción</span>

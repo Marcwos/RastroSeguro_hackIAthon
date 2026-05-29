@@ -6,11 +6,10 @@ import argparse
 import json
 from pathlib import Path
 
-import numpy as np
 from sklearn.ensemble import IsolationForest
 from sklearn.pipeline import Pipeline
 
-from src.models._training_common import (
+from pipelines.models._training_common import (
     DEFAULT_DATASET,
     MODELS_DIR,
     REPORTS_DIR,

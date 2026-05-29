@@ -16,7 +16,7 @@ def explain_claim(id_siniestro: str, data_path: Path = OUTPUT_PATH) -> dict[str,
             f"No se encontró {data_path}. Ejecuta primero: python -m src.scoring.final_score"
         )
 
-    from src.agent.tools import _load_scored
+    from src.application.risk_queries import _load_scored
 
     df = _load_scored(data_path)
     matches = df[df["id_siniestro"].astype(str) == str(id_siniestro)]

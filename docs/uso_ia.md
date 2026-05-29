@@ -90,8 +90,8 @@ Módulo: [`src/reports/savings_simulation.py`](../src/reports/savings_simulation
 ## Reproducibilidad
 
 ```bash
-py -3 -m src.models.run_carlos_pipeline --rows 25000 --seed 42 --scoring-rows 2000
-py -3 -m src.models.validate_deliverables
+py -3 -m pipelines.models.run_carlos_pipeline --rows 25000 --seed 42 --scoring-rows 2000
+py -3 -m pipelines.models.validate_deliverables
 ```
 
 Validación R: [`r/01_validacion_metricas.R`](../r/01_validacion_metricas.R)

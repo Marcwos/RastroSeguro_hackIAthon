@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from src.agent.llm.base import LLMRequest, LLMResult
+from src.infrastructure.llm.base import LLMRequest, LLMResult
 
 
 class DisabledProvider:

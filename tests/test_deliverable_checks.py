@@ -6,7 +6,7 @@ import unittest
 
 import pandas as pd
 
-from src.models.deliverable_checks import check_benchmark_questions, check_dataset_schema, check_star_cases
+from pipelines.models.deliverable_checks import check_benchmark_questions, check_dataset_schema, check_star_cases
 
 
 class DeliverableChecksTests(unittest.TestCase):

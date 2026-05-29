@@ -33,7 +33,7 @@ def _extract_terms(text: str) -> set[str]:
     return {word for word in normalized.split() if len(word) > 3}
 
 
-def _chunk_document(text: str, min_len: int = 150, max_len: int = 800) -> list[str]:
+def _chunk_document(text: str, max_len: int = 800) -> list[str]:
     """Segment a markdown document into chunks by paragraphs of controlled size."""
     raw_paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
     chunks: list[str] = []

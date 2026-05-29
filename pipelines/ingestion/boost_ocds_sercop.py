@@ -8,7 +8,7 @@ Modo completo:
     búsquedas por RUC de proveedores sancionados
 
 Uso:
-    py -3 -m src.ingestion.boost_ocds_sercop
+    py -3 -m pipelines.ingestion.boost_ocds_sercop
 """
 from __future__ import annotations
 

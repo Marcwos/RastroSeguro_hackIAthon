@@ -7,7 +7,7 @@ Este flujo deja la data lista para despliegue sin cargar CSV crudos gigantes.
 Desde la raíz del repo:
 
 ```bash
-py -3 -m src.ingestion.model_curated_dataset --skip-ecu911-agg
+py -3 -m pipelines.ingestion.model_curated_dataset --skip-ecu911-agg
 ```
 
 Salida esperada en `data/curated/ecuador/`:
@@ -23,7 +23,7 @@ Salida esperada en `data/curated/ecuador/`:
 Si quieres incluir agregados de ECU911:
 
 ```bash
-py -3 -m src.ingestion.model_curated_dataset
+py -3 -m pipelines.ingestion.model_curated_dataset
 ```
 
 Genera adicionalmente `ecu911_monthly_agg.csv`.
@@ -68,7 +68,7 @@ Para esos, mantener **cold storage** (disco/S3/Drive) y subir solo agregados nec
 Generar paquete para agente con siniestros + contexto proveedor + chunks para RAG:
 
 ```bash
-py -3 -m src.ingestion.build_agent_ready_dataset --rows 25000
+py -3 -m pipelines.ingestion.build_agent_ready_dataset --rows 25000
 ```
 
 Salidas en `data/processed/agent_ready/`:

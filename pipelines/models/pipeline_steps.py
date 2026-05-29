@@ -7,17 +7,17 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.data.export_complementary_tables import export_complementary_tables
-from src.data.export_features import DEFAULT_OUTPUT as FEATURES_PATH
-from src.data.export_features import export_features
-from src.data.generate_synthetic_data import DEFAULT_OUTPUT as SINIESTROS_PATH
-from src.data.generate_synthetic_data import generate_dataset, validate_dataset
-from src.models.build_pdf_benchmark import OUTPUT_PATH as BENCHMARK_PATH
-from src.models.build_pdf_benchmark import build_benchmark
-from src.models.build_star_cases import OUTPUT_PATH as STAR_CASES_PATH
-from src.models.build_star_cases import build_star_cases
-from src.models.train_anomaly import train_anomaly
-from src.models.train_classifier import train_classifier
+from pipelines.data.export_complementary_tables import export_complementary_tables
+from pipelines.data.export_features import DEFAULT_OUTPUT as FEATURES_PATH
+from pipelines.data.export_features import export_features
+from pipelines.data.generate_synthetic_data import DEFAULT_OUTPUT as SINIESTROS_PATH
+from pipelines.data.generate_synthetic_data import generate_dataset, validate_dataset
+from pipelines.models.build_pdf_benchmark import OUTPUT_PATH as BENCHMARK_PATH
+from pipelines.models.build_pdf_benchmark import build_benchmark
+from pipelines.models.build_star_cases import OUTPUT_PATH as STAR_CASES_PATH
+from pipelines.models.build_star_cases import build_star_cases
+from pipelines.models.train_anomaly import train_anomaly
+from pipelines.models.train_classifier import train_classifier
 from src.scoring.final_score import run_scoring
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -34,7 +34,7 @@ def step_ensure_ecuador_curated() -> None:
     ]
     if all(path.exists() for path in required):
         return
-    from src.ingestion.model_curated_dataset import DEFAULT_OUT, run as run_curation
+    from pipelines.ingestion.model_curated_dataset import DEFAULT_OUT, run as run_curation
 
     run_curation(
         DEFAULT_OUT,
@@ -46,7 +46,7 @@ def step_ensure_ecuador_curated() -> None:
 
 
 def step_build_agent_ready(rows: int, seed: int) -> None:
-    from src.ingestion.build_agent_ready_dataset import (
+    from pipelines.ingestion.build_agent_ready_dataset import (
         CANONICAL_FIELDS,
         OUT_DIR_DEFAULT,
         build_agent_ready_siniestros,

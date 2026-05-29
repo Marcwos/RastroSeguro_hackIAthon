@@ -1,10 +1,10 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from src.agent.llm import LLMRequest, build_llm_provider
-from src.agent.llm.disabled_provider import DisabledProvider
-from src.agent.llm.openai_provider import OpenAIProvider
-from src.agent.llm.settings import LLMSettings
+from src.infrastructure.llm import LLMRequest, build_llm_provider
+from src.infrastructure.llm.disabled_provider import DisabledProvider
+from src.infrastructure.llm.openai_provider import OpenAIProvider
+from src.infrastructure.llm.settings import LLMSettings
 
 
 class AgentLLMTest(unittest.TestCase):
@@ -39,7 +39,7 @@ class AgentLLMTest(unittest.TestCase):
         response = Mock(status_code=200)
         response.json.return_value = {"output_text": "Síntesis profesional."}
 
-        with patch("src.agent.llm.openai_provider._post_json", return_value=response) as post:
+        with patch("src.infrastructure.llm.openai_provider._post_json", return_value=response) as post:
             result = OpenAIProvider(settings).generate(
                 LLMRequest(intent="ranking_proveedores", data=[{"id": "PROV-1"}], question="top proveedores")
             )
@@ -70,7 +70,7 @@ class AgentLLMTest(unittest.TestCase):
         response = Mock(status_code=401, text="unauthorized")
         response.json.return_value = {"error": {"message": "bad key"}}
 
-        with patch("src.agent.llm.openai_provider._post_json", return_value=response):
+        with patch("src.infrastructure.llm.openai_provider._post_json", return_value=response):
             result = OpenAIProvider(settings).generate(LLMRequest(intent="top_riesgo", data=[], question="top"))
 
         self.assertFalse(result.has_message)

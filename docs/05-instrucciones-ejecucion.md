@@ -13,7 +13,7 @@ pip install -r requirements.txt
 ### 0. Inventariar fuentes públicas Ecuador (opcional)
 
 ```bash
-python -m src.ingestion.scrape_ecuador --year-start 2021 --year-end 2026
+python -m pipelines.ingestion.scrape_ecuador --year-start 2021 --year-end 2026
 ```
 
 Salidas: `data/ecuador/inventario_manifest.json`, `data/ecuador/inventario_links.tsv`.  
@@ -22,7 +22,7 @@ Ver [inventario-fuentes-ecuador.md](./inventario-fuentes-ecuador.md).
 ### 0.1 Modelar dataset curado para base de datos (opcional)
 
 ```bash
-py -3 -m src.ingestion.model_curated_dataset --skip-ecu911-agg
+py -3 -m pipelines.ingestion.model_curated_dataset --skip-ecu911-agg
 ```
 
 Ver guía de despliegue: [06-modelado-dataset-supabase.md](./06-modelado-dataset-supabase.md).
@@ -30,7 +30,7 @@ Ver guía de despliegue: [06-modelado-dataset-supabase.md](./06-modelado-dataset
 ### 1. Generar dataset sintético
 
 ```bash
-python -m src.data.generate_synthetic_data
+python -m pipelines.data.generate_synthetic_data
 ```
 
 Salida esperada:
@@ -42,8 +42,8 @@ data/synthetic/siniestros.csv
 ### 2. Entrenar modelos
 
 ```bash
-python -m src.models.train_classifier
-python -m src.models.train_anomaly
+python -m pipelines.models.train_classifier
+python -m pipelines.models.train_anomaly
 ```
 
 Salidas esperadas:

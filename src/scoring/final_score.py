@@ -14,9 +14,12 @@ from src.rules.rule_registry import evaluate_rules, rules_score
 from src.utils.risk_levels import clamp_score, risk_level, suggested_action
 from src.scoring.calibration import apply_portfolio_calibration
 from src.scoring.serialization import serialize_scored_columns
+from src.infrastructure.config.paths import RAW_CLAIMS_PATH, SCORED_CLAIMS_PATH
 
-INPUT_PATH = Path("data/synthetic/siniestros.csv")
-OUTPUT_PATH = Path("data/processed/siniestros_scored.csv")
+# Paths now live in src.infrastructure.config.paths. Re-exported here as
+# INPUT_PATH/OUTPUT_PATH for backward compatibility with existing importers.
+INPUT_PATH = RAW_CLAIMS_PATH
+OUTPUT_PATH = SCORED_CLAIMS_PATH
 NEUTRAL_COMPONENT_SCORE = 50.0
 
 COMPONENT_WEIGHTS = {
@@ -116,7 +119,7 @@ def run_scoring(input_path: Path = INPUT_PATH, output_path: Path = OUTPUT_PATH) 
     if not input_path.exists():
         raise FileNotFoundError(
             f"No se encontró {input_path}. Pide a Carlos generar el dataset oficial con: "
-            "python -m src.data.generate_synthetic_data"
+            "python -m pipelines.data.generate_synthetic_data"
         )
     import pandas as pd
 

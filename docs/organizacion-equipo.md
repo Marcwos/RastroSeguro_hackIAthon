@@ -705,7 +705,7 @@ El proyecto debe poder ejecutarse con comandos claros.
 ### Generar dataset
 
 ```bash
-python -m src.data.generate_synthetic_data
+python -m pipelines.data.generate_synthetic_data
 ```
 
 Salida:
@@ -717,8 +717,8 @@ data/synthetic/siniestros.csv
 ### Entrenar modelos
 
 ```bash
-python -m src.models.train_classifier
-python -m src.models.train_anomaly
+python -m pipelines.models.train_classifier
+python -m pipelines.models.train_anomaly
 ```
 
 Salida:

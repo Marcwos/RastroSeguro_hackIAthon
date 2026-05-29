@@ -6,7 +6,7 @@ import unittest
 
 import pandas as pd
 
-from src.data.claim_signals import (
+from pipelines.data.claim_signals import (
     apply_signals_to_frame,
     compute_signal_masks,
     signal_coverage,

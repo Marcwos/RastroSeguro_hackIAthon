@@ -10,11 +10,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.data.claim_signals import apply_signals_to_frame
-from src.data.demo_scenarios import apply_demo_scenarios
-from src.data.ecuador_context import ECUADOR_EXTENSION_COLUMNS, enrich_with_ecuador_context
+from pipelines.data.claim_signals import apply_signals_to_frame
+from pipelines.data.demo_scenarios import apply_demo_scenarios
+from pipelines.data.ecuador_context import ECUADOR_EXTENSION_COLUMNS, enrich_with_ecuador_context
 from src.data.feature_engineering import enrich_base_columns
-from src.data.qa_metrics import build_dataset_qa
+from pipelines.data.qa_metrics import build_dataset_qa
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUT = ROOT / "data" / "synthetic" / "siniestros.csv"

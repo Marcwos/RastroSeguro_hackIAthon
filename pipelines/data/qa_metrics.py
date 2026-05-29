@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pandas as pd
 
-from src.data.claim_signals import signal_coverage
-from src.data.ecuador_context import ecuador_coverage_metrics, ecuador_source_usage_metrics
+from pipelines.data.claim_signals import signal_coverage
+from pipelines.data.ecuador_context import ecuador_coverage_metrics, ecuador_source_usage_metrics
 from src.data.portfolio_stats import PortfolioStats
 
 SIGNAL_COVERAGE_FLOOR = 0.01

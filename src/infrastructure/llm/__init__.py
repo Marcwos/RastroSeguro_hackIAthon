@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from src.agent.llm.base import LLMProvider, LLMRequest, LLMResult
-from src.agent.llm.disabled_provider import DisabledProvider
-from src.agent.llm.openai_provider import OpenAIProvider
-from src.agent.llm.settings import LLMSettings, load_settings
+from src.infrastructure.llm.base import LLMProvider, LLMRequest, LLMResult
+from src.infrastructure.llm.disabled_provider import DisabledProvider
+from src.infrastructure.llm.openai_provider import OpenAIProvider
+from src.infrastructure.llm.settings import LLMSettings, load_settings
 
 
 def build_llm_provider(settings: LLMSettings | None = None) -> LLMProvider:

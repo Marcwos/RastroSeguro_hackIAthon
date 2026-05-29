@@ -41,7 +41,7 @@ class AgentTest(unittest.TestCase):
             {"role": "user", "content": "Explicame el siniestro SIN-0045"},
             {"role": "assistant", "content": "El siniestro fue marcado en alto riesgo."},
         ]
-        with patch("src.agent.tools.explain_claim", return_value={"id_siniestro": "SIN-0045"}) as tool:
+        with patch("src.application.risk_queries.explain_claim", return_value={"id_siniestro": "SIN-0045"}) as tool:
             response = answer_question("Y por que tiene ese score?", history=history)
 
         tool.assert_called_once_with("SIN-0045")
@@ -57,7 +57,7 @@ class AgentTest(unittest.TestCase):
         self.assertIn("SIN-0045", response["hint"])
 
     def test_selected_claim_id_can_resume_without_repeating_the_id(self):
-        with patch("src.agent.tools.explain_claim", return_value={"id_siniestro": "SIN-7777"}) as tool:
+        with patch("src.application.risk_queries.explain_claim", return_value={"id_siniestro": "SIN-7777"}) as tool:
             response = answer_question("Explicamelo", selected_claim_id="SIN-7777")
 
         tool.assert_called_once_with("SIN-7777")
@@ -66,7 +66,7 @@ class AgentTest(unittest.TestCase):
 
     def test_missing_scored_file_returns_actionable_error(self):
         with patch(
-            "src.agent.tools._load_scored",
+            "src.application.risk_queries._load_scored",
             side_effect=FileNotFoundError(
                 "No se encontro data/processed/siniestros_scored.csv. Ejecuta python -m src.scoring.final_score"
             ),
@@ -96,14 +96,14 @@ class AgentTest(unittest.TestCase):
                 }
             ]
         )
-        with patch("src.agent.tools._load_scored", return_value=fake_df):
+        with patch("src.application.risk_queries._load_scored", return_value=fake_df):
             response = answer_question("Que asegurados tienen mayor frecuencia de reclamos?")
         self.assertTrue(response["ok"])
         self.assertEqual(response["intent"], "frecuencia_asegurados")
 
     def test_agent_routes_fraud_rings_intent(self):
         rings_payload = {"total_anillos": 1, "anillos": [], "explicacion_global": "ok"}
-        with patch("src.agent.tools.get_fraud_rings", return_value=rings_payload) as tool:
+        with patch("src.application.risk_queries.get_fraud_rings", return_value=rings_payload) as tool:
             response = answer_question("Hay redes de fraude organizadas en el portafolio?")
 
         tool.assert_called_once_with(limit=10)
@@ -112,7 +112,7 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(response["data"], rings_payload)
 
     def test_agent_wraps_tool_success(self):
-        with patch("src.agent.tools.get_provider_risk_ranking", return_value=[{"id_proveedor": "PROV-1"}]) as tool:
+        with patch("src.application.risk_queries.get_provider_risk_ranking", return_value=[{"id_proveedor": "PROV-1"}]) as tool:
             response = answer_question("top 3 proveedores")
 
         tool.assert_called_once_with(limit=3)
@@ -125,7 +125,7 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(response["runtime"]["active"], "classic")
 
     def test_langgraph_runtime_falls_back_cleanly_when_dependency_is_missing(self):
-        with patch("src.agent.tools.get_provider_risk_ranking", return_value=[{"id_proveedor": "PROV-1"}]):
+        with patch("src.application.risk_queries.get_provider_risk_ranking", return_value=[{"id_proveedor": "PROV-1"}]):
             response = answer_question("top 3 proveedores", runtime="langgraph")
 
         self.assertTrue(response["ok"])
@@ -136,7 +136,7 @@ class AgentTest(unittest.TestCase):
     def test_agent_uses_llm_message_when_provider_returns_text(self):
         class FakeProvider:
             def generate(self, request):
-                from src.agent.llm import LLMResult
+                from src.infrastructure.llm import LLMResult
 
                 return LLMResult(
                     message="Respuesta ejecutiva generada con evidencia verificada.",
@@ -146,7 +146,7 @@ class AgentTest(unittest.TestCase):
                     enabled=True,
                 )
 
-        with patch("src.agent.tools.get_provider_risk_ranking", return_value=[{"id_proveedor": "PROV-1"}]), \
+        with patch("src.application.risk_queries.get_provider_risk_ranking", return_value=[{"id_proveedor": "PROV-1"}]), \
              patch("src.agent.antifraud_agent.build_llm_provider", return_value=FakeProvider()):
             response = answer_question("top 3 proveedores")
 
@@ -198,7 +198,7 @@ class AgentTest(unittest.TestCase):
                 }
             ]
         )
-        with patch("src.agent.tools._load_scored", return_value=fake_df):
+        with patch("src.application.risk_queries._load_scored", return_value=fake_df):
             questions = get_quick_questions()
 
         self.assertGreaterEqual(len(questions), 5)

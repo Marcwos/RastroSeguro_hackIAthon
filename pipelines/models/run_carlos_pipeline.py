@@ -5,9 +5,9 @@ from __future__ import annotations
 import argparse
 import json
 
-from src.data.export_features import DEFAULT_OUTPUT as FEATURES_PATH
-from src.data.generate_synthetic_data import DEFAULT_OUTPUT as SINIESTROS_PATH
-from src.models.pipeline_steps import (
+from pipelines.data.export_features import DEFAULT_OUTPUT as FEATURES_PATH
+from pipelines.data.generate_synthetic_data import DEFAULT_OUTPUT as SINIESTROS_PATH
+from pipelines.models.pipeline_steps import (
     step_build_agent_ready,
     step_build_reports,
     step_ensure_ecuador_curated,
@@ -17,8 +17,8 @@ from src.models.pipeline_steps import (
     step_run_scoring,
     step_train_models,
 )
-from src.models.build_star_cases import OUTPUT_PATH as STAR_CASES_PATH
-from src.models.build_pdf_benchmark import OUTPUT_PATH as BENCHMARK_PATH
+from pipelines.models.build_star_cases import OUTPUT_PATH as STAR_CASES_PATH
+from pipelines.models.build_pdf_benchmark import OUTPUT_PATH as BENCHMARK_PATH
 
 
 def run_all(rows: int = 25000, seed: int = 42, scoring_rows: int = 3000) -> dict:

@@ -32,7 +32,7 @@ REPORTS_DIR = ROOT / "reports"
 def load_training_frame(dataset_path: Path = DEFAULT_DATASET) -> pd.DataFrame:
     if not dataset_path.exists():
         raise FileNotFoundError(
-            f"No existe {dataset_path}. Ejecuta: python -m src.data.generate_synthetic_data"
+            f"No existe {dataset_path}. Ejecuta: python -m pipelines.data.generate_synthetic_data"
         )
     raw = pd.read_csv(dataset_path)
     return build_feature_frame(raw)

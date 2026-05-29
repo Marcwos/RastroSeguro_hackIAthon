@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pandas as pd
 
-from src.data.claim_signals import SIGNAL_COLUMNS
-from src.data.ecuador_context import load_restricted_rucs
+from pipelines.data.claim_signals import SIGNAL_COLUMNS
+from pipelines.data.ecuador_context import load_restricted_rucs
 
 
 def ensure_generales_coverage(df: pd.DataFrame) -> pd.DataFrame:

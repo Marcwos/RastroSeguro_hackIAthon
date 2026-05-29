@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.data.ecuador_context import ECUADOR_EXTENSION_COLUMNS
-from src.data.generate_synthetic_data import PDF_EXTENSION_COLUMNS
-from src.data.qa_metrics import ECUADOR_SOURCE_FLOORS, SIGNAL_COVERAGE_FLOOR
-from src.models.deliverable_checks import (
+from pipelines.data.ecuador_context import ECUADOR_EXTENSION_COLUMNS
+from pipelines.data.generate_synthetic_data import PDF_EXTENSION_COLUMNS
+from pipelines.data.qa_metrics import ECUADOR_SOURCE_FLOORS, SIGNAL_COVERAGE_FLOOR
+from pipelines.models.deliverable_checks import (
     check_artifact_contract,
     check_benchmark_questions,
     check_complementary_tables,

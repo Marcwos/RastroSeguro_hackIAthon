@@ -109,8 +109,8 @@ Configurable en script: `--year-start` / `--year-end`.
 
 ```bash
 pip install -r requirements.txt
-python -m src.ingestion.scrape_ecuador
-python -m src.ingestion.scrape_ecuador --year-start 2021 --year-end 2026 --download-sample -v
+python -m pipelines.ingestion.scrape_ecuador
+python -m pipelines.ingestion.scrape_ecuador --year-start 2021 --year-end 2026 --download-sample -v
 ```
 
 **Salidas:**

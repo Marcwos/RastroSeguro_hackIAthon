@@ -25,8 +25,8 @@ Cumplimiento del PDF del reto:
 ## Corrida limpia
 
 ```bash
-py -3 -m src.models.run_carlos_pipeline --rows 25000 --seed 42 --scoring-rows 2000
-py -3 -m src.models.validate_deliverables
+py -3 -m pipelines.models.run_carlos_pipeline --rows 25000 --seed 42 --scoring-rows 2000
+py -3 -m pipelines.models.validate_deliverables
 py -3 -m unittest discover -s tests -p "test_*.py"
 ```
 

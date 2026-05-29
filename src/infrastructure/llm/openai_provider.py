@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from src.agent.llm.base import LLMRequest, LLMResult
-from src.agent.llm.prompts import SYSTEM_INSTRUCTIONS, build_user_input
-from src.agent.llm.settings import LLMSettings
+from src.infrastructure.llm.base import LLMRequest, LLMResult
+from src.infrastructure.llm.prompts import SYSTEM_INSTRUCTIONS, build_user_input
+from src.infrastructure.llm.settings import LLMSettings
 
 OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
 

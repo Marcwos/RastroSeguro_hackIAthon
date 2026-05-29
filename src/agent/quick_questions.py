@@ -39,7 +39,7 @@ def get_quick_questions(user_role: str = "analyst") -> list[str]:
         return EXECUTIVE_QUICK_QUESTIONS.copy()
 
     try:
-        from src.agent import tools
+        from src.application import risk_queries as tools
         top_claims = tools.get_top_risky_claims(limit=1)
         if top_claims:
             top_id = top_claims[0]["id_siniestro"]

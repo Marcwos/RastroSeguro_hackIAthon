@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.agent import tools
+from src.application import risk_queries as tools
 from src.explainability.explain_claim import explain_claim
 
 ROOT = Path(__file__).resolve().parents[2]

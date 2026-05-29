@@ -6,7 +6,7 @@ import unittest
 
 import pandas as pd
 
-from src.models.pipeline_steps import sample_scoring_window
+from pipelines.models.pipeline_steps import sample_scoring_window
 
 
 class PipelineStepsTests(unittest.TestCase):
