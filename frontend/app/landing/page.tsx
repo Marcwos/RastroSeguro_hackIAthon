@@ -7,8 +7,11 @@ import {
   BarChart3,
   BrainCircuit,
   Building2,
+  CircleDollarSign,
+  ClipboardCheck,
   FileSearch,
   GitBranch,
+  MessageSquareText,
   Radar,
   ScanSearch,
   Scale,
@@ -28,6 +31,7 @@ export const metadata: Metadata = {
 const navigation = [
   { href: '#problema', label: 'Problema' },
   { href: '#solucion', label: 'Solucion' },
+  { href: '#senales', label: 'Senales' },
   { href: '#diferenciales', label: 'Diferenciales' },
   { href: '#producto', label: 'Producto' },
 ]
@@ -107,9 +111,9 @@ const technicalSignals = [
 ]
 
 const proofMetrics = [
-  { value: 'Rojo', label: 'revision especializada', note: 'casos con mayor prioridad operativa' },
-  { value: 'NLP', label: 'lectura de narrativas', note: 'similitud, ambiguedad y entidades clave' },
-  { value: 'Grafo', label: 'relaciones recurrentes', note: 'proveedores, ciudades y beneficiarios' },
+  { value: 'Alto', label: 'riesgo priorizado', note: 'casos que ameritan revision especializada' },
+  { value: 'Docs', label: 'evidencia documental', note: 'faltantes, inconsistencias y fechas sensibles' },
+  { value: 'Red', label: 'relaciones recurrentes', note: 'proveedores, ciudades y beneficiarios' },
 ]
 
 const commandStats = [
@@ -132,6 +136,38 @@ const evidenceStrip = [
   'Relacion atipica',
 ]
 
+const riskSignals = [
+  {
+    title: 'Borde de Vigencia',
+    description: 'Siniestros reportados muy cerca del inicio o fin de la poliza.',
+    Icon: ClipboardCheck,
+  },
+  {
+    title: 'Documentos Sensibles',
+    description: 'Faltantes, ilegibilidad, fechas inconsistentes o soportes con valores distintos.',
+    Icon: FileSearch,
+  },
+  {
+    title: 'Proveedor Recurrente',
+    description: 'Concentracion de alertas asociadas a talleres, clinicas, peritos o beneficiarios.',
+    Icon: Building2,
+  },
+  {
+    title: 'Monto Atipico',
+    description: 'Reclamos cercanos a suma asegurada o superiores al comportamiento esperado.',
+    Icon: CircleDollarSign,
+  },
+]
+
+const questions = [
+  'Cuales son los casos que deben revisarse primero?',
+  'Por que este siniestro aparece como alto riesgo?',
+  'Que proveedores concentran mas alertas rojas?',
+  'Que documentos faltan en los casos criticos?',
+  'Que ciudades o ramos presentan mayor concentracion?',
+  'Que narrativas se parecen entre reclamos distintos?',
+]
+
 const beneficiaryRows = [
   ['Analista de siniestros', 'Prioriza casos y entiende por que revisar primero.'],
   ['Unidad antifraude', 'Detecta patrones sospechosos de forma temprana.'],
@@ -144,6 +180,12 @@ const judgeFit = [
   'Explicacion textual del motivo de cada alerta.',
   'Consultas sobre proveedores, ciudades, documentos y patrones.',
   'Guardrails eticos visibles en cada capa del producto.',
+]
+
+const operatingOutcomes = [
+  ['Triage mas rapido', 'Menos tiempo separando casos normales de casos que necesitan atencion.'],
+  ['Mejor trazabilidad', 'Cada prioridad llega acompanada de razones, senales y evidencia revisable.'],
+  ['Menos falsos atajos', 'El sistema recomienda revision humana y evita lenguaje de acusacion automatica.'],
 ]
 
 function SectionHeading({
@@ -227,10 +269,10 @@ export default function LandingPage() {
                   Inteligencia aplicada a siniestros, documentos y relaciones
                 </p>
                 <h1 className="landing-hero-title mt-4 select-none text-balance text-4xl lg:text-6xl xl:text-7xl">
-                  Prioriza siniestros sospechosos con explicaciones que un analista puede defender.
+                  Prioriza reclamos sospechosos antes de que consuman al equipo.
                 </h1>
                 <p className="mt-5 max-w-2xl text-lg leading-8 text-[#e2ebff]">
-                  <span translate="no">RastroSeguro</span> cruza montos, fechas, documentos, proveedores, narrativa y redes de relacion para ordenar casos por riesgo. El resultado es una alerta accionable, no una acusacion automatica.
+                  <span translate="no">RastroSeguro</span> cruza montos, fechas, documentos, proveedores, narrativa y redes de relacion para ordenar casos por riesgo. Cada prioridad llega con una razon defendible para que el analista sepa que revisar primero.
                 </p>
               </div>
 
@@ -269,7 +311,7 @@ export default function LandingPage() {
                 <div className="section-header flex items-center justify-between bg-slate-200 text-slate-900">
                   <span className="flex items-center gap-2">
                     <Radar aria-hidden="true" className="h-4 w-4" />
-                    Snapshot Ejecutivo
+                    Bandeja Prioritaria
                   </span>
                   <span className="label-mono">SIN-045</span>
                 </div>
@@ -277,7 +319,7 @@ export default function LandingPage() {
                 <div className="space-y-5 p-5">
                   <div className="grid gap-3 sm:grid-cols-3">
                     <div className="bg-white p-3">
-                      <p className="label-mono text-muted-foreground">Score Final</p>
+                      <p className="label-mono text-muted-foreground">Score Riesgo</p>
                       <p className="landing-metric-value text-slate-900">87</p>
                     </div>
                     <div className="bg-white p-3">
@@ -285,8 +327,8 @@ export default function LandingPage() {
                       <p className="font-display text-3xl font-semibold text-red-600">Rojo</p>
                     </div>
                     <div className="bg-white p-3">
-                      <p className="label-mono text-muted-foreground">Accion</p>
-                      <p className="font-display text-lg font-semibold">Revision Especializada</p>
+                      <p className="label-mono text-muted-foreground">Proxima Accion</p>
+                      <p className="font-display text-lg font-semibold">Revisar Evidencia</p>
                     </div>
                   </div>
 
@@ -318,7 +360,7 @@ export default function LandingPage() {
                   </div>
 
                   <div className="border-l-4 border-slate-900 bg-white p-4 text-sm leading-6 text-slate-700">
-                    El sistema recomienda escalar este caso por recurrencia de proveedor, narrativa similar, monto sensible frente a la poliza y patron atipico en el grafo. La salida es una alerta de revision, no una acusacion.
+                    Prioridad sugerida por recurrencia de proveedor, narrativa similar, monto sensible frente a la poliza y patron atipico en el grafo. La salida orienta la revision; no decide el reclamo.
                   </div>
                 </div>
               </div>
@@ -340,6 +382,17 @@ export default function LandingPage() {
               <span className="landing-inline-chip">NLP</span>
               <span className="landing-inline-chip">Grafo</span>
             </div>
+          </div>
+        </section>
+
+        <section className="border-b border-border bg-[var(--surface-low)]">
+          <div className="mx-auto grid max-w-7xl gap-px bg-border px-4 py-0 lg:grid-cols-3 lg:px-8">
+            {operatingOutcomes.map(([title, description]) => (
+              <article key={title} className="bg-[var(--surface-lowest)] p-5">
+                <p className="label-mono-md uppercase text-muted-foreground">{title}</p>
+                <p className="mt-2 text-sm leading-7 text-foreground">{description}</p>
+              </article>
+            ))}
           </div>
         </section>
 
@@ -418,6 +471,27 @@ export default function LandingPage() {
           </div>
         </section>
 
+        <section id="senales" className="scroll-mt-24 border-b border-border bg-[var(--surface-low)]">
+          <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+            <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr]">
+              <SectionHeading
+                eyebrow="Senales"
+                title="La prioridad nace de evidencia concreta, no de intuicion."
+                body="El sistema agrupa patrones operativos que normalmente quedan dispersos entre documentos, historiales, narrativa y tablas de proveedores."
+              />
+              <div className="grid gap-4 sm:grid-cols-2">
+                {riskSignals.map(({ title, description, Icon }) => (
+                  <article key={title} className="landing-panel institutional-card p-5">
+                    <Icon aria-hidden="true" className="h-5 w-5 text-[var(--on-secondary-container)]" />
+                    <h3 className="mt-3 font-display text-xl font-semibold">{title}</h3>
+                    <p className="mt-2 text-sm leading-7 text-muted-foreground">{description}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="diferenciales" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-16 lg:px-8">
           <div className="grid gap-6 lg:grid-cols-[.9fr_1.1fr]">
             <div className="institutional-card landing-panel p-6">
@@ -475,6 +549,28 @@ export default function LandingPage() {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-border bg-[var(--primary-container)] text-white">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 lg:grid-cols-[.75fr_1.25fr] lg:px-8">
+            <div>
+              <p className="label-mono-md uppercase text-[#bfd6ff]">Agente de consulta</p>
+              <h2 className="landing-hero-title mt-3 text-balance text-3xl lg:text-4xl">
+                Preguntas que el equipo puede responder sin abrir diez archivos.
+              </h2>
+              <p className="mt-4 text-sm leading-7 text-[#e2ebff]">
+                La capa conversacional convierte el portafolio en respuestas accionables para analistas, riesgos y auditoria.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {questions.map((question) => (
+                <div key={question} className="flex items-start gap-3 border border-white/12 bg-white/6 p-4">
+                  <MessageSquareText aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[#bfd6ff]" />
+                  <p className="text-sm leading-6 text-white">{question}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
