@@ -10,16 +10,16 @@ const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 const problemQuestions = [
   {
-    question: 'Como separo prioridad de ruido?',
-    consequence: 'Sin una forma clara de filtrar, los casos urgentes se mezclan con los rutinarios.',
+    question: 'Por donde empiezo?',
+    consequence: 'Llegan muchos reclamos y no siempre queda claro cual conviene revisar primero.',
   },
   {
-    question: 'Por que este caso me genera dudas?',
-    consequence: 'Las señales estan dispersas. Reunirlas manualmente toma horas que no hay.',
+    question: 'Que miro en este reclamo?',
+    consequence: 'Hay que cruzar póliza, historial, montos y documentos. Hacerlo a mano, uno por uno, consume el dia.',
   },
   {
-    question: 'Como sustento mi decision?',
-    consequence: 'La intuicion sola no es evidencia. Sin razones claras, la decision queda expuesta.',
+    question: 'Como explico por que revise este caso?',
+    consequence: 'Sin un resumen claro, cuesta contarle al equipo o en una auditoria el criterio que se uso.',
   },
 ]
 
@@ -144,7 +144,7 @@ export function LandingPageContent() {
 
         <motion.section
           id="problema"
-          className="landing-band-ink landing-section-shell scroll-mt-24 border-b border-border"
+          className="landing-band-ivory landing-section-shell scroll-mt-24 border-b border-border"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.28, margin: '0px 0px -12% 0px' }}
@@ -154,18 +154,18 @@ export function LandingPageContent() {
             className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28"
             variants={staggerVariants}
           >
-            <motion.div className="grid gap-4 lg:grid-cols-3" variants={staggerVariants}>
+            <motion.div className="grid gap-5 lg:grid-cols-3 lg:gap-6" variants={staggerVariants}>
               {problemQuestions.map(({ question, consequence }, index) => (
                 <motion.article
                   key={question}
                   variants={itemVariants}
-                  className="landing-problem-card"
+                  className="landing-problem-card-light"
                 >
-                  <span className="landing-problem-index label-mono-md">0{index + 1}</span>
-                  <h3 className="font-display text-lg font-semibold leading-snug text-balance text-white">
+                  <span className="landing-problem-index-light label-mono-md">0{index + 1}</span>
+                  <h3 className="font-display text-lg font-semibold leading-snug text-balance text-[var(--editorial-ink)] lg:text-xl">
                     {question}
                   </h3>
-                  <p className="text-sm leading-6 text-[var(--editorial-soft-copy)]">{consequence}</p>
+                  <p className="text-sm leading-7 text-muted-foreground">{consequence}</p>
                 </motion.article>
               ))}
             </motion.div>
