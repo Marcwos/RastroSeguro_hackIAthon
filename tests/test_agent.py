@@ -122,13 +122,33 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(response["data"], [{"id_proveedor": "PROV-1"}])
         self.assertEqual(response["llm"]["status"], "disabled_by_config")
         self.assertEqual(response["llm"]["model"], "gpt-4o")
-        self.assertEqual(response["runtime"]["active"], "classic")
+        self.assertEqual(response["runtime"]["active"], "langgraph")
+
+    def test_multiagent_runtime_is_default_and_traces_specialists(self):
+        with patch("src.application.risk_queries.get_provider_risk_ranking", return_value=[{"id_proveedor": "PROV-1"}]):
+            response = answer_question("top 3 proveedores")
+
+        self.assertTrue(response["ok"])
+        self.assertEqual(response["intent"], "ranking_proveedores")
+        self.assertEqual(response["data"], [{"id_proveedor": "PROV-1"}])
+        self.assertEqual(response["runtime"]["active"], "langgraph")
+        self.assertEqual(response["runtime"]["topology"], "supervisor-workers")
+        agents = response["runtime"]["agents"]
+        self.assertIn("Supervisor", agents)
+        self.assertIn("Analista de portafolio", agents)
+        self.assertIn("Sintetizador", agents)
 
     def test_langgraph_runtime_falls_back_cleanly_when_dependency_is_missing(self):
-        with patch("src.application.risk_queries.get_provider_risk_ranking", return_value=[{"id_proveedor": "PROV-1"}]):
+        from src.agent.langgraph_runtime import LangGraphUnavailableError
+
+        with patch("src.application.risk_queries.get_provider_risk_ranking", return_value=[{"id_proveedor": "PROV-1"}]), patch(
+            "src.agent.antifraud_agent.run_langgraph_turn",
+            side_effect=LangGraphUnavailableError("missing"),
+        ):
             response = answer_question("top 3 proveedores", runtime="langgraph")
 
         self.assertTrue(response["ok"])
+        self.assertEqual(response["data"], [{"id_proveedor": "PROV-1"}])
         self.assertEqual(response["runtime"]["requested"], "langgraph")
         self.assertEqual(response["runtime"]["active"], "classic")
         self.assertEqual(response["runtime"]["status"], "langgraph_not_installed")

@@ -37,7 +37,7 @@ class AgentAskRequest(BaseModel):
     question: str = Field(..., min_length=1)
     history: list[ChatTurn] | None = None
     selected_claim_id: str | None = None
-    runtime: Literal["classic", "langgraph"] = "classic"
+    runtime: Literal["classic", "langgraph"] = "langgraph"
     user_role: Literal["analyst", "executive"] = "analyst"
 
 
@@ -47,7 +47,7 @@ class AgentChatRequest(BaseModel):
     thread_id: str | None = None
     selected_claim_id: str | None = None
     role: Literal["user"] = "user"
-    runtime: Literal["classic", "langgraph"] = "classic"
+    runtime: Literal["classic", "langgraph"] = "langgraph"
     user_role: Literal["analyst", "executive"] = "analyst"
     persist: bool = True
     ui_context: dict[str, Any] | None = None

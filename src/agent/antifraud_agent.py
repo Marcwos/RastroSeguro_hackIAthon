@@ -26,7 +26,10 @@ def answer_question(
     user_role: str = "analyst",
 ) -> dict[str, Any]:
     """Process user queries through deterministic tools and optional OpenAI synthesis."""
-    requested_runtime = (runtime or os.environ.get("RASTRO_AGENT_RUNTIME", "classic")).lower()
+    # Multi-agent (LangGraph) is the default runtime. RASTRO_AGENT_RUNTIME acts as
+    # an ops kill-switch that wins over the request (set it to "classic" to disable).
+    env_runtime = os.environ.get("RASTRO_AGENT_RUNTIME")
+    requested_runtime = (env_runtime or runtime or "langgraph").lower()
     limit = extract_limit(question)
     execution = _execute_turn(
         question,

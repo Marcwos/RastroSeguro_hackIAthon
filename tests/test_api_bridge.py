@@ -116,7 +116,7 @@ class ApiBridgeTest(unittest.TestCase):
             "top casos",
             history=None,
             selected_claim_id="SIN-0099",
-            runtime="classic",
+            runtime="langgraph",
             user_role="analyst",
         )
         payload = response.json()
