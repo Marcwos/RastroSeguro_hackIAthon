@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, Bot, CheckCircle2, FileSearch, GitBranch, Loader2, Scale, ShieldCheck } from 'lucide-react'
 import { useAppState } from '@/lib/app-context'
 import { ClaimDossier, getClaimDossier } from '@/lib/api'
-import { formatCurrency, getRiskColor, getRiskLabel } from '@/lib/claims-data'
+import { formatCurrency } from '@/lib/claims-data'
+import { RiskBadge } from '@/components/ui/risk-badge'
 
 const num = (value: unknown) => Number(value ?? 0)
 
@@ -109,7 +110,7 @@ export function StepDossier() {
               </div>
               <div className="institutional-card p-5">
                 <p className="label-mono-md text-muted-foreground">NIVEL</p>
-                <span className="mt-3 inline-block px-3 py-2 label-mono-md font-bold uppercase text-white" style={{ backgroundColor: getRiskColor(risk) }}>{getRiskLabel(risk)}</span>
+                <RiskBadge level={risk} className="mt-3 px-3 py-2" />
               </div>
               <div className="institutional-card p-5">
                 <p className="label-mono-md text-muted-foreground">MONTO</p>
@@ -126,7 +127,7 @@ export function StepDossier() {
                 <div className="section-header flex items-center gap-2"><FileSearch className="h-4 w-4" />Evidencia trazable</div>
                 <div className="space-y-3 p-5">
                   <h2 className="font-display text-2xl font-semibold">{dossier.headline}</h2>
-                  <p className="border-l-4 border-primary pl-3 text-sm italic text-muted-foreground">{dossier.ethical_guardrail}</p>
+                  <p className="rounded-md border border-border bg-[var(--surface-low)] p-3 text-sm italic text-muted-foreground">{dossier.ethical_guardrail}</p>
                   {(dossier.evidence.length ? dossier.evidence : [{ senal: 'Sin alertas principales', mensaje: 'Revisar componentes ML/NLP/grafo para completar el expediente.', puntos: 0 }]).slice(0, 6).map((item, index) => (
                     <div key={`${item.codigo || item.senal}-${index}`} className="border border-border bg-[var(--surface-low)] p-4">
                       <div className="flex items-start justify-between gap-4">
@@ -150,7 +151,7 @@ export function StepDossier() {
                   <div className="space-y-2 p-5">
                     {dossier.recommended_review.map((step) => (
                       <div key={step} className="flex items-start gap-2 border border-border bg-[var(--surface-low)] p-3 text-sm">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-700" />{step}
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--risk-verde)]" />{step}
                       </div>
                     ))}
                   </div>

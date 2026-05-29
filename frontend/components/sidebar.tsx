@@ -26,7 +26,7 @@ function NavButton({
       className={cn(
         'font-display flex w-full items-center gap-3 rounded px-3 py-3 text-left text-[15px] font-semibold transition-colors',
         active
-          ? 'border-l-4 border-primary bg-[var(--secondary-container)] font-bold text-[var(--on-secondary-container)]'
+          ? 'bg-[var(--accent)] font-bold text-[var(--accent-foreground)] ring-1 ring-inset ring-[color-mix(in_oklch,var(--brand)_30%,transparent)]'
           : 'text-muted-foreground opacity-80 hover:bg-[var(--surface-high)] hover:text-foreground hover:opacity-100',
         disabled && 'cursor-not-allowed opacity-40 hover:bg-transparent hover:text-muted-foreground',
       )}

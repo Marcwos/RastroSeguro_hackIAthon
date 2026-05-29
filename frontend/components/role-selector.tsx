@@ -84,7 +84,7 @@ export function RoleSelector() {
           })}
         </section>
 
-        <p className="max-w-3xl border-l-4 border-primary pl-4 text-sm text-muted-foreground">
+        <p className="max-w-3xl rounded-md border border-border bg-[var(--surface-low)] p-4 text-sm text-muted-foreground">
           Por ahora es una segmentación de experiencia para la demo, no autenticación real. Más adelante se puede conectar a login y permisos.
         </p>
       </div>

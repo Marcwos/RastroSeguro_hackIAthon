@@ -179,7 +179,7 @@ export function CommandBar() {
               {!isLoading && !error && !response && (
                 <div className="space-y-4 p-4">
                   <PromptGroup
-                    icon={<Zap className="h-3.5 w-3.5 text-amber-500" />}
+                    icon={<Zap className="h-3.5 w-3.5 text-[var(--risk-amarillo)]" />}
                     title="Pruebas de fuego del jurado"
                     prompts={suggestions.judge}
                     onPick={(q) => {

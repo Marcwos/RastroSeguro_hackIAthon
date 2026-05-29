@@ -34,7 +34,7 @@ function documentBadge(status: 'completo' | 'pendiente' | 'inconsistente') {
   if (status === 'inconsistente') {
     return { Icon: XCircle, label: 'Inconsistente', className: 'bg-[var(--error-container)] text-[var(--on-error-container)]' }
   }
-  return { Icon: AlertTriangle, label: 'Pendiente', className: 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-100' }
+  return { Icon: AlertTriangle, label: 'Pendiente', className: 'bg-[var(--warning-container)] text-[var(--on-warning-container)]' }
 }
 
 export function StepSummary() {
@@ -168,7 +168,7 @@ export function StepSummary() {
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="p-6">
-                <p className="border-l-4 border-border pl-4 text-base italic leading-relaxed text-readable">
+                <p className="rounded-md border border-border bg-[var(--surface-low)] p-4 text-base italic leading-relaxed text-readable">
                   &ldquo;{narrativa}&rdquo;
                 </p>
               </div>

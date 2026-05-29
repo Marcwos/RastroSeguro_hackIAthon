@@ -9,6 +9,10 @@ import { ClaimSummary, ExecutiveReport, RiskAggregateRow, SimulationResponse, ge
 import { formatCurrency, getRiskColor, getRiskLabel } from '@/lib/claims-data'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
+import { RiskBadge } from '@/components/ui/risk-badge'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 
 const num = (value: unknown) => Number(value ?? 0)
 function normalizeRisk(level?: string | null) {
@@ -49,9 +53,9 @@ function ReportDialog({ report, loading, onLoad }: { report: ExecutiveReport | n
   return (
     <Dialog onOpenChange={(open) => { if (open && !report && !loading) onLoad() }}>
       <DialogTrigger asChild>
-        <button className="inline-flex items-center justify-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-white hover:bg-white/10">
+        <Button variant="outline-inverse" className="h-auto px-5 py-3 label-mono-md font-bold uppercase">
           <FileText className="h-4 w-4" /> Reporte ejecutivo
-        </button>
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[86vh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
@@ -75,11 +79,11 @@ function ReportDialog({ report, loading, onLoad }: { report: ExecutiveReport | n
                 </div>
               ))}
             </div>
-            <p className="border-l-4 border-primary pl-3 text-sm italic text-muted-foreground">{report.ethics_note}</p>
+            <p className="rounded-md border border-border bg-[var(--surface-low)] p-3 text-sm italic text-muted-foreground">{report.ethics_note}</p>
             {report.ahorro_potencial_estimado ? (
-              <div className="border border-emerald-700/30 bg-emerald-950/20 p-4">
-                <p className="label-mono text-emerald-400">Ahorro potencial estimado</p>
-                <p className="font-display text-3xl font-semibold text-emerald-300">
+              <div className="action-panel-verde p-4">
+                <p className="label-mono text-[var(--risk-verde)]">Ahorro potencial estimado</p>
+                <p className="font-display text-3xl font-semibold">
                   {formatCurrency(report.ahorro_potencial_estimado.ahorro_potencial_estimado)}
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground">
@@ -159,9 +163,9 @@ function SimulatorDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="inline-flex items-center justify-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-white hover:bg-white/10">
+        <Button variant="outline-inverse" className="h-auto px-5 py-3 label-mono-md font-bold uppercase">
           <FlaskConical className="h-4 w-4" /> Simular caso
-        </button>
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
@@ -183,12 +187,12 @@ function SimulatorDialog() {
               <Textarea value={form.narrativa} onChange={(e) => update('narrativa', e.target.value)} className="mt-1 min-h-[110px]" />
             </label>
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={form.documentos_presentes === 'true'} onChange={(e) => update('documentos_presentes', String(e.target.checked))} />
+              <Checkbox checked={form.documentos_presentes === 'true'} onCheckedChange={(checked) => update('documentos_presentes', String(checked === true))} />
               Documentación completa
             </label>
-            <button onClick={run} disabled={loading} className="flex w-full items-center justify-center gap-2 bg-primary px-4 py-3 label-mono-md font-bold uppercase text-white disabled:opacity-50">
+            <Button onClick={run} disabled={loading} className="h-auto w-full px-4 py-3 label-mono-md font-bold uppercase">
               {loading && <Loader2 className="h-4 w-4 animate-spin" />} Ejecutar simulación
-            </button>
+            </Button>
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
           <div className="institutional-card overflow-hidden">
@@ -200,7 +204,7 @@ function SimulatorDialog() {
                     <p className="label-mono text-muted-foreground">SCORE FINAL</p>
                     <p className="font-display text-5xl font-semibold">{Math.round(num(result.score_final))}</p>
                   </div>
-                  <span className="px-3 py-2 label-mono-md font-bold uppercase text-white" style={{ backgroundColor: getRiskColor(normalizeRisk(result.nivel_riesgo)) }}>{getRiskLabel(normalizeRisk(result.nivel_riesgo))}</span>
+                  <RiskBadge level={normalizeRisk(result.nivel_riesgo)} className="px-3 py-2" />
                 </div>
                 <p className="text-sm leading-relaxed text-muted-foreground">{result.explicacion}</p>
                 <div>
@@ -224,7 +228,7 @@ function Field({ label, value, onChange }: { label: string; value: string; onCha
   return (
     <label className="block">
       <span className="label-mono-md font-bold uppercase text-muted-foreground">{label}</span>
-      <input value={value} onChange={(e) => onChange(e.target.value)} className="mt-1 w-full border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+      <Input value={value} onChange={(e) => onChange(e.target.value)} className="mt-1" />
     </label>
   )
 }
@@ -247,15 +251,15 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
 
   return (
     <div className="relative h-[360px] overflow-hidden bg-[var(--primary-container)] text-white">
-      <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(#ffffff_1px,transparent_1px),linear-gradient(90deg,#ffffff_1px,transparent_1px)] [background-size:32px_32px]" />
+      <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(var(--primary-fixed)_1px,transparent_1px),linear-gradient(90deg,var(--primary-fixed)_1px,transparent_1px)] [background-size:32px_32px]" />
       <svg viewBox="0 0 520 320" className="absolute inset-0 h-full w-full">
         {satellites.map((node) => (
           <line key={`line-${node.claim.id_siniestro}`} x1={center.x} y1={center.y} x2={node.x} y2={node.y} stroke="rgba(218,226,253,.35)" strokeWidth="1" />
         ))}
-        <circle cx={center.x} cy={center.y} r="44" fill="#dae2fd" opacity=".14" />
-        <circle cx={center.x} cy={center.y} r="30" fill="#dae2fd" opacity=".22" />
+        <circle cx={center.x} cy={center.y} r="44" fill="var(--primary-fixed)" opacity=".14" />
+        <circle cx={center.x} cy={center.y} r="30" fill="var(--primary-fixed)" opacity=".22" />
         <text x={center.x} y={center.y - 4} textAnchor="middle" className="fill-white text-[11px] font-bold">DATASET</text>
-        <text x={center.x} y={center.y + 12} textAnchor="middle" className="fill-[#bec6e0] text-[9px]">RIESGO</text>
+        <text x={center.x} y={center.y + 12} textAnchor="middle" className="fill-[var(--primary-fixed-dim)] text-[9px]">RIESGO</text>
         {satellites.map((node) => {
           const isActive = hoveredClaim?.id_siniestro === node.claim.id_siniestro
           const score = Math.round(num(node.claim.score_final))
@@ -284,15 +288,15 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
         <p className="mt-1 max-w-xs text-xs text-[var(--primary-fixed-dim)]">Cada nodo representa un siniestro prioritario. Pase el cursor para ver detalles o haga click para analizar.</p>
       </div>
       {activeClaim && (
-        <div className="absolute right-4 top-4 w-[240px] border border-white/20 bg-[#0b1020]/90 p-4 shadow-xl backdrop-blur">
+        <div className="absolute right-4 top-4 w-[240px] rounded-lg border border-white/15 bg-[var(--primary-container)]/95 p-4 shadow-xl backdrop-blur">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="label-mono text-[var(--primary-fixed-dim)]">CASO EN FOCO</p>
               <p className="font-display text-xl font-semibold">{activeClaim.id_siniestro}</p>
             </div>
-            <span className="px-2 py-1 label-mono-md font-bold uppercase text-white" style={{ backgroundColor: getRiskColor(normalizeRisk(activeClaim.nivel_riesgo)) }}>
+            <RiskBadge level={normalizeRisk(activeClaim.nivel_riesgo)}>
               {Math.round(num(activeClaim.score_final))}
-            </span>
+            </RiskBadge>
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-[var(--primary-fixed-dim)]">
             <div><span className="label-mono block text-white/60">RAMO</span>{activeClaim.ramo || 'N/D'}</div>
@@ -305,9 +309,9 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
         </div>
       )}
       <div className="absolute bottom-4 left-4 flex gap-3 text-xs text-[var(--primary-fixed-dim)]">
-        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-600" /> Alto/Crítico</span>
-        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-500" /> Medio</span>
-        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Bajo</span>
+        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[var(--risk-rojo)]" /> Alto/Crítico</span>
+        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[var(--risk-amarillo)]" /> Medio</span>
+        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-[var(--risk-verde)]" /> Bajo</span>
       </div>
     </div>
   )
@@ -421,27 +425,27 @@ export function StepCommandCenter() {
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               {isAnalyst ? (
-                <button onClick={() => setCurrentStep(1)} className="inline-flex items-center justify-center gap-2 bg-white px-5 py-3 label-mono-md font-bold uppercase text-primary hover:bg-[var(--surface-high)]">
+                <Button onClick={() => setCurrentStep(1)} className="h-auto bg-white px-5 py-3 label-mono-md font-bold uppercase text-primary hover:bg-[var(--surface-high)]">
                   Cargar CSV / iniciar análisis <ArrowRight className="h-4 w-4" />
-                </button>
+                </Button>
               ) : (
-                <span className="inline-flex items-center justify-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-[var(--primary-fixed-dim)]">
+                <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-[var(--primary-fixed-dim)]">
                   CSV gestionado por analista
                 </span>
               )}
-              <button onClick={() => { void loadClaims(); void loadCommandCenterData() }} className="inline-flex items-center justify-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-white hover:bg-white/10">
+              <Button variant="outline-inverse" onClick={() => { void loadClaims(); void loadCommandCenterData() }} className="h-auto px-5 py-3 label-mono-md font-bold uppercase">
                 Sincronizar datos
-              </button>
+              </Button>
               <ReportDialog report={report} loading={reportLoading} onLoad={() => void loadCommandCenterData()} />
               <SimulatorDialog />
-              <button onClick={() => setCurrentStep(6)} className="inline-flex items-center justify-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-white hover:bg-white/10">
+              <Button variant="outline-inverse" onClick={() => setCurrentStep(6)} className="h-auto px-5 py-3 label-mono-md font-bold uppercase">
                 Demo ejecutiva
-              </button>
+              </Button>
             </div>
           </div>
           <div className="institutional-card p-6">
             <div className="flex items-start gap-3">
-              <ShieldCheck className="h-8 w-8 text-green-700" />
+              <ShieldCheck className="h-8 w-8 text-[var(--risk-verde)]" />
               <div>
                 <p className="label-mono-md font-bold uppercase">Marco ético</p>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -471,21 +475,21 @@ export function StepCommandCenter() {
               <p className="mt-2 text-sm text-muted-foreground">Conecte el API o cargue un CSV para activar el Command Center.</p>
             </div>
             {isAnalyst ? (
-              <button onClick={() => setCurrentStep(1)} className="bg-primary px-5 py-3 label-mono-md font-bold uppercase text-white">Ir a carga de datos</button>
+              <Button onClick={() => setCurrentStep(1)} className="h-auto px-5 py-3 label-mono-md font-bold uppercase">Ir a carga de datos</Button>
             ) : (
               <p className="max-w-md text-sm text-muted-foreground">Solicita al analista cargar el CSV para que esta vista muestre KPIs, impacto y casos críticos.</p>
             )}
           </div>
         ) : (
           <>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              {kpis.map((kpi) => {
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {kpis.map((kpi, i) => {
                 const Icon = kpi.Icon
                 return (
-                  <div key={kpi.label} className="institutional-card p-5">
+                  <div key={kpi.label} className="institutional-card stagger-item p-5" style={{ '--i': i } as Record<string, number>}>
                     <div className="flex items-center justify-between">
                       <p className="label-mono-md uppercase text-muted-foreground">{kpi.label}</p>
-                      <Icon className="h-5 w-5 text-[var(--on-secondary-container)]" />
+                      <Icon className="h-5 w-5 text-[var(--brand)]" />
                     </div>
                     <p className="mt-3 font-display text-3xl font-semibold">{kpi.value}</p>
                     <p className="mt-1 text-sm text-muted-foreground">{kpi.note}</p>
@@ -502,7 +506,7 @@ export function StepCommandCenter() {
               <div className="institutional-card col-span-12 overflow-hidden xl:col-span-5">
                 <div className="section-header flex items-center gap-2"><BarChart3 className="h-4 w-4" />Distribución por semáforo</div>
                 <div className="p-4">
-                  <ChartContainer config={{ total: { label: 'Casos', color: '#131b2e' } }} className="h-[280px] w-full">
+                  <ChartContainer config={{ total: { label: 'Casos', color: 'var(--chart-1)' } }} className="h-[280px] w-full">
                     <PieChart>
                       <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
                       <Pie data={analytics.riskDistribution} dataKey="total" nameKey="name" innerRadius={62} outerRadius={96} paddingAngle={4}>
@@ -526,7 +530,7 @@ export function StepCommandCenter() {
               <div className="institutional-card col-span-12 overflow-hidden lg:col-span-4">
                 <div className="section-header flex items-center gap-2"><Building2 className="h-4 w-4" />Riesgo por proveedor</div>
                 <div className="p-4">
-                  <ChartContainer config={{ avgRisk: { label: 'Score promedio', color: '#dc2626' } }} className="h-[240px] w-full">
+                  <ChartContainer config={{ avgRisk: { label: 'Score promedio', color: 'var(--chart-4)' } }} className="h-[240px] w-full">
                     <BarChart data={analytics.providerRows} layout="vertical" margin={{ left: 8, right: 8 }}>
                       <CartesianGrid horizontal={false} />
                       <XAxis type="number" domain={[0, 100]} hide />
@@ -540,7 +544,7 @@ export function StepCommandCenter() {
               <div className="institutional-card col-span-12 overflow-hidden lg:col-span-4">
                 <div className="section-header flex items-center gap-2"><UsersRound className="h-4 w-4" />Riesgo por ramo</div>
                 <div className="p-4">
-                  <ChartContainer config={{ avgRisk: { label: 'Score promedio', color: '#f59e0b' } }} className="h-[240px] w-full">
+                  <ChartContainer config={{ avgRisk: { label: 'Score promedio', color: 'var(--chart-3)' } }} className="h-[240px] w-full">
                     <BarChart data={analytics.branchRows} margin={{ left: 4, right: 4 }}>
                       <CartesianGrid vertical={false} />
                       <XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={10} />
@@ -554,7 +558,7 @@ export function StepCommandCenter() {
               <div className="institutional-card col-span-12 overflow-hidden lg:col-span-4">
                 <div className="section-header flex items-center gap-2"><MapPin className="h-4 w-4" />Riesgo por ciudad</div>
                 <div className="p-4">
-                  <ChartContainer config={{ avgRisk: { label: 'Score promedio', color: '#505f76' } }} className="h-[240px] w-full">
+                  <ChartContainer config={{ avgRisk: { label: 'Score promedio', color: 'var(--chart-1)' } }} className="h-[240px] w-full">
                     <BarChart data={analytics.cityRows} margin={{ left: 4, right: 4 }}>
                       <CartesianGrid vertical={false} />
                       <XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={10} />
@@ -571,14 +575,14 @@ export function StepCommandCenter() {
               <div className="section-header flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><span>Top 10 casos prioritarios (Historial)</span><span>{isLoadingClaims ? 'Sincronizando...' : 'Ordenado por score final'}</span></div>
               <div className="border-b border-border bg-[var(--surface-low)] p-3">
                 <div className="flex flex-col gap-2 md:flex-row md:items-center">
-                  <input
+                  <Input
                     value={historyCode}
                     onChange={(e) => setHistoryCode(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && searchInHistory()}
                     placeholder="Buscar en historial por código (SIN-046)"
-                    className="w-full border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary md:max-w-sm"
+                    className="md:max-w-sm"
                   />
-                  <button onClick={searchInHistory} className="border border-border px-3 py-2 label-mono-md text-muted-foreground hover:text-primary">Buscar</button>
+                  <Button variant="outline" onClick={searchInHistory} className="label-mono-md">Buscar</Button>
                 </div>
                 {historyError && <p className="mt-2 text-xs text-destructive">{historyError}</p>}
               </div>
@@ -595,16 +599,16 @@ export function StepCommandCenter() {
                     {analytics.topCases.map((claim) => {
                       const risk = normalizeRisk(claim.nivel_riesgo)
                       return (
-                        <tr key={claim.id_siniestro} className="border-b border-border last:border-b-0">
+                        <tr key={claim.id_siniestro} className="border-b border-border transition-colors last:border-b-0 hover:bg-[var(--surface-low)]">
                           <td className="px-4 py-3 font-mono text-sm font-semibold">{claim.id_siniestro}</td>
                           <td className="px-4 py-3 text-sm">{claim.ramo || 'N/D'}</td>
                           <td className="px-4 py-3 text-sm">{claim.ciudad || 'N/D'}</td>
                           <td className="px-4 py-3 font-mono text-xs">{claim.id_proveedor || claim.beneficiario || 'N/D'}</td>
                           <td className="px-4 py-3 font-mono text-xs">{formatCurrency(claim.monto_reclamado)}</td>
                           <td className="px-4 py-3"><span className="font-display text-lg font-semibold">{Math.round(num(claim.score_final))}</span></td>
-                          <td className="px-4 py-3"><span className="px-2 py-1 label-mono-md font-bold uppercase text-white" style={{ backgroundColor: getRiskColor(risk) }}>{getRiskLabel(risk)}</span></td>
+                          <td className="px-4 py-3"><RiskBadge level={risk} /></td>
                           <td className="px-4 py-3 text-sm">{countAlerts(claim)}</td>
-                          <td className="px-4 py-3"><button onClick={() => analyzeClaim(claim)} className="bg-primary px-3 py-2 label-mono-md text-white hover:opacity-80">Analizar</button></td>
+                          <td className="px-4 py-3"><Button size="sm" onClick={() => analyzeClaim(claim)} className="label-mono">Analizar</Button></td>
                         </tr>
                       )
                     })}

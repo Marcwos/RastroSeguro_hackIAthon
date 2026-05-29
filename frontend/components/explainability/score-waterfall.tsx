@@ -94,7 +94,7 @@ export function ScoreWaterfall({ componentes, scoreFinal }: ScoreWaterfallProps)
           {hasWhatIf && (
             <div className="text-right">
               <p className="label-mono text-[10px] uppercase text-muted-foreground">Δ what-if</p>
-              <p className={cn('font-display text-2xl leading-none', delta < 0 ? 'text-emerald-500' : 'text-destructive')}>
+              <p className={cn('font-display text-2xl leading-none', delta < 0 ? 'text-[var(--risk-verde)]' : 'text-destructive')}>
                 {delta > 0 ? '+' : ''}
                 {Math.round(delta)}
               </p>
@@ -153,7 +153,7 @@ export function ScoreWaterfall({ componentes, scoreFinal }: ScoreWaterfallProps)
                           initial={{ width: 0 }}
                           animate={{ width: `${width}%` }}
                           transition={{ duration: 0.4, ease: 'easeOut' }}
-                          className="h-4 rounded-l bg-emerald-500/70"
+                          className="h-4 rounded-l bg-[var(--risk-verde)]/75"
                         />
                       )}
                     </div>
@@ -173,7 +173,7 @@ export function ScoreWaterfall({ componentes, scoreFinal }: ScoreWaterfallProps)
                 <span
                   className={cn(
                     'w-14 shrink-0 text-right label-mono-md font-bold',
-                    positive ? 'text-destructive' : 'text-emerald-500',
+                    positive ? 'text-destructive' : 'text-[var(--risk-verde)]',
                   )}
                 >
                   {positive ? '+' : ''}

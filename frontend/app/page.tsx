@@ -14,6 +14,17 @@ import { AIAssistant } from '@/components/ai-assistant'
 import { CommandBar } from '@/components/command-bar'
 import { RoleSelector } from '@/components/role-selector'
 import { useEffect } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+
+const STEP_VIEWS: Record<number, React.ComponentType> = {
+  0: StepCommandCenter,
+  1: StepUpload,
+  2: StepSummary,
+  3: StepAnalysis,
+  4: StepIntelligence,
+  5: StepDossier,
+  6: StepExecutiveDemo,
+}
 
 function MainContent() {
   const { currentStep, showCommandBar, setShowCommandBar, userRole, setCurrentStep } = useAppState()
@@ -39,6 +50,9 @@ function MainContent() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [showCommandBar, setShowCommandBar])
 
+  const reduceMotion = useReducedMotion()
+  const StepView = STEP_VIEWS[currentStep] ?? StepCommandCenter
+
   if (!userRole) return <RoleSelector />
 
   return (
@@ -47,13 +61,17 @@ function MainContent() {
       <div className="flex min-w-0 flex-1 flex-col lg:ml-64">
         <Header />
         <main className="min-w-0 flex-1 pb-24 lg:pb-0">
-          {currentStep === 0 && <StepCommandCenter />}
-          {currentStep === 1 && <StepUpload />}
-          {currentStep === 2 && <StepSummary />}
-          {currentStep === 3 && <StepAnalysis />}
-          {currentStep === 4 && <StepIntelligence />}
-          {currentStep === 5 && <StepDossier />}
-          {currentStep === 6 && <StepExecutiveDemo />}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={currentStep}
+              initial={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: 'translateY(8px)' }}
+              animate={{ opacity: 1, transform: 'translateY(0px)' }}
+              exit={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: 'translateY(-6px)' }}
+              transition={{ duration: 0.26, ease: [0.23, 1, 0.32, 1] }}
+            >
+              <StepView />
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
       <AIAssistant />

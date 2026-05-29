@@ -40,7 +40,7 @@ function toFlow(nodes: GraphNode[], edges: GraphEdge[], compact = false): { flow
       position: layerPosition('claim', 0, compact),
       data: { label: `Siniestro\n${claim?.label || 'N/A'}` },
       style: {
-        background: '#0ea5e9', color: '#fff', borderRadius: 14, border: '2px solid #0284c7',
+        background: 'var(--brand)', color: 'var(--primary-foreground)', borderRadius: 14, border: '2px solid var(--brand-strong)',
         fontWeight: 700, padding: 10, width: compact ? 150 : 170, textAlign: 'center', whiteSpace: 'pre-line'
       },
       draggable: false,
@@ -49,7 +49,7 @@ function toFlow(nodes: GraphNode[], edges: GraphEdge[], compact = false): { flow
       id: 'header-context',
       position: { x: compact ? 85 : 95, y: compact ? 8 : 16 },
       data: { label: 'Contexto del caso' },
-      style: { background: '#f8fafc', border: '1px solid #cbd5e1', color: '#334155', padding: 6, fontSize: 11, fontWeight: 700, width: compact ? 130 : 160, textAlign: 'center' },
+      style: { background: 'var(--surface-low)', border: '1px solid var(--border)', color: 'var(--muted-foreground)', padding: 6, fontSize: 11, fontWeight: 700, width: compact ? 130 : 160, textAlign: 'center' },
       draggable: false,
       selectable: false,
     },
@@ -57,7 +57,7 @@ function toFlow(nodes: GraphNode[], edges: GraphEdge[], compact = false): { flow
       id: 'header-risk',
       position: { x: compact ? 528 : 768, y: compact ? 8 : 16 },
       data: { label: 'Señales críticas' },
-      style: { background: '#fff1f2', border: '1px solid #fecdd3', color: '#be123c', padding: 6, fontSize: 11, fontWeight: 700, width: compact ? 130 : 160, textAlign: 'center' },
+      style: { background: 'var(--error-container)', border: '1px solid var(--risk-rojo)', color: 'var(--on-error-container)', padding: 6, fontSize: 11, fontWeight: 700, width: compact ? 130 : 160, textAlign: 'center' },
       draggable: false,
       selectable: false,
     },
@@ -70,7 +70,7 @@ function toFlow(nodes: GraphNode[], edges: GraphEdge[], compact = false): { flow
       position: p,
       data: { label: `${TYPE_LABEL[node.type] || node.type}\n${node.label}` },
       style: {
-        background: '#e2e8f0', color: '#111827', borderRadius: 12, border: '2px solid #64748b',
+        background: 'var(--surface-container)', color: 'var(--foreground)', borderRadius: 12, border: '2px solid var(--surface-highest)',
         fontWeight: 600, padding: 8, width: compact ? 130 : 160, textAlign: 'center', whiteSpace: 'pre-line'
       },
       draggable: false,
@@ -84,7 +84,7 @@ function toFlow(nodes: GraphNode[], edges: GraphEdge[], compact = false): { flow
       position: p,
       data: { label: `${TYPE_LABEL[node.type] || node.type}\n${node.label}` },
       style: {
-        background: '#fee2e2', color: '#111827', borderRadius: node.type === 'beneficiario' ? 999 : 8, border: '2px solid #ef4444',
+        background: 'var(--error-container)', color: 'var(--on-error-container)', borderRadius: node.type === 'beneficiario' ? 999 : 8, border: '2px solid var(--risk-rojo)',
         fontWeight: 700, padding: 8, width: compact ? 130 : 160, textAlign: 'center', whiteSpace: 'pre-line'
       },
       draggable: false,
@@ -96,7 +96,7 @@ function toFlow(nodes: GraphNode[], edges: GraphEdge[], compact = false): { flow
       id: node.id,
       position: { x: compact ? 300 : 430, y: compact ? 258 + idx * 60 : 360 + idx * 70 },
       data: { label: `${TYPE_LABEL[node.type] || node.type}\n${node.label}` },
-      style: { background: '#f1f5f9', border: '1px solid #94a3b8', color: '#0f172a', padding: 8, width: compact ? 140 : 160, textAlign: 'center', whiteSpace: 'pre-line' },
+      style: { background: 'var(--surface-low)', border: '1px solid var(--surface-highest)', color: 'var(--foreground)', padding: 8, width: compact ? 140 : 160, textAlign: 'center', whiteSpace: 'pre-line' },
       draggable: false,
     })
   })
@@ -111,9 +111,9 @@ function toFlow(nodes: GraphNode[], edges: GraphEdge[], compact = false): { flow
         source: edge.source,
         target: edge.target,
         label: recurrent ? `Recurrente (${target?.count || edge.weight})` : 'Relación del caso',
-        style: { stroke: recurrent ? '#ef4444' : '#64748b', strokeWidth: recurrent ? 2.8 : 1.8 },
-        labelStyle: { fill: '#334155', fontSize: 10, fontWeight: 600 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: recurrent ? '#ef4444' : '#64748b' },
+        style: { stroke: recurrent ? 'var(--risk-rojo)' : 'var(--surface-highest)', strokeWidth: recurrent ? 2.8 : 1.8 },
+        labelStyle: { fill: 'var(--muted-foreground)', fontSize: 10, fontWeight: 600 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: recurrent ? 'var(--risk-rojo)' : 'var(--surface-highest)' },
         animated: recurrent,
       }
     })

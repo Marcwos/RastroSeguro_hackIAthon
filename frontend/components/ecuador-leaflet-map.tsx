@@ -17,7 +17,7 @@ function createPinIcon() {
     html: `
       <div style="position:relative;width:36px;height:44px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.35));">
         <svg width="36" height="44" viewBox="0 0 36 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M18 0C9.716 0 3 6.477 3 14.47c0 10.588 15 29.53 15 29.53S33 25.058 33 14.47C33 6.477 26.284 0 18 0z" fill="#dc2626"/>
+          <path d="M18 0C9.716 0 3 6.477 3 14.47c0 10.588 15 29.53 15 29.53S33 25.058 33 14.47C33 6.477 26.284 0 18 0z" fill="var(--risk-rojo)"/>
           <circle cx="18" cy="14" r="6" fill="white"/>
         </svg>
       </div>
@@ -55,7 +55,7 @@ export function EcuadorLeafletMap({ location }: { location: MapLocation }) {
         zoom={11}
         scrollWheelZoom={false}
         className="h-full w-full"
-        style={{ background: isDark ? '#0f1419' : '#e8eef4' }}
+        style={{ background: 'var(--surface-container)' }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CARTO'
@@ -65,8 +65,8 @@ export function EcuadorLeafletMap({ location }: { location: MapLocation }) {
           center={center}
           radius={12000}
           pathOptions={{
-            color: '#dc2626',
-            fillColor: '#dc2626',
+            color: 'var(--risk-rojo)',
+            fillColor: 'var(--risk-rojo)',
             fillOpacity: 0.12,
             weight: 2,
             dashArray: '6 4',

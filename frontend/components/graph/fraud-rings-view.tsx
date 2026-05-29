@@ -7,9 +7,9 @@ import { buildFraudRingGraph } from './graph-utils'
 import { FraudRingReactFlow } from './fraud-ring-reactflow'
 
 function riskBadge(score: number) {
-  if (score >= 76) return 'bg-red-500/15 text-red-600 border-red-500/30'
-  if (score >= 41) return 'bg-amber-500/15 text-amber-700 border-amber-500/30'
-  return 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30'
+  if (score >= 76) return 'bg-[var(--error-container)] text-[var(--on-error-container)] border-[var(--risk-rojo)]/35'
+  if (score >= 41) return 'bg-[var(--warning-container)] text-[var(--on-warning-container)] border-[var(--risk-amarillo)]/45'
+  return 'bg-[var(--success-container)] text-[var(--on-success-container)] border-[var(--risk-verde)]/35'
 }
 
 export function FraudRingsView() {
@@ -66,7 +66,7 @@ export function FraudRingsView() {
 
   if (error) {
     return (
-      <div className="institutional-card border-red-500/30 p-6 text-red-600">
+      <div className="institutional-card border-[var(--risk-rojo)]/35 p-6 text-[var(--risk-rojo)]">
         <p className="font-medium">No se pudieron cargar las redes de fraude.</p>
         <p className="mt-1 text-sm text-muted-foreground">{error}</p>
       </div>
@@ -86,10 +86,10 @@ export function FraudRingsView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-start gap-3 rounded border border-amber-500/30 bg-amber-500/10 p-4">
-        <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
+      <div className="action-panel-amarillo flex items-start gap-3 p-4">
+        <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
         <div>
-          <p className="text-sm font-semibold text-amber-900">Red de priorización, no acusación</p>
+          <p className="text-sm font-semibold">Red de priorización, no acusación</p>
           <p className="mt-1 text-sm text-muted-foreground">
             Los anillos agrupan siniestros que comparten proveedores, talleres u otras entidades de riesgo.
             Sirven para revisión humana coordinada; no confirman fraude automáticamente.
@@ -171,7 +171,7 @@ export function FraudRingsView() {
                       <li key={id} className="flex items-center gap-2">
                         {id}
                         {selectedRing.claims_resumen.find((c) => c.id_siniestro === id)?.nivel_riesgo === 'Rojo' ? (
-                          <AlertTriangle className="h-3.5 w-3.5 text-red-500" />
+                          <AlertTriangle className="h-3.5 w-3.5 text-[var(--risk-rojo)]" />
                         ) : null}
                       </li>
                     ))}

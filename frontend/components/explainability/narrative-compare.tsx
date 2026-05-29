@@ -40,7 +40,7 @@ function HighlightedText({ text, shared }: { text: string; shared: Set<string> }
         const norm = normalizeToken(part)
         if (norm.length >= 4 && shared.has(norm)) {
           return (
-            <mark key={i} className="rounded bg-amber-400/30 px-0.5 text-foreground">
+            <mark key={i} className="rounded bg-[var(--risk-amarillo)]/30 px-0.5 text-foreground">
               {part}
             </mark>
           )
@@ -141,7 +141,7 @@ export function NarrativeCompare({ currentId, currentNarrative, matches, lookupN
 
       {targetNarrative && (
         <p className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="inline-block h-3 w-3 rounded bg-amber-400/30" />
+          <span className="inline-block h-3 w-3 rounded bg-[var(--risk-amarillo)]/30" />
           {shared.size} términos compartidos · similitud del motor {Math.round((active?.similarity ?? 0) * 100)}%.
         </p>
       )}

@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { ArrowLeft, Bot, BriefcaseBusiness, CircleDollarSign, FileText, Loader2, PlayCircle, ShieldCheck, Star, Target } from 'lucide-react'
 import { useAppState } from '@/lib/app-context'
 import { BusinessImpact, StarCasesResponse, getBusinessImpact, getStarCases } from '@/lib/api'
-import { formatCurrency, getRiskColor, getRiskLabel } from '@/lib/claims-data'
+import { formatCurrency } from '@/lib/claims-data'
+import { RiskBadge } from '@/components/ui/risk-badge'
 
 const num = (value: unknown) => Number(value ?? 0)
 function normalizeRisk(level?: string | null) {
@@ -53,13 +54,13 @@ export function StepExecutiveDemo() {
           </div>
           <div className="institutional-card p-6">
             <div className="flex items-start gap-3">
-              <ShieldCheck className="h-8 w-8 text-green-700" />
+              <ShieldCheck className="h-8 w-8 text-[var(--risk-verde)]" />
               <div>
                 <p className="label-mono-md font-bold uppercase">Mensaje para jurado</p>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">RastroSeguro no promete ahorro automático ni confirma fraude. Prioriza exposición para revisión humana y muestra evidencia verificable.</p>
               </div>
             </div>
-            {impact && <p className="mt-5 border-l-4 border-primary pl-3 text-sm italic text-muted-foreground">{impact.mensaje}</p>}
+            {impact && <p className="mt-5 rounded-md border border-border bg-[var(--surface-low)] p-3 text-sm italic text-muted-foreground">{impact.mensaje}</p>}
           </div>
         </header>
 
@@ -87,7 +88,7 @@ export function StepExecutiveDemo() {
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="bg-[var(--surface-high)] px-2 py-1 label-mono-md font-bold uppercase">{item.tipo}</span>
                         <span className="font-mono text-sm font-semibold">{item.id_siniestro}</span>
-                        <span className="px-2 py-1 label-mono text-white" style={{ backgroundColor: getRiskColor(risk) }}>{getRiskLabel(risk)}</span>
+                        <RiskBadge level={risk} size="sm" />
                       </div>
                       <p className="mt-2 text-sm font-medium">{item.por_que_destaca}</p>
                       <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{item.explicacion_demo || 'Caso preparado para demo.'}</p>

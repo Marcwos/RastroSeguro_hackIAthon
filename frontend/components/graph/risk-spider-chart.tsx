@@ -19,7 +19,7 @@ const AXES = [
   { key: 'score_categorico', label: 'Categórico' },
 ] as const
 
-const gridStroke = 'hsl(var(--chart-grid) / 0.35)'
+const gridStroke = 'color-mix(in oklch, var(--chart-grid) 45%, transparent)'
 
 const num = (v: unknown) => Number(v ?? 0)
 
@@ -51,8 +51,8 @@ export function RiskSpiderChart({ selectedClaim, claims }: { selectedClaim: Clai
           <p className="label-mono mb-2 text-muted-foreground">Patrón de aumento de riesgo (caso vs promedio dataset)</p>
           <ChartContainer
             config={{
-              Caso: { label: 'Caso', color: 'hsl(var(--chart-1))' },
-              Promedio: { label: 'Promedio', color: 'hsl(var(--chart-2))' },
+              Caso: { label: 'Caso', color: 'var(--chart-1)' },
+              Promedio: { label: 'Promedio', color: 'var(--chart-2)' },
             }}
             className="h-[360px] w-full"
           >

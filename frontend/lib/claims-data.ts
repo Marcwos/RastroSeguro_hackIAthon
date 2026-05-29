@@ -247,22 +247,42 @@ export const mockClaims: ClaimData[] = [
   }
 ]
 
+// Returns a CSS variable reference so charts, badges and graph nodes follow
+// the active theme (light/dark) instead of being locked to a hex value.
 export function getRiskColor(nivel: string): string {
   switch (nivel?.toLowerCase()) {
     case 'bajo':
     case 'verde':
-      return '#10b981'
+      return 'var(--risk-verde)'
     case 'medio':
     case 'amarillo':
-      return '#f59e0b'
+      return 'var(--risk-amarillo)'
     case 'alto':
-      return '#ef4444'
     case 'critico':
     case 'crítico':
     case 'rojo':
-      return '#dc2626'
+      return 'var(--risk-rojo)'
     default:
-      return '#6b7280'
+      return 'var(--muted-foreground)'
+  }
+}
+
+// Foreground that meets contrast on top of getRiskColor() for the same level.
+export function getRiskForeground(nivel: string): string {
+  switch (nivel?.toLowerCase()) {
+    case 'bajo':
+    case 'verde':
+      return 'var(--risk-verde-foreground)'
+    case 'medio':
+    case 'amarillo':
+      return 'var(--risk-amarillo-foreground)'
+    case 'alto':
+    case 'critico':
+    case 'crítico':
+    case 'rojo':
+      return 'var(--risk-rojo-foreground)'
+    default:
+      return 'var(--background)'
   }
 }
 
