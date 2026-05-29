@@ -5,6 +5,7 @@ import type { AgentResponse } from '@/lib/api'
 import { formatCurrency, getRiskBadgeClasses, getRiskLabel, normalizeRiskLevel } from '@/lib/claims-data'
 import { cn } from '@/lib/utils'
 import { ArrowUpRight, Database, FileText, Sparkles } from 'lucide-react'
+import { renderMarkdownBlocks } from '@/lib/markdown'
 
 const CURRENCY_HINTS = ['monto', 'ahorro', 'suma', 'prima', 'valor', 'expuesto', 'reclamado', 'pagado', 'estimado']
 const SCORE_HINTS = ['score', 'puntos', 'porcentaje', 'pct', 'promedio', 'ratio']
@@ -13,18 +14,6 @@ const ID_KEYS = ['id_siniestro', 'siniestro', 'id_anillo']
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
-/** Strip light markdown so the synthesized message reads as clean prose. */
-function stripMarkdown(text: string): string {
-  return text
-    .replace(/^#{1,6}\s*/gm, '')
-    .replace(/\*\*(.*?)\*\*/g, '$1')
-    .replace(/__(.*?)__/g, '$1')
-    .replace(/`([^`]+)`/g, '$1')
-    .replace(/^\s*[-*]\s+/gm, '• ')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
 }
 
 function humanizeKey(key: string): string {
@@ -238,9 +227,7 @@ export function AgentResult({ response, onOpenClaim }: AgentResultProps) {
 
   return (
     <div className="space-y-3">
-      {message && (
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{stripMarkdown(message)}</p>
-      )}
+      {message && renderMarkdownBlocks(message)}
 
       {body}
 

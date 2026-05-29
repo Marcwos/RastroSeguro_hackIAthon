@@ -6,6 +6,7 @@ import { AgentChatMessage, AgentChatSection, AgentChatSessionSummary, ApiClientE
 import { AgentResult } from '@/components/agent/agent-result'
 import { History, MessageCircle, Plus, X, Send, Bot, User } from 'lucide-react'
 import { cn, sanitizeAiText } from '@/lib/utils'
+import { renderMarkdownBlocks } from '@/lib/markdown'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 
 const THREAD_STORAGE_KEY = 'rastroseguro-agent-thread-id'
@@ -393,8 +394,10 @@ export function AIAssistant() {
                             message.role === 'assistant' && message.response ? 'w-full max-w-[92%]' : 'max-w-[85%]',
                           )}
                         >
-                          {message.role === 'assistant' && message.response ? (
+                      {message.role === 'assistant' && message.response ? (
                             <AgentResult response={message.response} onOpenClaim={openClaim} />
+                          ) : message.role === 'assistant' ? (
+                            renderMarkdownBlocks(message.content)
                           ) : (
                             <p className="whitespace-pre-wrap break-words">{message.content}</p>
                           )}

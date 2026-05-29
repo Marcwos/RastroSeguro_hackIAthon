@@ -1,5 +1,7 @@
 'use client'
 
+import { assignIncrementalSinIds } from '@/lib/csv-id-normalizer'
+
 export type FrontendRiskLevel = 'bajo' | 'medio' | 'alto' | 'critico'
 
 export interface ApiEnvelope<T> {
@@ -338,8 +340,9 @@ export function chatAgent(payload: {
 }
 
 export async function uploadClaimsCsv(file: File) {
+  const normalizedFile = await assignIncrementalSinIds(file)
   const form = new FormData()
-  form.append('file', file)
+  form.append('file', normalizedFile)
 
   let response: Response
   try {
