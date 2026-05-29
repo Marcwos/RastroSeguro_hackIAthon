@@ -44,7 +44,7 @@ def load_settings() -> LLMSettings:
         model=os.environ.get("RASTRO_LLM_MODEL", DEFAULT_MODEL).strip() or DEFAULT_MODEL,
         api_key=os.environ.get("OPENAI_API_KEY"),
         timeout_seconds=_as_float(os.environ.get("RASTRO_LLM_TIMEOUT_SECONDS"), default=10.0),
-        max_output_tokens=_as_int(os.environ.get("RASTRO_LLM_MAX_OUTPUT_TOKENS"), default=700),
+        max_output_tokens=_as_int(os.environ.get("RASTRO_LLM_MAX_OUTPUT_TOKENS"), default=360),
     )
 
 

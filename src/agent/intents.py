@@ -14,6 +14,29 @@ class IntentMatch:
 
 
 INTENT_ALIASES = {
+    "fecha_actual": [
+        "que dia es hoy",
+        "qué día es hoy",
+        "que fecha es hoy",
+        "qué fecha es hoy",
+        "fecha de hoy",
+        "fecha actual",
+        "dia de hoy",
+        "día de hoy",
+        "en que fecha estamos",
+        "en qué fecha estamos",
+    ],
+    "saludo": ["hola", "buenas", "buenos dias", "buenos días", "buenas tardes", "buenas noches"],
+    "ayuda_agente": [
+        "ayuda",
+        "que puedes hacer",
+        "qué puedes hacer",
+        "que puedo preguntar",
+        "qué puedo preguntar",
+        "opciones",
+        "comandos",
+        "preguntas sugeridas",
+    ],
     "top_riesgo": ["top", "mayor riesgo", "mas riesgo", "más riesgo", "prioridad", "priorizar", "mas riesgosos", "más riesgosos", "peores casos", "ranking de riesgo", "10 siniestros", "diez siniestros", "casos sospechosos"],
     "explicar_siniestro": ["explica", "explicame", "explícame", "por que", "por qué", "detalle", "porque", "por que este", "por qué este", "marcado como alto", "por que es riesgoso", "razones", "motivo", "justifica", "fundamenta", "por que fue marcado"],
     "expediente_siniestro": ["expediente", "ficha antifraude", "dossier", "investigacion", "investigación", "ficha del caso", "ficha completa"],
@@ -69,5 +92,6 @@ INTENT_ALIASES = {
     "documentacion": ["regla", "reglas", "score", "metodologia", "metodología", "limitacion", "limitación", "etica", "ética", "documentacion", "documentación", "como funciona", "cómo funciona", "como calculan", "cómo calculan", "como se calcula", "cómo se calcula", "que reglas", "qué reglas", "explica el sistema", "como detectan el fraude"],
 }
 
+GENERAL_INTENTS = {"fecha_actual", "saludo", "ayuda_agente"}
 CLAIM_REQUIRED_INTENTS = {"explicar_siniestro", "expediente_siniestro", "narrativas_similares", "conexiones_grafo"}
 DOC_INTENTS = {"documentacion"}

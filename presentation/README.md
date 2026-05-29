@@ -2,15 +2,16 @@
 
 ## Contenido
 
-- [`pitch.md`](./pitch.md) — Pitch completo (~10 min) listo para exportar
+- [`RastroSeguro-Pitch.md`](./RastroSeguro-Pitch.md) — Pitch completo listo para exportar
+- [`pitch.pdf`](./pitch.pdf) — PDF entregable
 
 ## Exportar a PDF
 
-### Opción 1: Python (recomendado, sin dependencias externas)
+### Opción 1: Python (recomendado)
 
 ```bash
 pip install fpdf2
-py -3 scripts/export_pitch_pdf.py
+python scripts/export_pitch_pdf.py
 ```
 
 Salida: `presentation/pitch.pdf`
@@ -25,14 +26,12 @@ Requisito: [Pandoc](https://pandoc.org/installing.html) instalado.
 
 ### Opción 3: VS Code / Cursor
 
-1. Abrir `presentation/pitch.md`
+1. Abrir `presentation/RastroSeguro-Pitch.md`
 2. Vista previa Markdown → Imprimir → Guardar como PDF
 3. Guardar como `presentation/pitch.pdf`
-
-### Opción 3: GitHub
-
-Subir `pitch.md` al repo; GitHub renderiza Markdown. Para entrega formal, preferir PDF.
 
 ## Entregable esperado
 
 `presentation/pitch.pdf` — Problema, solución, impacto y próximos pasos (PDF §14).
+
+Copia también en [`entregables/04-presentacion-ejecutiva/`](../entregables/04-presentacion-ejecutiva/).

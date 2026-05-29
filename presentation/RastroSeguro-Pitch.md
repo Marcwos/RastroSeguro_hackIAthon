@@ -191,6 +191,16 @@ Esto es lo más importante del proyecto, no una nota al pie:
 
 > **RastroSeguro convierte miles de siniestros dispersos en una lista priorizada y
 > explicada, para que el equipo humano revise primero lo que realmente importa —
-> con criterio, con evidencia y sin acusar a nadie.**
+> con criterio, con evidencia y sin acusar a nadie.**Último día del hackIAthon 🚀
+
+Han sido días intensos con amigos Carlos Chile y Justin Alejandro Zambrano Lucas, de mucho aprendizaje, trabajo en equipo, ideas, errores, ajustes y bastante código. Llegar hasta este punto ya ha sido una experiencia muy valiosa para nosotros.
+
+Como equipo, nos sentimos agradecidos por haber formado parte de este reto, por la oportunidad de construir una solución con inteligencia artificial en tan poco tiempo y por compartir este espacio con tantos equipos talentosos.
+
+Más allá del resultado final, nos quedamos con el aprendizaje, la presión positiva de crear algo funcional, la importancia de organizarnos bien y la motivación de seguir creciendo como futuros profesionales en tecnología.
+
+Gracias a la organización, sponsors y aliados por impulsar espacios como este, donde podemos retarnos, aprender y demostrar lo que somos capaces de construir.
+
+#hackIAthon #IAenEcuador #AgenteIA #AgenteASUR #DesafíoTechIA #AIChallenge #IdeasQueImpactan
 
 *RastroSeguro — hackIAthon 2026 — Reto Aseguradora del Sur*

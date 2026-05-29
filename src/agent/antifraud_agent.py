@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import os
+import re
+from datetime import datetime, timedelta, timezone, tzinfo
 from typing import Any
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from src.application import risk_queries as tools
 from src.agent.entities import extract_claim_id, extract_limit
@@ -11,9 +14,28 @@ from src.agent.langgraph_runtime import LangGraphUnavailableError, run_langgraph
 from src.infrastructure.llm import LLMRequest, build_llm_provider
 from src.agent.quick_questions import get_quick_questions
 from src.agent.rag import search_docs
-from src.agent.intents import CLAIM_REQUIRED_INTENTS, DOC_INTENTS, IntentMatch
+from src.agent.intents import CLAIM_REQUIRED_INTENTS, DOC_INTENTS, GENERAL_INTENTS, IntentMatch
 from src.agent.responses import error, success
 from src.agent.router import route
+
+
+DEFAULT_TIMEZONE = "America/Guayaquil"
+DIRECT_RESPONSE_INTENTS = set(GENERAL_INTENTS)
+SPANISH_WEEKDAYS = ("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")
+SPANISH_MONTHS = (
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre",
+)
 
 
 def answer_question(
@@ -46,11 +68,7 @@ def answer_question(
     source = execution["source"]
     claim_id = execution.get("claim_id")
 
-    llm_result = build_llm_provider().generate(
-        LLMRequest(intent=intent_name, data=data, question=question, history=history, user_role=user_role)
-    )
-    metadata = {
-        "llm": llm_result.metadata(),
+    base_metadata = {
         "runtime": execution["runtime"],
         "context": {
             "thread_id": thread_id,
@@ -58,6 +76,30 @@ def answer_question(
             "resolved_claim_id": claim_id,
             "user_role": user_role,
         },
+    }
+    if intent_name in DIRECT_RESPONSE_INTENTS:
+        return success(
+            intent_name,
+            direct_message_for_intent(intent_name, data),
+            data,
+            source=source,
+            metadata={
+                "llm": {
+                    "enabled": False,
+                    "provider": "agent",
+                    "model": None,
+                    "status": "bypassed_for_direct_intent",
+                },
+                **base_metadata,
+            },
+        )
+
+    llm_result = build_llm_provider().generate(
+        LLMRequest(intent=intent_name, data=data, question=question, history=history, user_role=user_role)
+    )
+    metadata = {
+        "llm": llm_result.metadata(),
+        **base_metadata,
     }
     if llm_result.has_message:
         return success(intent_name, llm_result.message or "", data, source="llm", metadata=metadata)
@@ -72,6 +114,25 @@ def answer_question(
 
 
 def dispatch_intent(intent: str, claim_id: str | None, limit: int, question: str) -> Any:
+    if intent == "fecha_actual":
+        return _current_date_payload()
+    if intent == "saludo":
+        return {
+            "acciones_sugeridas": [
+                "Priorizar los siniestros con mayor riesgo.",
+                "Explicar por qué un siniestro fue marcado.",
+                "Revisar documentos faltantes o proveedores con más alertas.",
+            ]
+        }
+    if intent == "ayuda_agente":
+        return {
+            "preguntas_utiles": [
+                "¿Cuáles son los 10 siniestros con mayor riesgo?",
+                "¿Por qué el siniestro SIN-000678 fue marcado como alto riesgo?",
+                "¿Qué proveedores concentran más alertas?",
+                "¿Qué documentos faltan en los casos críticos?",
+            ]
+        }
     if intent == "ranking_proveedores":
         return tools.get_provider_risk_ranking(limit=limit)
     if intent == "ranking_ciudades":
@@ -120,6 +181,9 @@ def dispatch_intent(intent: str, claim_id: str | None, limit: int, question: str
 def message_for_intent(intent: str, user_role: str = "analyst") -> str:
     messages = {
         "top_riesgo": "Casos priorizados por mayor score de riesgo.",
+        "fecha_actual": "Fecha actual calculada con la zona horaria configurada.",
+        "saludo": "Hola. Soy el asistente de RastroSeguro para priorizar y explicar riesgos antifraude.",
+        "ayuda_agente": "Puedo ayudarte a priorizar casos, explicar siniestros, revisar documentos y encontrar concentraciones de riesgo.",
         "ranking_proveedores": "Ranking de proveedores por concentracion de riesgo.",
         "ranking_ciudades": "Distribucion de riesgo por ciudad.",
         "riesgo_por_ramo": "Comparacion de riesgo por ramo.",
@@ -177,10 +241,15 @@ def _execute_turn(
     intent = route(question)
     claim_id = extract_claim_id(question) or selected_claim_id or _recover_claim_id_from_history(history)
 
-    # When a claim is in focus but the router fell back to the generic default
-    # (no alias matched -> confidence 0.35), treat a vague question as being
-    # about that claim instead of answering with the whole portfolio.
-    if selected_claim_id and intent.name == "top_riesgo" and intent.confidence <= 0.35:
+    # When a claim is in focus and the router fell back to the generic default
+    # (no alias matched -> confidence 0.35), only treat the turn as claim-scoped
+    # if the wording actually looks like a follow-up about the selected claim.
+    if (
+        selected_claim_id
+        and intent.name == "top_riesgo"
+        and intent.confidence <= 0.35
+        and _looks_like_claim_follow_up(question)
+    ):
         intent = IntentMatch(
             name="explicar_siniestro",
             confidence=0.5,
@@ -227,7 +296,7 @@ def _execute_turn(
             "ok": True,
             "intent": intent.name,
             "data": data,
-            "source": "rag" if intent.uses_documentation else "tools",
+            "source": _source_for_intent(intent.name, intent.uses_documentation),
             "claim_id": claim_id,
             "runtime": runtime_metadata,
         }
@@ -239,7 +308,7 @@ def _execute_turn(
             "ok": True,
             "intent": intent.name,
             "data": data,
-            "source": "rag" if intent.uses_documentation else "tools",
+            "source": _source_for_intent(intent.name, intent.uses_documentation),
             "claim_id": claim_id,
             "runtime": runtime_metadata,
         }
@@ -247,6 +316,82 @@ def _execute_turn(
         return error(intent.name, str(exc), "Ejecuta primero el scoring para generar data/processed/siniestros_scored.csv.")
     except ValueError as exc:
         return error(intent.name, str(exc))
+
+
+def direct_message_for_intent(intent: str, data: Any) -> str:
+    if intent == "fecha_actual" and isinstance(data, dict):
+        return _format_current_date_message(data)
+    if intent == "saludo":
+        return "Hola. Soy el asistente de RastroSeguro. Puedo ayudarte a priorizar casos, explicar un siniestro o revisar señales antifraude."
+    if intent == "ayuda_agente":
+        return "Puedes pedirme rankings de riesgo, explicación de un siniestro, documentos faltantes, proveedores con alertas o un resumen ejecutivo."
+    return message_for_intent(intent)
+
+
+def _current_date_payload(tz_name: str | None = None) -> dict[str, Any]:
+    resolved_tz = tz_name or os.environ.get("RASTRO_AGENT_TIMEZONE", DEFAULT_TIMEZONE)
+    now = _now_in_timezone(resolved_tz)
+    return {
+        "fecha_iso": now.date().isoformat(),
+        "dia_semana": SPANISH_WEEKDAYS[now.weekday()],
+        "dia": now.day,
+        "mes": SPANISH_MONTHS[now.month - 1],
+        "anio": now.year,
+        "zona_horaria": resolved_tz,
+    }
+
+
+def _now_in_timezone(tz_name: str) -> datetime:
+    return datetime.now(_resolve_timezone(tz_name))
+
+
+def _resolve_timezone(tz_name: str) -> tzinfo:
+    try:
+        return ZoneInfo(tz_name)
+    except ZoneInfoNotFoundError:
+        if tz_name == DEFAULT_TIMEZONE:
+            return timezone(timedelta(hours=-5), DEFAULT_TIMEZONE)
+        return timezone.utc
+
+
+def _format_current_date_message(data: dict[str, Any]) -> str:
+    return (
+        f"Hoy es {data.get('dia_semana')}, {data.get('dia')} de {data.get('mes')} "
+        f"de {data.get('anio')} ({data.get('zona_horaria')})."
+    )
+
+
+def _looks_like_claim_follow_up(question: str) -> bool:
+    text = question.lower()
+    phrase_markers = (
+        "que paso",
+        "qué pasó",
+        "que hago",
+        "qué hago",
+        "que sigue",
+        "qué sigue",
+        "siguiente paso",
+        "del caso",
+        "del siniestro",
+        "explicalo",
+        "explícalo",
+        "resumelo",
+        "resúmelo",
+        "dime mas",
+        "dime más",
+        "por que",
+        "por qué",
+    )
+    word_markers = ("aqui", "aquí", "este", "esta", "esto")
+    return any(marker in text for marker in phrase_markers) or any(
+        re.search(rf"\b{re.escape(marker)}\b", text) for marker in word_markers
+    )
+
+
+def _source_for_intent(intent: str, uses_documentation: bool) -> str:
+    if intent in GENERAL_INTENTS:
+        return "agent"
+    return "rag" if uses_documentation else "tools"
 
 
 __all__ = ["answer_question", "dispatch_intent", "get_quick_questions", "message_for_intent"]
