@@ -19,8 +19,14 @@ class ApiEnvelope(BaseModel):
     error: ErrorDetail | None = None
 
 
+class ChatTurn(BaseModel):
+    role: str
+    content: str
+
+
 class AgentAskRequest(BaseModel):
     question: str = Field(..., min_length=1)
+    history: list[ChatTurn] | None = None
 
 
 class SimulatorClaimRequest(BaseModel):

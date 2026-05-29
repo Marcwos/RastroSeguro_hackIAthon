@@ -204,10 +204,15 @@ export function getQuickQuestions() {
   return apiRequest<string[]>('/api/agent/quick-questions')
 }
 
-export function askAgent(question: string) {
+export interface ChatTurn {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+export function askAgent(question: string, history?: ChatTurn[]) {
   return apiRequest<AgentResponse>('/api/agent/ask', {
     method: 'POST',
-    body: JSON.stringify({ question }),
+    body: JSON.stringify(history && history.length ? { question, history } : { question }),
   })
 }
 

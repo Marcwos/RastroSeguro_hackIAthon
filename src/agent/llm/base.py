@@ -13,6 +13,7 @@ class LLMRequest:
     intent: str
     data: Any
     question: str
+    history: Any = None
 
 
 @dataclass(frozen=True)

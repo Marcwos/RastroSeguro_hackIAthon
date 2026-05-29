@@ -18,7 +18,8 @@ def quick_questions() -> dict:
 
 @router.post("/ask")
 def ask_agent(payload: AgentAskRequest):
-    response = answer_question(payload.question)
+    history = [turn.model_dump() for turn in payload.history] if payload.history else None
+    response = answer_question(payload.question, history=history)
     if response.get("ok") is False:
         return JSONResponse(
             status_code=400,

@@ -15,6 +15,18 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+/** Strip light markdown so the synthesized message reads as clean prose. */
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/^#{1,6}\s*/gm, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/__(.*?)__/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^\s*[-*]\s+/gm, '• ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
 function humanizeKey(key: string): string {
   return key
     .replace(/_/g, ' ')
@@ -227,7 +239,7 @@ export function AgentResult({ response, onOpenClaim }: AgentResultProps) {
   return (
     <div className="space-y-3">
       {message && (
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{message}</p>
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{stripMarkdown(message)}</p>
       )}
 
       {body}

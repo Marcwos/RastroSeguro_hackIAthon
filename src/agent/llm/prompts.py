@@ -19,26 +19,48 @@ Principios obligatorios:
 - Prioriza explicabilidad: menciona las señales que sustentan la respuesta.
 - Si hay montos, trátalos como dólares estadounidenses salvo que el dato indique otra moneda.
 
-Formato y Estilo Visual (Markdown):
-- Presentá la información estructurada usando negritas para parámetros críticos (ID de siniestros, montos, ciudades, proveedores).
-- Cuando expliques conexiones del grafo de relaciones o similitudes narrativas (NLP), usá viñetas ordenadas o tablas Markdown compactas para una lectura sumamente ágil del analista.
+Formato (la interfaz ya renderiza los datos como tabla/tarjetas aparte):
+- Responde en texto plano, NO uses Markdown: nada de encabezados (#), negritas (**), ni tablas.
+- No repitas la tabla de datos; resume e interpreta. Da contexto, señala las 2-3 alertas o señales que más pesan y cierra con el siguiente paso de revisión.
+- Si enumeras casos o señales, usa viñetas simples con guion (- ) y sé conciso (máximo ~6 líneas salvo que el analista pida detalle).
+- Menciona los IDs de siniestro y cifras tal cual vienen en los datos, sin formato especial.
 """.strip()
 
 
-def build_user_input(intent: str, data: Any, question: str) -> str:
-    """Build a bounded prompt with verified tool output."""
+def build_user_input(intent: str, data: Any, question: str, history: Any = None) -> str:
+    """Build a bounded prompt with verified tool output and recent conversation."""
     payload = _safe_json(data)
     if len(payload) > MAX_TOOL_PAYLOAD_CHARS:
         payload = payload[:MAX_TOOL_PAYLOAD_CHARS] + "\n... [payload truncado para síntesis conversacional]"
 
+    history_block = _format_history(history)
     return (
+        f"{history_block}"
         f"Pregunta del usuario:\n{question}\n\n"
         f"Intención detectada por el router:\n{intent}\n\n"
         "Resultado verificado de herramientas/RAG de RastroSeguro:\n"
         f"{payload}\n\n"
-        "Redacta una respuesta útil para un analista humano. "
-        "Usa viñetas cuando mejore la lectura y conserva las limitaciones del dato."
+        "Redacta una respuesta útil para un analista humano. Si la pregunta es un seguimiento, "
+        "apóyate en el historial para resolver referencias, pero responde solo con datos verificados arriba. "
+        "Conserva las limitaciones del dato."
     )
+
+
+def _format_history(history: Any, max_turns: int = 6) -> str:
+    """Render the last conversation turns so the LLM can resolve follow-ups."""
+    if not history:
+        return ""
+    turns = []
+    for turn in list(history)[-max_turns:]:
+        role = getattr(turn, "role", None) or (turn.get("role") if isinstance(turn, dict) else None)
+        content = getattr(turn, "content", None) or (turn.get("content") if isinstance(turn, dict) else None)
+        if not content:
+            continue
+        speaker = "Analista" if role == "user" else "RastroSeguro"
+        turns.append(f"{speaker}: {str(content).strip()}")
+    if not turns:
+        return ""
+    return "Historial reciente de la conversación:\n" + "\n".join(turns) + "\n\n"
 
 
 def _safe_json(data: Any) -> str:

@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useCallback, useContext, useMemo, useState, ReactNode } from 'react'
-import { ApiClientError, ClaimExplanation, ClaimSummary, getClaimExplanation, getClaims, getHealth, uploadClaimsCsv } from '@/lib/api'
+import { ApiClientError, type AgentResponse, ClaimExplanation, ClaimSummary, getClaimExplanation, getClaims, getHealth, uploadClaimsCsv } from '@/lib/api'
 
 export type UserRole = 'analyst' | 'executive'
 
@@ -42,6 +42,8 @@ export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
+  /** Structured agent payload, when present the assistant renders the rich result. */
+  response?: AgentResponse
 }
 
 const AppContext = createContext<AppState | undefined>(undefined)

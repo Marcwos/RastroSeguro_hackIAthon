@@ -36,6 +36,26 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(response["intent"], "explicar_siniestro")
         self.assertIn("SIN-0045", response["hint"])
 
+    def test_follow_up_recovers_claim_id_from_history(self):
+        history = [
+            {"role": "user", "content": "Explícame el siniestro SIN-0045"},
+            {"role": "assistant", "content": "El siniestro fue marcado en alto riesgo."},
+        ]
+        with patch("src.agent.tools.explain_claim", return_value={"id_siniestro": "SIN-0045"}) as tool:
+            response = answer_question("¿Y por qué tiene ese score?", history=history)
+
+        tool.assert_called_once_with("SIN-0045")
+        self.assertTrue(response["ok"])
+        self.assertEqual(response["intent"], "explicar_siniestro")
+
+    def test_follow_up_without_claim_id_in_history_still_errors(self):
+        history = [{"role": "user", "content": "Dame el top de proveedores"}]
+        response = answer_question("Explícame ese siniestro", history=history)
+
+        self.assertFalse(response["ok"])
+        self.assertEqual(response["intent"], "explicar_siniestro")
+        self.assertIn("SIN-0045", response["hint"])
+
     def test_missing_scored_file_returns_actionable_error(self):
         with patch(
             "src.agent.tools._load_scored",

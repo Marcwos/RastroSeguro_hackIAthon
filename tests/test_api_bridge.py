@@ -100,7 +100,7 @@ class ApiBridgeTest(unittest.TestCase):
         with patch("api.routes.agent.answer_question", return_value=agent_response) as answer:
             response = self.client.post("/api/agent/ask", json={"question": "top casos"})
 
-        answer.assert_called_once_with("top casos")
+        answer.assert_called_once_with("top casos", history=None)
         payload = response.json()
         self.assertTrue(payload["ok"])
         self.assertEqual(payload["data"]["message"], "Respuesta")

@@ -13,11 +13,21 @@ from src.agent.responses import error, success
 from src.agent.router import route
 
 
-def answer_question(question: str) -> dict[str, Any]:
+def answer_question(question: str, history: Any = None) -> dict[str, Any]:
     """Process user queries through deterministic tools and optional OpenAI synthesis."""
     intent = route(question)
     claim_id = extract_claim_id(question)
     limit = extract_limit(question)
+
+    # Follow-up resolution: if the current question needs a claim id but doesn't
+    # carry one, recover the most recent claim id mentioned in the conversation.
+    if intent.requires_claim_id and not claim_id and history:
+        for turn in reversed(list(history)):
+            content = turn.get("content") if isinstance(turn, dict) else getattr(turn, "content", "")
+            recovered = extract_claim_id(content or "")
+            if recovered:
+                claim_id = recovered
+                break
 
     if intent.requires_claim_id and not claim_id:
         return error(
@@ -33,7 +43,9 @@ def answer_question(question: str) -> dict[str, Any]:
     except ValueError as exc:
         return error(intent.name, str(exc))
 
-    llm_result = build_llm_provider().generate(LLMRequest(intent=intent.name, data=data, question=question))
+    llm_result = build_llm_provider().generate(
+        LLMRequest(intent=intent.name, data=data, question=question, history=history)
+    )
     llm_metadata = {"llm": llm_result.metadata()}
     if llm_result.has_message:
         return success(intent.name, llm_result.message or "", data, source="llm", metadata=llm_metadata)

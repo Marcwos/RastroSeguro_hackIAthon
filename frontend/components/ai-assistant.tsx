@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useAppState } from '@/lib/app-context'
-import { ApiClientError, askAgent, getQuickQuestions } from '@/lib/api'
-import { MessageCircle, X, Send, Bot, User, Plus, SlidersHorizontal } from 'lucide-react'
+import { ApiClientError, askAgent, getQuickQuestions, type ChatTurn } from '@/lib/api'
+import { AgentResult } from '@/components/agent/agent-result'
+import { MessageCircle, X, Send, Bot, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 
@@ -43,7 +44,7 @@ function contextualQuickQuestions(claimId: string | null): string[] {
 }
 
 export function AIAssistant() {
-  const { showChat, setShowChat, selectedClaimId, chatMessages, addChatMessage } = useAppState()
+  const { showChat, setShowChat, selectedClaimId, setSelectedClaimId, setIsDataLoaded, setCurrentStep, userRole, chatMessages, addChatMessage } = useAppState()
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [apiQuickQuestions, setApiQuickQuestions] = useState<string[]>([])
@@ -84,8 +85,21 @@ export function AIAssistant() {
     }
   }, [showChat, chatMessages.length, selectedClaimId, addChatMessage])
 
+  const openClaim = (id: string) => {
+    setSelectedClaimId(id)
+    setIsDataLoaded(true)
+    setCurrentStep(userRole === 'executive' ? 5 : 3)
+    setShowChat(false)
+  }
+
   const handleSend = async (text: string = input) => {
     if (!text.trim() || isTyping) return
+
+    // Conversation seen so far (before this turn) becomes the follow-up context.
+    const history: ChatTurn[] = chatMessages
+      .filter((m) => m.content?.trim())
+      .slice(-6)
+      .map((m) => ({ role: m.role, content: m.content }))
 
     addChatMessage({
       id: Date.now().toString(),
@@ -101,14 +115,13 @@ export function AIAssistant() {
       const contextualQuestion = selectedClaimId
         ? `${text}\n\nContexto: siniestro ${selectedClaimId}.`
         : text
-      const response = await askAgent(contextualQuestion)
-      const rawMessage = response.message || 'El agente respondió sin texto, pero la consulta fue procesada.'
-      const message = normalizeAssistantText(rawMessage)
+      const response = await askAgent(contextualQuestion, history)
       addChatMessage({
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: message,
+        content: normalizeAssistantText(response.message || 'Consulta procesada.'),
         timestamp: new Date(),
+        response,
       })
     } catch (error) {
       const message = error instanceof ApiClientError
@@ -136,7 +149,7 @@ export function AIAssistant() {
               y: 0,
               opacity: 1,
               scale: [1, 1.06, 1],
-              boxShadow: ['0 0 0 0 rgba(37,99,235,0.35)', '0 0 0 12px rgba(37,99,235,0)', '0 0 0 0 rgba(37,99,235,0)'],
+              boxShadow: ['0 0 0 0 rgba(79,70,229,0.35)', '0 0 0 12px rgba(79,70,229,0)', '0 0 0 0 rgba(79,70,229,0)'],
             }}
             transition={reduceMotion ? undefined : { duration: 2, repeat: Infinity, repeatDelay: 1.2 }}
             exit={reduceMotion ? undefined : { y: 12, opacity: 0 }}
@@ -208,13 +221,18 @@ export function AIAssistant() {
                     </div>
                     <div
                       className={cn(
-                        'max-w-[85%] rounded-lg px-3 py-2.5 text-sm leading-relaxed',
+                        'rounded-lg px-3 py-2.5 text-sm leading-relaxed',
                         message.role === 'assistant'
                           ? 'border border-border bg-card text-card-foreground'
-                          : 'bg-primary text-primary-foreground',
+                          : 'max-w-[85%] bg-primary text-primary-foreground',
+                        message.role === 'assistant' && message.response ? 'w-full max-w-[92%]' : 'max-w-[85%]',
                       )}
                     >
-                      <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                      {message.role === 'assistant' && message.response ? (
+                        <AgentResult response={message.response} onOpenClaim={openClaim} />
+                      ) : (
+                        <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -272,14 +290,9 @@ export function AIAssistant() {
                     />
 
                     <div className="mt-2 flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <button type="button" aria-label="Agregar" className="focus-ring rounded-md p-2 text-muted-foreground hover:bg-[var(--surface-high)] hover:text-foreground">
-                          <Plus className="h-4 w-4" />
-                        </button>
-                        <button type="button" aria-label="Opciones" className="focus-ring rounded-md p-2 text-muted-foreground hover:bg-[var(--surface-high)] hover:text-foreground">
-                          <SlidersHorizontal className="h-4 w-4" />
-                        </button>
-                      </div>
+                      <span className="label-mono text-[10px] text-muted-foreground">
+                        Enter envía · Shift+Enter salto de línea
+                      </span>
 
                       <div className="flex items-center gap-2">
                         <span className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">Rastro IA</span>
