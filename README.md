@@ -7,6 +7,8 @@ Proyecto del equipo para el **hackIAthon 2026 — Reto Aseguradora del Sur**.
 > **No acusa. No rechaza pagos. No reemplaza al analista.**
 > Ordena el trabajo: pone primero los casos que más lo necesitan y explica por qué.
 
+**Índice:** [El problema](#el-problema) · [Qué es](#qué-es-rastroseguro) · [En qué se basa](#en-qué-se-basa) · [Cómo funciona](#cómo-funciona-en-concepto) · [Qué resuelve](#qué-resuelve) · [Valor por actor](#valor-para-cada-actor) · [Demo rápida](#demo-rápida) · [Entregables](#entregables-del-reto) · [Documentación](#documentación) · [Equipo](#equipo)
+
 ---
 
 ## El problema
