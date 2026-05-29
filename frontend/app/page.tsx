@@ -12,10 +12,17 @@ import { StepDossier } from '@/components/steps/step-dossier'
 import { StepExecutiveDemo } from '@/components/steps/step-executive-demo'
 import { AIAssistant } from '@/components/ai-assistant'
 import { CommandBar } from '@/components/command-bar'
+import { RoleSelector } from '@/components/role-selector'
 import { useEffect } from 'react'
 
 function MainContent() {
-  const { currentStep, showCommandBar, setShowCommandBar } = useAppState()
+  const { currentStep, showCommandBar, setShowCommandBar, userRole, setCurrentStep } = useAppState()
+
+  useEffect(() => {
+    if (userRole === 'executive' && currentStep >= 1 && currentStep <= 4) {
+      setCurrentStep(0)
+    }
+  }, [currentStep, setCurrentStep, userRole])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -31,6 +38,8 @@ function MainContent() {
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [showCommandBar, setShowCommandBar])
+
+  if (!userRole) return <RoleSelector />
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">

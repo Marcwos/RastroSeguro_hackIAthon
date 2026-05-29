@@ -3,9 +3,14 @@
 import { createContext, useCallback, useContext, useMemo, useState, ReactNode } from 'react'
 import { ApiClientError, ClaimExplanation, ClaimSummary, getClaimExplanation, getClaims, getHealth, uploadClaimsCsv } from '@/lib/api'
 
+export type UserRole = 'analyst' | 'executive'
+
 interface AppState {
   currentStep: number
   setCurrentStep: (step: number) => void
+  userRole: UserRole | null
+  selectUserRole: (role: UserRole) => void
+  resetUserRole: () => void
   claims: ClaimSummary[]
   loadClaims: () => Promise<void>
   loadClaimExplanation: (id: string) => Promise<ClaimExplanation | null>
@@ -43,6 +48,7 @@ const AppContext = createContext<AppState | undefined>(undefined)
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [currentStep, setCurrentStep] = useState(0)
+  const [userRole, setUserRole] = useState<UserRole | null>(null)
   const [claims, setClaims] = useState<ClaimSummary[]>([])
   const [selectedClaimId, setSelectedClaimIdState] = useState<string | null>(null)
   const [selectedExplanation, setSelectedExplanation] = useState<ClaimExplanation | null>(null)
@@ -56,6 +62,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [showChat, setShowChat] = useState(false)
   const [showCommandBar, setShowCommandBar] = useState(false)
+
+
+  const selectUserRole = useCallback((role: UserRole) => {
+    setUserRole(role)
+    setCurrentStep(role === 'analyst' ? 1 : 0)
+  }, [])
+
+  const resetUserRole = useCallback(() => {
+    setUserRole(null)
+    setCurrentStep(0)
+  }, [])
 
   const selectedClaim = useMemo(
     () => selectedClaimId ? claims.find(c => c.id_siniestro === selectedClaimId) || null : null,
@@ -153,6 +170,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       value={{
         currentStep,
         setCurrentStep,
+        userRole,
+        selectUserRole,
+        resetUserRole,
         claims,
         loadClaims,
         loadClaimExplanation,

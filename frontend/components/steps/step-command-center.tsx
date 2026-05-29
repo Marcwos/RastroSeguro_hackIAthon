@@ -314,7 +314,7 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
 }
 
 export function StepCommandCenter() {
-  const { claims, loadClaims, isLoadingClaims, apiError, apiHint, setCurrentStep, setSelectedClaimId, setIsDataLoaded } = useAppState()
+  const { claims, loadClaims, isLoadingClaims, apiError, apiHint, setCurrentStep, setSelectedClaimId, setIsDataLoaded, userRole } = useAppState()
   const [providerRanking, setProviderRanking] = useState<RiskAggregateRow[] | null>(null)
   const [cityRanking, setCityRanking] = useState<RiskAggregateRow[] | null>(null)
   const [branchRanking, setBranchRanking] = useState<RiskAggregateRow[] | null>(null)
@@ -381,7 +381,7 @@ export function StepCommandCenter() {
   const analyzeClaim = (claim: ClaimSummary) => {
     setSelectedClaimId(claim.id_siniestro)
     setIsDataLoaded(true)
-    setCurrentStep(2)
+    setCurrentStep(userRole === 'executive' ? 5 : 2)
   }
 
   const searchInHistory = () => {
@@ -395,6 +395,8 @@ export function StepCommandCenter() {
     setHistoryError(null)
     analyzeClaim(found)
   }
+
+  const isAnalyst = userRole === 'analyst'
 
   const kpis = [
     { label: 'Siniestros evaluados', value: analytics.total.toString(), note: 'Dataset priorizado', Icon: FileSearch },
@@ -415,12 +417,18 @@ export function StepCommandCenter() {
             </div>
             <h1 className="display-heading mt-4 text-4xl lg:text-5xl">Command Center Antifraude</h1>
             <p className="mt-3 max-w-2xl text-base text-[var(--primary-fixed-dim)]">
-              Panorama ejecutivo de riesgo, concentración de alertas y casos prioritarios antes de iniciar el flujo de análisis con IA.
+              {isAnalyst ? 'Bandeja operativa de riesgo, carga de CSV y casos prioritarios para revisión con IA.' : 'Panorama ejecutivo de riesgo, concentración de alertas e impacto para decisión gerencial o demo.'}
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <button onClick={() => setCurrentStep(1)} className="inline-flex items-center justify-center gap-2 bg-white px-5 py-3 label-mono-md font-bold uppercase text-primary hover:bg-[var(--surface-high)]">
-                Iniciar flujo de análisis <ArrowRight className="h-4 w-4" />
-              </button>
+              {isAnalyst ? (
+                <button onClick={() => setCurrentStep(1)} className="inline-flex items-center justify-center gap-2 bg-white px-5 py-3 label-mono-md font-bold uppercase text-primary hover:bg-[var(--surface-high)]">
+                  Cargar CSV / iniciar análisis <ArrowRight className="h-4 w-4" />
+                </button>
+              ) : (
+                <span className="inline-flex items-center justify-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-[var(--primary-fixed-dim)]">
+                  CSV gestionado por analista
+                </span>
+              )}
               <button onClick={() => { void loadClaims(); void loadCommandCenterData() }} className="inline-flex items-center justify-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-white hover:bg-white/10">
                 Sincronizar datos
               </button>
@@ -462,7 +470,11 @@ export function StepCommandCenter() {
               <h2 className="font-display text-2xl font-semibold">Sin datos para visualizar</h2>
               <p className="mt-2 text-sm text-muted-foreground">Conecte el API o cargue un CSV para activar el Command Center.</p>
             </div>
-            <button onClick={() => setCurrentStep(1)} className="bg-primary px-5 py-3 label-mono-md font-bold uppercase text-white">Ir a carga de datos</button>
+            {isAnalyst ? (
+              <button onClick={() => setCurrentStep(1)} className="bg-primary px-5 py-3 label-mono-md font-bold uppercase text-white">Ir a carga de datos</button>
+            ) : (
+              <p className="max-w-md text-sm text-muted-foreground">Solicita al analista cargar el CSV para que esta vista muestre KPIs, impacto y casos críticos.</p>
+            )}
           </div>
         ) : (
           <>
