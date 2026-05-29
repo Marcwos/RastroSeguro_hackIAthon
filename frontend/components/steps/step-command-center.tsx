@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState, type HTMLAttributes, type HTMLInputTypeAttribute } from 'react'
-import { AlertTriangle, ArrowRight, BarChart3, Bot, Building2, CircleDollarSign, FileText, FlaskConical, MapPin, FileSearch, GitBranch, Loader2, ShieldCheck, Target, UploadCloud, UsersRound } from 'lucide-react'
+import { AlertTriangle, ArrowRight, BarChart3, Bot, Building2, CircleDollarSign, FileText, FlaskConical, MapPin, FileSearch, GitBranch, Inbox, Loader2, ShieldCheck, Target, UploadCloud, UsersRound } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import { useAppState } from '@/lib/app-context'
@@ -333,6 +333,20 @@ function Field({
   )
 }
 
+
+function formatSubmittedAt(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return 'Recibido recientemente'
+  return new Intl.DateTimeFormat('es-EC', { dateStyle: 'short', timeStyle: 'short' }).format(date)
+}
+
+function sourceLabel(source: string) {
+  if (source === 'csv') return 'CSV'
+  if (source === 'txt') return 'TXT'
+  if (source === 'pdf') return 'PDF'
+  return 'Documento'
+}
+
 function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; onAnalyze: (claim: ClaimSummary) => void }) {
   const [hoveredClaim, setHoveredClaim] = useState<ClaimSummary | null>(null)
   const topClaims = claims.slice(0, 9)
@@ -418,7 +432,7 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
 }
 
 export function StepCommandCenter() {
-  const { claims, loadClaims, isLoadingClaims, apiError, apiHint, setCurrentStep, setSelectedClaimId, setIsDataLoaded, userRole } = useAppState()
+  const { claims, loadClaims, isLoadingClaims, apiError, apiHint, setCurrentStep, setSelectedClaimId, setIsDataLoaded, userRole, analystSubmittedCases } = useAppState()
   const [providerRanking, setProviderRanking] = useState<RiskAggregateRow[] | null>(null)
   const [cityRanking, setCityRanking] = useState<RiskAggregateRow[] | null>(null)
   const [branchRanking, setBranchRanking] = useState<RiskAggregateRow[] | null>(null)
@@ -499,6 +513,14 @@ export function StepCommandCenter() {
     setHistoryError(null)
     analyzeClaim(found)
   }
+
+
+  const submittedCaseRows = useMemo(() => {
+    return analystSubmittedCases.slice(0, 6).map((submitted) => {
+      const claim = claims.find((item) => item.id_siniestro === submitted.id) || null
+      return { submitted, claim }
+    })
+  }, [analystSubmittedCases, claims])
 
   const isAnalyst = userRole === 'analyst'
 
@@ -667,6 +689,55 @@ export function StepCommandCenter() {
                 </div>
               </div>
             </div>
+
+
+            {!isAnalyst && (
+              <div className="institutional-card overflow-hidden">
+                <div className="section-header flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
+                  <span className="flex items-center gap-2"><Inbox className="h-4 w-4" />Casos enviados por el analista</span>
+                  <span>Últimos casos cargados o confirmados</span>
+                </div>
+                {submittedCaseRows.length ? (
+                  <div className="grid gap-3 p-3 lg:grid-cols-3">
+                    {submittedCaseRows.map(({ submitted, claim }) => {
+                      const risk = normalizeRisk(claim?.nivel_riesgo)
+                      return (
+                        <button
+                          key={`${submitted.id}-${submitted.submittedAt}`}
+                          type="button"
+                          onClick={() => {
+                            setSelectedClaimId(submitted.id)
+                            setIsDataLoaded(true)
+                            setCurrentStep(5)
+                          }}
+                          className="group border border-border bg-[var(--surface-low)] p-3 text-left transition-colors hover:border-primary hover:bg-[var(--surface-high)]"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="label-mono text-muted-foreground">{sourceLabel(submitted.source)} · {formatSubmittedAt(submitted.submittedAt)}</p>
+                              <p className="mt-1 font-mono text-sm font-bold text-foreground">{submitted.id}</p>
+                            </div>
+                            {claim ? <RiskBadge level={risk} size="sm" /> : <span className="label-mono rounded border border-border px-2 py-1 text-[10px] text-muted-foreground">Sin detalle</span>}
+                          </div>
+                          <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                            <div><span className="label-mono block">Ramo</span>{claim?.ramo || 'Pendiente'}</div>
+                            <div><span className="label-mono block">Ciudad</span>{claim?.ciudad || 'Pendiente'}</div>
+                            <div><span className="label-mono block">Monto</span>{claim ? formatCurrency(claim.monto_reclamado) : '—'}</div>
+                            <div><span className="label-mono block">Score</span>{claim?.score_final != null ? `${Math.round(num(claim.score_final))}/100` : '—'}</div>
+                          </div>
+                          {submitted.filename ? <p className="mt-3 truncate text-[11px] text-muted-foreground">Origen: {submitted.filename}</p> : null}
+                          <p className="mt-3 text-xs font-semibold text-primary opacity-90 group-hover:underline">Abrir reporte ejecutivo →</p>
+                        </button>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-4 text-sm text-muted-foreground">
+                    Todavía no hay casos marcados como enviados por el analista en este navegador. Cuando el analista cargue un CSV o confirme un PDF/TXT, aparecerán aquí aunque no entren al top de riesgo.
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="institutional-card overflow-hidden">
               <div className="section-header flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><span>10 casos prioritarios (Historial)</span><span>{isLoadingClaims ? 'Sincronizando...' : 'Ordenado por puntaje de riesgo'}</span></div>

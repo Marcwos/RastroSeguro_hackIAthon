@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import { useAppState } from '@/lib/app-context'
 import { AgentChatMessage, AgentChatSection, AgentChatSessionSummary, ApiClientError, chatAgent, getAgentSessions, getAgentThread, getQuickQuestions } from '@/lib/api'
 import { AgentResult } from '@/components/agent/agent-result'
-import { getStepContext, getStepQuickQuestions, getStepGuideMessage } from '@/lib/demo-step-context'
+import { getExecutiveStepTitle, getStepContext, getStepQuickQuestions, getStepGuideMessage } from '@/lib/demo-step-context'
 import { History, MessageCircle, Plus, X, Send, Bot, User } from 'lucide-react'
 import { cn, sanitizeAiText } from '@/lib/utils'
 import { renderMarkdownBlocks } from '@/lib/markdown'
@@ -113,6 +113,8 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
   const prevClaimRef = useRef<string | null | undefined>(undefined)
   const reduceMotion = useReducedMotion()
   const stepContext = getStepContext(currentStep)
+  const isExecutive = userRole === 'executive'
+  const currentContextTitle = isExecutive ? getExecutiveStepTitle(currentStep) : stepContext.title
 
   const quickQuestions = useMemo(() => {
     const base = userRole === 'executive'
@@ -216,7 +218,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
   useEffect(() => {
     if (!showChat || threadId) return
 
-    const guide = getStepGuideMessage(currentStep, selectedClaimId)
+    const guide = getStepGuideMessage(currentStep, selectedClaimId, userRole || 'analyst')
     const stepChanged = lastGuideStepRef.current !== currentStep
     const hasUserMessages = chatMessages.some((m) => m.role === 'user')
 
@@ -310,7 +312,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
         selectedClaimId,
         runtime: 'classic',
         userRole,
-        uiContext: { step: currentStep, step_title: stepContext.title },
+        uiContext: { step: currentStep, step_title: currentContextTitle },
       })
       setThreadId(session.thread_id)
       setSections(session.sections)
@@ -349,7 +351,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
     if (sectionId.startsWith('step-')) {
       const stepNum = Number(sectionId.replace('step-', ''))
       if (!Number.isNaN(stepNum)) {
-        return `${stepNum > 0 ? `Paso ${stepNum}` : 'Inicio'} · ${getStepContext(stepNum).title}`
+        return isExecutive ? getExecutiveStepTitle(stepNum) : `${stepNum > 0 ? `Paso ${stepNum}` : 'Inicio'} · ${getStepContext(stepNum).title}`
       }
     }
     return sectionTitleById.get(sectionId) || 'Conversación'
@@ -376,7 +378,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
           <div className="min-w-0">
             <p className="truncate font-semibold">Asistente · {roleLabel(userRole)}</p>
             <p className="label-mono truncate text-xs text-muted-foreground">
-              Paso {currentStep > 0 ? currentStep : 'inicio'} · {stepContext.title}
+              {isExecutive ? currentContextTitle : `Paso ${currentStep > 0 ? currentStep : 'inicio'} · ${currentContextTitle}`}
               {selectedClaimId ? ` · ${selectedClaimId}` : ''}
             </p>
           </div>

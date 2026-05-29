@@ -1,6 +1,6 @@
 'use client'
 
-import { assignIncrementalSinIds } from '@/lib/csv-id-normalizer'
+import { assignIncrementalSinIds, extractCsvClaimIds } from '@/lib/csv-id-normalizer'
 
 export type FrontendRiskLevel = 'bajo' | 'medio' | 'alto' | 'critico'
 
@@ -278,6 +278,7 @@ export interface UploadResult {
   filename?: string | null
   rows_processed?: number
   selected_claim_id?: string | null
+  uploaded_claim_ids?: string[]
   scored_output_path?: string
 }
 
@@ -451,6 +452,7 @@ export function chatAgent(payload: {
 
 export async function uploadClaimsCsv(file: File) {
   const normalizedFile = await assignIncrementalSinIds(file)
+  const uploadedClaimIds = await extractCsvClaimIds(normalizedFile)
   const form = new FormData()
   form.append('file', normalizedFile)
 
@@ -483,7 +485,7 @@ export async function uploadClaimsCsv(file: File) {
       status: response.status,
     })
   }
-  return payload.data
+  return { ...payload.data, uploaded_claim_ids: uploadedClaimIds }
 }
 
 async function multipartRequest<T>(path: string, file: File, fallbackMessage: string): Promise<T> {

@@ -128,26 +128,41 @@ export function getStepContext(step: number): StepContext {
   return STEP_CONTEXT[step] ?? STEP_CONTEXT[0]
 }
 
+export function getExecutiveStepTitle(step: number): string {
+  if (step === 5) return 'Reporte ejecutivo del caso'
+  if (step === 6) return 'Impacto ejecutivo'
+  if (step === 0) return 'Centro de control ejecutivo'
+  return getStepContext(step).title
+}
+
 function stepLabel(step: number): string {
   return step > 0 ? `Paso ${step}` : 'Inicio'
 }
 
 /** Guía explicativa uniforme para cada etapa (demo / chat lateral). */
-export function getStepGuideMessage(step: number, claimId: string | null): string {
+export function getStepGuideMessage(step: number, claimId: string | null, userRole: 'analyst' | 'executive' = 'analyst'): string {
   const ctx = getStepContext(step)
+  const isExecutive = userRole === 'executive'
+  const title = isExecutive ? getExecutiveStepTitle(step) : ctx.title
+  const overview = isExecutive && step === 5
+    ? 'Resumen ejecutivo del caso seleccionado: puntaje, señales principales, relaciones relevantes, contexto del portafolio y expediente de respaldo para decisión.'
+    : ctx.overview
+  const focusPoints = isExecutive && step === 5
+    ? ['Puntaje y nivel de riesgo del caso', 'Señales principales y recomendación', 'Contexto del portafolio y expediente de respaldo']
+    : ctx.focusPoints
   const lines = [
-    `${stepLabel(step)}: ${ctx.title}`,
+    isExecutive ? title : `${stepLabel(step)}: ${title}`,
     '',
-    ctx.overview,
+    overview,
     '',
     'Qué conviene revisar:',
-    ...ctx.focusPoints.map((point) => `• ${point}`),
+    ...focusPoints.map((point) => `• ${point}`),
   ]
 
   if (claimId) {
-    lines.push('', `Caso activo: ${claimId}. Pregúntame sobre esta etapa o sobre el caso.`)
+    lines.push('', isExecutive ? `Caso seleccionado: ${claimId}. Pregúntame sobre este resumen o sobre la decisión ejecutiva.` : `Caso activo: ${claimId}. Pregúntame sobre esta etapa o sobre el caso.`)
   } else {
-    lines.push('', 'Selecciona un caso en el panel o carga datos para profundizar.')
+    lines.push('', isExecutive ? 'Selecciona un caso del panel ejecutivo para profundizar.' : 'Selecciona un caso en el panel o carga datos para profundizar.')
   }
 
   return lines.join('\n')

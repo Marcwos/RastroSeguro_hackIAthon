@@ -21,13 +21,18 @@ import {
   getExecutiveReport,
 } from '@/lib/api'
 import { formatCurrency } from '@/lib/claims-data'
-import { safeGraphPayload } from '@/components/graph/graph-utils'
+import { safeGraphPayload, buildClaimGraph } from '@/components/graph/graph-utils'
+import { ClaimNetworkMini } from '@/components/graph/claim-network-mini'
+import { RecurringEntitiesList } from '@/components/graph/recurring-entities-list'
+import { RecurrenceTopChart } from '@/components/graph/recurrence-top-chart'
+import { RiskSpiderChart } from '@/components/graph/risk-spider-chart'
 import { buildChartInsights } from '@/lib/graph-insights'
 import { buildCaseReportMarkdown, downloadCaseReportMarkdown, downloadCaseReportPdf } from '@/lib/case-report-export'
 import { ScoreObjectiveCard } from '@/components/report/score-objective-card'
 import { ChartInsight } from '@/components/report/chart-insight'
 import { alertToText } from '@/lib/api'
 import { sanitizeAiText } from '@/lib/utils'
+import { UI_COPY } from '@/lib/human-labels'
 
 const num = (v: unknown) => Number(v ?? 0)
 const THREAD_STORAGE_KEY = 'rastroseguro-agent-thread-id'
@@ -160,6 +165,11 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
     [selectedClaim, claims, graphPayload],
   )
 
+  const claimGraph = useMemo(
+    () => buildClaimGraph(graphPayload),
+    [graphPayload],
+  )
+
   const reportChatMessages = useMemo(
     () => [...persistedChatMessages, ...chatMessages],
     [persistedChatMessages, chatMessages],
@@ -245,46 +255,37 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
         compact={compact || isExecutive}
       />
 
-      <section className="institutional-card overflow-hidden">
-        <div className="section-header">Recorrido por etapas (1–4)</div>
-        <div className="grid gap-3 p-4 md:grid-cols-2">
-          <StageCard
-            step={1}
-            icon={UploadCloud}
-            title="Carga"
-            text={uploadedFile?.name ? `Archivo: ${uploadedFile.name}` : isDataLoaded ? 'Cartera activa en el sistema.' : 'Datos del portafolio disponibles.'}
-          />
-          <StageCard
-            step={2}
-            icon={ClipboardList}
-            title="Resumen"
-            text={`${selectedClaim.ramo ?? 'Ramo N/D'} · ${formatCurrency(selectedClaim.monto_reclamado)} · Docs: ${yes(selectedClaim.documentos_completos) ? 'completos' : 'pendientes'}`}
-          />
-          <StageCard
-            step={3}
-            icon={FileText}
-            title="Riesgo"
-            text={
-              alertas.length
-                ? alertas.slice(0, 2).map((a) => alertToText(a)).join('; ')
-                : sanitizeAiText(selectedExplanation?.explicacion || selectedClaim.explicacion || 'Sin alertas principales.')
-            }
-          />
-          <StageCard
-            step={4}
-            icon={GitBranch}
-            title="Relaciones"
-            text={chartInsights.graph}
-          />
-        </div>
-      </section>
 
       <section className="institutional-card overflow-hidden">
-        <div className="section-header">Gráficos explicados</div>
-        <div className="space-y-2 p-4">
-          <ChartInsight text={`Red del caso: ${chartInsights.graph}`} />
-          <ChartInsight text={`Recurrencias: ${chartInsights.recurrence}`} />
-          <ChartInsight text={`Comparación con la cartera: ${chartInsights.spider}`} />
+        <div className="section-header">Gráficos del caso</div>
+        <div className="space-y-5 p-4">
+          <div className="space-y-2 rounded-lg border border-border bg-[var(--surface-low)] p-4">
+            <p className="label-mono-md font-bold uppercase text-muted-foreground">Red de relaciones</p>
+            <ClaimNetworkMini nodes={claimGraph.nodes} edges={claimGraph.edges} />
+            <ChartInsight text={chartInsights.graph} />
+          </div>
+
+          <div className="space-y-2">
+            <p className="label-mono-md font-bold uppercase text-muted-foreground px-1">
+              {UI_COPY.comparePortfolio}
+            </p>
+            <RiskSpiderChart selectedClaim={selectedClaim} claims={claims} />
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="space-y-2 rounded-lg border border-border bg-[var(--surface-low)] p-4">
+              <p className="label-mono-md font-bold uppercase text-muted-foreground">Recurrencias en cartera</p>
+              <RecurrenceTopChart claims={claims} currentClaimId={selectedClaimId} limit={isExecutive ? 6 : 8} />
+              <ChartInsight text={chartInsights.recurrence} />
+            </div>
+
+            <div className="space-y-2 rounded-lg border border-border bg-[var(--surface-low)] p-4">
+              <p className="label-mono-md font-bold uppercase text-muted-foreground">
+                {UI_COPY.repeatingElements} (este caso)
+              </p>
+              <RecurringEntitiesList entities={graphPayload.recurring_entities} limit={isExecutive ? 5 : 8} />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -351,7 +352,7 @@ function StageCard({
   title,
   text,
 }: {
-  step: number
+  step?: number
   icon: typeof UploadCloud
   title: string
   text: string
@@ -359,7 +360,7 @@ function StageCard({
   return (
     <div className="rounded-md border border-border bg-[var(--surface-low)] p-3">
       <div className="mb-2 flex items-center gap-2">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{step}</span>
+        {step != null && <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{step}</span>}
         <Icon className="h-4 w-4 text-muted-foreground" />
         <p className="label-mono-md font-bold uppercase">{title}</p>
       </div>

@@ -43,7 +43,11 @@ const REVIEW_FIELDS: Array<{ key: keyof ExtractedClaimDraft; label: string; requ
 ]
 
 function extensionOf(file: File) {
-  return file.name.split('.').pop()?.toLowerCase() || ''
+  return extensionOfName(file.name)
+}
+
+function extensionOfName(filename: string) {
+  return filename.split('.').pop()?.toLowerCase() || ''
 }
 
 function evidenceFor(evidence: FieldEvidence[], field: string) {
@@ -65,6 +69,7 @@ export function StepUpload() {
     uploadedFile,
     setUploadedFile,
     uploadCsvAndRefresh,
+    markAnalystSubmittedCases,
     loadClaims,
     isApiReady,
     isLoadingClaims,
@@ -194,7 +199,14 @@ export function StepUpload() {
       })
       await loadClaims()
       const newId = result?.selected_claim_id || String(draft.id_siniestro || '')
-      if (newId) setSelectedClaimId(newId)
+      if (newId) {
+        setSelectedClaimId(newId)
+        markAnalystSubmittedCases([{
+          id: newId,
+          source: extensionOfName(review.filename || uploadedFile?.name || '') === 'txt' ? 'txt' : 'pdf',
+          filename: review.filename || uploadedFile?.name || null,
+        }])
+      }
       setUploadedFile(uploadedFile)
       setIsDataLoaded(true)
       resetReview()

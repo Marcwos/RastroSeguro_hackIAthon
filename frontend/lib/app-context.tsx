@@ -1,9 +1,16 @@
 'use client'
 
-import { createContext, useCallback, useContext, useMemo, useState, ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from 'react'
 import { ApiClientError, type AgentResponse, ClaimExplanation, ClaimSummary, getClaimExplanation, getClaims, getHealth, uploadClaimsCsv } from '@/lib/api'
 
 export type UserRole = 'analyst' | 'executive'
+
+export interface AnalystSubmittedCase {
+  id: string
+  submittedAt: string
+  source: 'csv' | 'pdf' | 'txt' | 'document'
+  filename?: string | null
+}
 
 interface AppState {
   currentStep: number
@@ -15,6 +22,8 @@ interface AppState {
   loadClaims: () => Promise<void>
   loadClaimExplanation: (id: string) => Promise<ClaimExplanation | null>
   uploadCsvAndRefresh: (file: File) => Promise<boolean>
+  analystSubmittedCases: AnalystSubmittedCase[]
+  markAnalystSubmittedCases: (cases: Array<{ id: string; source: AnalystSubmittedCase['source']; filename?: string | null }>) => void
   selectedClaimId: string | null
   setSelectedClaimId: (id: string | null) => void
   selectedClaim: ClaimSummary | null
@@ -48,6 +57,8 @@ export interface ChatMessage {
   response?: AgentResponse
 }
 
+const ANALYST_SUBMITTED_CASES_KEY = 'rastroseguro:analystSubmittedCases'
+
 const AppContext = createContext<AppState | undefined>(undefined)
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -66,7 +77,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [showChat, setShowChat] = useState(false)
   const [showCommandBar, setShowCommandBar] = useState(false)
+  const [analystSubmittedCases, setAnalystSubmittedCases] = useState<AnalystSubmittedCase[]>([])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const raw = window.localStorage.getItem(ANALYST_SUBMITTED_CASES_KEY)
+      if (!raw) return
+      const parsed = JSON.parse(raw) as AnalystSubmittedCase[]
+      if (Array.isArray(parsed)) setAnalystSubmittedCases(parsed.filter((item) => item?.id).slice(0, 20))
+    } catch {
+      // Ignore malformed local history; it is only a UX convenience.
+    }
+  }, [])
+
+  const persistAnalystSubmittedCases = (items: AnalystSubmittedCase[]) => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(ANALYST_SUBMITTED_CASES_KEY, JSON.stringify(items.slice(0, 20)))
+  }
 
   const selectUserRole = useCallback((role: UserRole) => {
     setUserRole(role)
@@ -104,7 +132,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setApiHint(null)
     try {
       await getHealth()
-      const records = await getClaims(50)
+      const records = await getClaims(200)
       setIsApiReady(true)
       setClaims(records)
       setIsDataLoaded(records.length > 0)
@@ -143,13 +171,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+
+  const markAnalystSubmittedCases = useCallback((cases: Array<{ id: string; source: AnalystSubmittedCase['source']; filename?: string | null }>) => {
+    const clean = cases
+      .map((item) => ({ ...item, id: String(item.id || '').trim() }))
+      .filter((item) => item.id)
+    if (!clean.length) return
+
+    setAnalystSubmittedCases((prev) => {
+      const now = new Date().toISOString()
+      const next = [
+        ...clean.map((item) => ({
+          id: item.id,
+          source: item.source,
+          filename: item.filename || null,
+          submittedAt: now,
+        })),
+        ...prev,
+      ]
+      const deduped: AnalystSubmittedCase[] = []
+      const seen = new Set<string>()
+      for (const item of next) {
+        if (seen.has(item.id)) continue
+        seen.add(item.id)
+        deduped.push(item)
+      }
+      const limited = deduped.slice(0, 20)
+      persistAnalystSubmittedCases(limited)
+      return limited
+    })
+  }, [])
+
   const uploadCsvAndRefresh = useCallback(async (file: File) => {
     setApiError(null)
     setApiHint(null)
     setIsLoadingClaims(true)
     try {
-      await uploadClaimsCsv(file)
+      const result = await uploadClaimsCsv(file)
       await loadClaims()
+      markAnalystSubmittedCases((result.uploaded_claim_ids || []).map((id) => ({ id, source: 'csv', filename: file.name })))
       setUploadedFile(file)
       setIsDataLoaded(true)
       return true
@@ -159,7 +219,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoadingClaims(false)
     }
-  }, [loadClaims])
+  }, [loadClaims, markAnalystSubmittedCases])
 
   const addChatMessage = useCallback((message: ChatMessage) => {
     setChatMessages((prev) => [...prev, message])
@@ -185,6 +245,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         loadClaims,
         loadClaimExplanation,
         uploadCsvAndRefresh,
+        analystSubmittedCases,
+        markAnalystSubmittedCases,
         selectedClaimId,
         setSelectedClaimId,
         selectedClaim,

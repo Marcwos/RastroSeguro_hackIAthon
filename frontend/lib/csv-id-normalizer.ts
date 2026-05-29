@@ -53,6 +53,27 @@ function nextSin(counter: number) {
   return `SIN-${String(counter).padStart(6, '0')}`
 }
 
+export async function extractCsvClaimIds(file: File): Promise<string[]> {
+  const raw = await file.text()
+  const lines = raw.replace(/\r\n/g, '\n').split('\n').filter((line) => line.trim())
+  if (lines.length <= 1) return []
+
+  const header = splitCsvLine(lines[0]).map((col) => col.trim().toLowerCase())
+  const idIndex = header.findIndex((col) => col === 'id_siniestro')
+  if (idIndex === -1) return []
+
+  const ids: string[] = []
+  const seen = new Set<string>()
+  for (const line of lines.slice(1)) {
+    const cols = splitCsvLine(line)
+    const id = String(cols[idIndex] || '').trim()
+    if (!id || seen.has(id)) continue
+    seen.add(id)
+    ids.push(id)
+  }
+  return ids
+}
+
 export async function assignIncrementalSinIds(file: File): Promise<File> {
   const raw = await file.text()
   const lines = raw.replace(/\r\n/g, '\n').split('\n')
