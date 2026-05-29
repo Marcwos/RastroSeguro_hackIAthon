@@ -216,11 +216,11 @@ export function StepSummary() {
           </div>
 
           <aside className="col-span-12 space-y-6 lg:col-span-4">
-            <div className="border border-primary bg-[var(--primary-container)] p-6 text-[var(--on-primary-container)]">
-              <h3 className="label-mono-md font-bold uppercase tracking-widest text-foreground">Listo para análisis</h3>
+            <div className="dark-panel dark-panel-border border p-6">
+              <h3 className="dark-panel-kicker label-mono-md font-bold uppercase tracking-widest">Listo para análisis</h3>
               <div className="mt-4">
                 <div className="flex items-end justify-between">
-                  <span className="font-display text-3xl font-semibold text-foreground">
+                  <span className="dark-panel-heading font-display text-3xl font-semibold">
                     {isLoadingExplanation ? 'Sincronizando' : 'Listo'}
                   </span>
                   <span className="label-mono-md text-[var(--tertiary-fixed)]">API conectada</span>
@@ -229,7 +229,7 @@ export function StepSummary() {
                   <div className="h-full bg-[var(--tertiary-fixed-dim)]" style={{ width: selectedExplanation ? '100%' : '75%' }} />
                 </div>
               </div>
-              <p className="mt-4 text-sm leading-relaxed text-[var(--on-primary-container)]">
+              <p className="dark-panel-muted mt-4 text-sm leading-relaxed">
                 La información mínima del caso está completa. La explicación trazable se consulta directamente desde el motor antifraude.
               </p>
               <button

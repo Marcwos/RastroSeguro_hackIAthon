@@ -60,7 +60,7 @@ function ReportDialog({ report, loading, onLoad }: { report: ExecutiveReport | n
       <DialogContent className="max-h-[86vh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Reporte ejecutivo RastroSeguro</DialogTitle>
-          <DialogDescription>Resumen generado desde el backend `/api/report` para sustentar la demo y auditoría.</DialogDescription>
+          <DialogDescription>Resumen generado desde el backend `/api/report` para auditoria y seguimiento ejecutivo.</DialogDescription>
         </DialogHeader>
         {loading ? (
           <div className="flex items-center gap-2 p-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Generando reporte...</div>
@@ -414,14 +414,14 @@ export function StepCommandCenter() {
     <section className="px-4 py-8 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
         <header className="grid gap-4 lg:grid-cols-[1.4fr_.6fr]">
-          <div className="border border-border bg-[var(--primary-container)] p-8 text-white">
-            <div className="flex items-center gap-2 text-[var(--primary-fixed)]">
+          <div className="dark-panel dark-panel-border border p-8">
+            <div className="dark-panel-kicker flex items-center gap-2">
               <GitBranch className="h-5 w-5" />
               <span className="label-mono-md uppercase">RastroSeguro Intelligence Layer</span>
             </div>
-            <h1 className="display-heading mt-4 text-4xl lg:text-5xl">Command Center Antifraude</h1>
-            <p className="mt-3 max-w-2xl text-base text-[var(--primary-fixed-dim)]">
-              {isAnalyst ? 'Bandeja operativa de riesgo, carga de CSV y casos prioritarios para revisión con IA.' : 'Panorama ejecutivo de riesgo, concentración de alertas e impacto para decisión gerencial o demo.'}
+            <h1 className="dark-panel-heading display-heading mt-4 text-4xl lg:text-5xl">Command Center Antifraude</h1>
+            <p className="dark-panel-muted mt-3 max-w-2xl text-base">
+              {isAnalyst ? 'Bandeja operativa de riesgo, carga de CSV y casos prioritarios para revision con IA.' : 'Panorama ejecutivo de riesgo, concentracion de alertas e impacto para decision gerencial.'}
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               {isAnalyst ? (
@@ -439,7 +439,7 @@ export function StepCommandCenter() {
               <ReportDialog report={report} loading={reportLoading} onLoad={() => void loadCommandCenterData()} />
               <SimulatorDialog />
               <Button variant="outline-inverse" onClick={() => setCurrentStep(6)} className="h-auto px-5 py-3 label-mono-md font-bold uppercase">
-                Demo ejecutiva
+                Impacto ejecutivo
               </Button>
             </div>
           </div>

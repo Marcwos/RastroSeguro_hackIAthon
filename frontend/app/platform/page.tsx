@@ -14,6 +14,7 @@ import { StepExecutiveDemo } from '@/components/steps/step-executive-demo'
 import { AIAssistant } from '@/components/ai-assistant'
 import { CommandBar } from '@/components/command-bar'
 import { RoleSelector } from '@/components/role-selector'
+import { MobileNav } from '@/components/mobile-nav'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 
 const STEP_VIEWS: Record<number, React.ComponentType> = {
@@ -76,6 +77,7 @@ function MainContent() {
       </div>
       <AIAssistant />
       <CommandBar />
+      <MobileNav />
     </div>
   )
 }

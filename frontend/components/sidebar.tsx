@@ -1,8 +1,21 @@
 'use client'
 
 import Link from 'next/link'
+import {
+  ArrowRight,
+  BarChart3,
+  ClipboardList,
+  FileSearch,
+  GitBranch,
+  LayoutDashboard,
+  LockKeyhole,
+  RotateCcw,
+  Shield,
+  Star,
+  Terminal,
+  UploadCloud,
+} from 'lucide-react'
 import { useAppState } from '@/lib/app-context'
-import { ArrowRight, BarChart3, ClipboardList, FileSearch, GitBranch, LayoutDashboard, LockKeyhole, RotateCcw, Shield, Star, Terminal, UploadCloud } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 function NavButton({
@@ -24,9 +37,9 @@ function NavButton({
       disabled={disabled}
       onClick={() => !disabled && onClick()}
       className={cn(
-        'font-display flex w-full items-center gap-3 rounded px-3 py-3 text-left text-[15px] font-semibold transition-colors',
+        'font-display flex w-full items-center gap-3 rounded-md px-3 py-3 text-left text-[15px] font-semibold transition-colors',
         active
-          ? 'bg-[var(--accent)] font-bold text-[var(--accent-foreground)] ring-1 ring-inset ring-[color-mix(in_oklch,var(--brand)_30%,transparent)]'
+          ? 'bg-[var(--accent)] font-bold text-[var(--accent-foreground)] ring-1 ring-inset ring-border'
           : 'text-muted-foreground opacity-80 hover:bg-[var(--surface-high)] hover:text-foreground hover:opacity-100',
         disabled && 'cursor-not-allowed opacity-40 hover:bg-transparent hover:text-muted-foreground',
       )}
@@ -42,7 +55,7 @@ export function Sidebar() {
   const inFlow = currentStep > 0 && currentStep < 5
   const flowReady = isDataLoaded && selectedClaimId !== null
   const isAnalyst = userRole === 'analyst'
-  const roleLabel = isAnalyst ? 'Analista antifraude' : 'Ejecutivo / jurado'
+  const roleLabel = isAnalyst ? 'Analista antifraude' : 'Vista ejecutiva'
 
   return (
     <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-border bg-[var(--surface-low)] p-4 lg:flex">
@@ -50,7 +63,7 @@ export function Sidebar() {
         <Link href="/platform" onClick={() => setCurrentStep(0)} className="font-display text-2xl font-bold tracking-tight text-primary">
           RastroSeguro
         </Link>
-        <span className="font-display text-xs font-semibold tracking-[0.08em] text-muted-foreground uppercase">
+        <span className="font-display text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           Unidad de inteligencia de riesgo
         </span>
         <button
@@ -63,8 +76,13 @@ export function Sidebar() {
         </button>
       </div>
 
-      <nav className="flex-1 space-y-4" aria-label="Navegación principal">
-        <NavButton active={currentStep === 0} icon={LayoutDashboard} label={isAnalyst ? 'Bandeja operativa' : 'Command Center'} onClick={() => setCurrentStep(0)} />
+      <nav className="flex-1 space-y-4" aria-label="Navegacion principal">
+        <NavButton
+          active={currentStep === 0}
+          icon={LayoutDashboard}
+          label={isAnalyst ? 'Bandeja operativa' : 'Command Center'}
+          onClick={() => setCurrentStep(0)}
+        />
 
         {isAnalyst ? (
           <>
@@ -83,14 +101,14 @@ export function Sidebar() {
               </button>
               <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                 <span className={cn('h-2 w-2 shrink-0 rounded-full', flowReady ? 'bg-[var(--tertiary-fixed-dim)]' : 'bg-border')} />
-                {flowReady ? `Caso activo: ${selectedClaimId}` : 'Sin caso activo todavía'}
+                {flowReady ? `Caso activo: ${selectedClaimId}` : 'Sin caso activo todavia'}
               </div>
             </div>
 
             <div className="space-y-2">
-              <p className="label-mono-md px-3 font-bold uppercase text-muted-foreground">Revisión técnica</p>
+              <p className="label-mono-md px-3 font-bold uppercase text-muted-foreground">Revision tecnica</p>
               <NavButton active={currentStep === 1} icon={UploadCloud} label="Carga CSV" onClick={() => setCurrentStep(1)} />
-              <NavButton active={currentStep === 2} disabled={!flowReady} icon={ClipboardList} label="Resumen técnico" onClick={() => setCurrentStep(2)} />
+              <NavButton active={currentStep === 2} disabled={!flowReady} icon={ClipboardList} label="Resumen tecnico" onClick={() => setCurrentStep(2)} />
               <NavButton active={currentStep === 3} disabled={!flowReady} icon={BarChart3} label="Riesgo explicable" onClick={() => setCurrentStep(3)} />
               <NavButton active={currentStep === 4} disabled={!flowReady} icon={GitBranch} label="Grafo de relaciones" onClick={() => setCurrentStep(4)} />
               <NavButton active={currentStep === 5} disabled={!flowReady} icon={FileSearch} label="Expediente antifraude" onClick={() => setCurrentStep(5)} />
@@ -101,7 +119,7 @@ export function Sidebar() {
             <div className="rounded-md border border-border bg-[var(--surface-high)] p-3">
               <p className="label-mono-md font-bold uppercase text-foreground">Vista ejecutiva</p>
               <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                Sin carga de CSV. Consume KPIs, impacto de negocio, casos críticos y narrativa para decisión.
+                Consume KPIs, impacto de negocio, casos criticos y narrativa para decision.
               </p>
               <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                 <span className={cn('h-2 w-2 shrink-0 rounded-full', flowReady ? 'bg-[var(--tertiary-fixed-dim)]' : 'bg-border')} />
@@ -110,8 +128,8 @@ export function Sidebar() {
             </div>
 
             <div className="space-y-2">
-              <p className="label-mono-md px-3 font-bold uppercase text-muted-foreground">Decisión y demo</p>
-              <NavButton active={currentStep === 6} icon={Star} label="Demo ejecutiva" onClick={() => setCurrentStep(6)} />
+              <p className="label-mono-md px-3 font-bold uppercase text-muted-foreground">Decision ejecutiva</p>
+              <NavButton active={currentStep === 6} icon={Star} label="Impacto ejecutivo" onClick={() => setCurrentStep(6)} />
               <NavButton active={currentStep === 5} disabled={!flowReady} icon={FileSearch} label="Caso seleccionado" onClick={() => setCurrentStep(5)} />
             </div>
           </>
@@ -123,12 +141,12 @@ export function Sidebar() {
           <Shield className="h-4 w-4" aria-hidden /> Registros de seguridad
         </button>
         <button type="button" className="focus-ring font-display flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-[14px] font-semibold text-muted-foreground hover:bg-[var(--surface-high)] hover:text-foreground">
-          <Terminal className="h-4 w-4" aria-hidden /> Documentación
+          <Terminal className="h-4 w-4" aria-hidden /> Documentacion
         </button>
         <div className="mt-4 rounded-md border border-border bg-[var(--surface-high)] p-3">
           <div className="mb-2 flex items-center gap-2 text-foreground">
             <LockKeyhole className="h-3.5 w-3.5 shrink-0" aria-hidden />
-            <span className="label-mono-md font-bold">Aviso ético</span>
+            <span className="label-mono-md font-bold">Aviso etico</span>
           </div>
           <p className="text-sm leading-snug text-muted-foreground">La IA alerta y explica. No acusa ni rechaza reclamos.</p>
         </div>

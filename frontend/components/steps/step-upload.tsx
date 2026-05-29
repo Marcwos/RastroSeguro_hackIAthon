@@ -195,11 +195,11 @@ export function StepUpload() {
             </div>
           </label>
 
-          <div className="col-span-12 flex flex-col justify-between bg-[var(--primary-container)] p-8 text-white lg:col-span-4">
+          <div className="dark-panel col-span-12 flex flex-col justify-between p-8 lg:col-span-4">
             <Gavel className="h-8 w-8 text-[var(--primary-fixed-dim)]" />
             <div className="space-y-3">
-              <p className="label-mono-md uppercase text-[var(--primary-fixed)]">Protocolo de Integridad</p>
-              <p className="text-sm leading-relaxed text-[var(--on-primary-container)]">
+              <p className="dark-panel-kicker label-mono-md uppercase">Protocolo de Integridad</p>
+              <p className="dark-panel-muted text-sm leading-relaxed">
                 Validación estructural y preparación de datos para priorización institucional.
               </p>
             </div>

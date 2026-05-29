@@ -1,35 +1,28 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useAppState } from '@/lib/app-context'
-import { ApiClientError, askAgent, getQuickQuestions, type AgentResponse } from '@/lib/api'
-import { AgentResult } from '@/components/agent/agent-result'
-import { cn } from '@/lib/utils'
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Command as CommandIcon, CornerDownLeft, Loader2, Search, ShieldCheck, Sparkles, X, Zap } from 'lucide-react'
+import { AgentResult } from '@/components/agent/agent-result'
+import { ApiClientError, askAgent, getQuickQuestions, type AgentResponse } from '@/lib/api'
+import { useAppState } from '@/lib/app-context'
+import { cn } from '@/lib/utils'
 
-const JUDGE_PROMPTS = [
-  '¿Qué proveedores concentran el 80% de las alertas rojas?',
-  '¿Cuáles son los 10 siniestros con mayor riesgo de posible fraude?',
-  'Recomienda qué casos debería revisar primero el analista.',
+const PRIORITY_PROMPTS = [
+  'Que proveedores concentran la mayor cantidad de alertas rojas?',
+  'Cuales son los siniestros que debo revisar primero?',
+  'Resume los patrones mas importantes del portafolio.',
 ]
 
 const EXPLORE_PROMPTS = [
-  'Genera un resumen ejecutivo de los casos críticos.',
-  '¿Qué ramos tienen mayor porcentaje de casos sospechosos?',
-  '¿Qué ciudades presentan mayor concentración de alertas?',
-  '¿Qué documentos faltan en los casos críticos?',
+  'Genera un resumen ejecutivo de los casos criticos.',
+  'Que ramos tienen mayor porcentaje de casos sospechosos?',
+  'Que ciudades presentan mayor concentracion de alertas?',
+  'Que documentos faltan en los casos criticos?',
 ]
 
 export function CommandBar() {
-  const {
-    showCommandBar,
-    setShowCommandBar,
-    selectedClaimId,
-    setSelectedClaimId,
-    setCurrentStep,
-  } = useAppState()
-
+  const { showCommandBar, setShowCommandBar, selectedClaimId, setSelectedClaimId, setCurrentStep } = useAppState()
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [response, setResponse] = useState<AgentResponse | null>(null)
@@ -48,9 +41,7 @@ export function CommandBar() {
     return () => window.clearTimeout(id)
   }, [showCommandBar])
 
-  const close = useCallback(() => {
-    setShowCommandBar(false)
-  }, [setShowCommandBar])
+  const close = useCallback(() => setShowCommandBar(false), [setShowCommandBar])
 
   const runQuery = useCallback(
     async (text: string) => {
@@ -83,13 +74,13 @@ export function CommandBar() {
       setCurrentStep(3)
       close()
     },
-    [setSelectedClaimId, setCurrentStep, close],
+    [close, setCurrentStep, setSelectedClaimId],
   )
 
   const suggestions = useMemo(() => {
     const explore = [...EXPLORE_PROMPTS]
-    for (const q of apiPrompts) if (!explore.includes(q) && !JUDGE_PROMPTS.includes(q)) explore.unshift(q)
-    return { judge: JUDGE_PROMPTS, explore: explore.slice(0, 4) }
+    for (const q of apiPrompts) if (!explore.includes(q) && !PRIORITY_PROMPTS.includes(q)) explore.unshift(q)
+    return { priority: PRIORITY_PROMPTS, explore: explore.slice(0, 4) }
   }, [apiPrompts])
 
   return (
@@ -102,12 +93,7 @@ export function CommandBar() {
           exit={{ opacity: 0 }}
           transition={{ duration: reduceMotion ? 0 : 0.15 }}
         >
-          <button
-            type="button"
-            aria-label="Cerrar"
-            onClick={close}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-          />
+          <button type="button" aria-label="Cerrar" onClick={close} className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
 
           <motion.div
             role="dialog"
@@ -116,16 +102,16 @@ export function CommandBar() {
             animate={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
             exit={reduceMotion ? undefined : { opacity: 0, y: -12, scale: 0.98 }}
             transition={{ duration: reduceMotion ? 0 : 0.2, ease: 'easeOut' }}
-            className="relative z-10 flex max-h-[76vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-2xl ring-1 ring-border/60"
+            className="relative z-10 flex max-h-[76vh] w-full max-w-2xl flex-col overflow-hidden rounded-md border border-border bg-card text-card-foreground shadow-2xl ring-1 ring-border/60"
           >
             <div className="flex items-center gap-3 border-b border-border bg-[var(--surface-container)] px-4 py-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--secondary-container)] text-[var(--on-secondary-container)]">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--secondary-container)] text-[var(--on-secondary-container)]">
                 <Sparkles className="h-4 w-4" />
               </div>
               <form
                 className="flex flex-1 items-center"
-                onSubmit={(e) => {
-                  e.preventDefault()
+                onSubmit={(event) => {
+                  event.preventDefault()
                   void runQuery(input)
                 }}
               >
@@ -133,8 +119,8 @@ export function CommandBar() {
                 <input
                   ref={inputRef}
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Pregunta en lenguaje natural sobre tus siniestros…"
+                  onChange={(event) => setInput(event.target.value)}
+                  placeholder="Pregunta en lenguaje natural sobre tus siniestros..."
                   className="h-9 w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                 />
               </form>
@@ -157,21 +143,19 @@ export function CommandBar() {
               {isLoading && (
                 <div className="flex items-center gap-3 px-4 py-6 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Analizando con el motor antifraude…
+                  Analizando con el motor antifraude...
                 </div>
               )}
 
               {!isLoading && error && (
-                <div className="m-4 rounded-lg border border-destructive bg-[var(--error-container)] p-3 text-sm text-[var(--on-error-container)]">
+                <div className="m-4 rounded-md border border-destructive bg-[var(--error-container)] p-3 text-sm text-[var(--on-error-container)]">
                   {error}
                 </div>
               )}
 
               {!isLoading && !error && response && (
                 <div className="space-y-2 p-4">
-                  {lastQuestion && (
-                    <p className="label-mono text-[11px] uppercase text-muted-foreground">{lastQuestion}</p>
-                  )}
+                  {lastQuestion && <p className="label-mono text-[11px] uppercase text-muted-foreground">{lastQuestion}</p>}
                   <AgentResult response={response} onOpenClaim={handleOpenClaim} />
                 </div>
               )}
@@ -180,20 +164,20 @@ export function CommandBar() {
                 <div className="space-y-4 p-4">
                   <PromptGroup
                     icon={<Zap className="h-3.5 w-3.5 text-[var(--risk-amarillo)]" />}
-                    title="Pruebas de fuego del jurado"
-                    prompts={suggestions.judge}
-                    onPick={(q) => {
-                      setInput(q)
-                      void runQuery(q)
+                    title="Preguntas operativas"
+                    prompts={suggestions.priority}
+                    onPick={(question) => {
+                      setInput(question)
+                      void runQuery(question)
                     }}
                   />
                   <PromptGroup
                     icon={<Search className="h-3.5 w-3.5 text-muted-foreground" />}
-                    title="Exploración rápida"
+                    title="Exploracion rapida"
                     prompts={suggestions.explore}
-                    onPick={(q) => {
-                      setInput(q)
-                      void runQuery(q)
+                    onPick={(question) => {
+                      setInput(question)
+                      void runQuery(question)
                     }}
                   />
                 </div>
@@ -230,7 +214,7 @@ function PromptGroup({
   icon: React.ReactNode
   title: string
   prompts: string[]
-  onPick: (q: string) => void
+  onPick: (question: string) => void
 }) {
   return (
     <div className="space-y-2">
@@ -239,17 +223,17 @@ function PromptGroup({
         {title}
       </p>
       <div className="space-y-1.5">
-        {prompts.map((q) => (
+        {prompts.map((question) => (
           <button
-            key={q}
+            key={question}
             type="button"
-            onClick={() => onPick(q)}
+            onClick={() => onPick(question)}
             className={cn(
-              'focus-ring flex w-full items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-left text-sm text-foreground transition-colors',
+              'focus-ring flex w-full items-center gap-2 rounded-md border border-border bg-card px-3 py-2.5 text-left text-sm text-foreground transition-colors',
               'hover:border-primary hover:bg-[var(--surface-container)]',
             )}
           >
-            <span className="flex-1">{q}</span>
+            <span className="flex-1">{question}</span>
             <CornerDownLeft className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
           </button>
         ))}
