@@ -111,9 +111,9 @@ export function Sidebar() {
             <div className="space-y-2">
               <p className="label-mono-md px-3 font-bold uppercase text-muted-foreground">Revision tecnica</p>
               <NavButton active={currentStep === 1} icon={UploadCloud} label="Carga de datos" onClick={() => setCurrentStep(1)} />
-              <NavButton active={currentStep === 2} disabled={!flowReady} icon={ClipboardList} label="Resumen tecnico" onClick={() => setCurrentStep(2)} />
-              <NavButton active={currentStep === 3} disabled={!flowReady} icon={BarChart3} label="Riesgo explicable" onClick={() => setCurrentStep(3)} />
-              <NavButton active={currentStep === 4} disabled={!flowReady} icon={GitBranch} label="Red de relaciones" onClick={() => setCurrentStep(4)} />
+              <NavButton active={currentStep === 2} disabled={!flowReady} icon={ClipboardList} label="Resumen del caso" onClick={() => setCurrentStep(2)} />
+              <NavButton active={currentStep === 3} disabled={!flowReady} icon={BarChart3} label="Resultado y motivos" onClick={() => setCurrentStep(3)} />
+              <NavButton active={currentStep === 4} disabled={!flowReady} icon={GitBranch} label="Conexiones del caso" onClick={() => setCurrentStep(4)} />
               <NavButton active={currentStep === 5} disabled={!flowReady} icon={FileSearch} label="Reporte y cierre" onClick={() => setCurrentStep(5)} />
             </div>
           </>
@@ -151,7 +151,7 @@ export function Sidebar() {
             <LockKeyhole className="h-3.5 w-3.5 shrink-0" aria-hidden />
             <span className="label-mono-md font-bold">Aviso etico</span>
           </div>
-          <p className="text-xs leading-snug text-muted-foreground">La IA alerta y explica. No acusa ni rechaza reclamos.</p>
+          <p className="text-xs leading-snug text-muted-foreground">El asistente alerta y explica. No acusa ni rechaza reclamos.</p>
         </div>
       </div>
     </aside>

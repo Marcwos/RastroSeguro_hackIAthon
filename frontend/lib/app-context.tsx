@@ -115,7 +115,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       })
       if (records.length === 0) {
         setApiError('El API respondió sin siniestros priorizados.')
-        setApiHint('Verifica que el scoring haya generado datos procesados.')
+        setApiHint('Verifica que la evaluación de riesgo haya generado datos procesados.')
       }
     } catch (error) {
       setIsApiReady(false)

@@ -94,7 +94,7 @@ export function Header() {
           aria-label="Preguntar al agente antifraude"
         >
           <Search className="h-4 w-4" />
-          <span className="hidden md:inline">Preguntar a la IA</span>
+          <span className="hidden md:inline">Preguntar al asistente</span>
           <kbd className="label-mono rounded border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground">
             {shortcutLabel}
           </kbd>

@@ -17,7 +17,7 @@ const PRIORITY_PROMPTS = [
 const EXPLORE_PROMPTS = [
   'Genera un resumen general de los casos más delicados.',
   '¿Qué tipos de seguro tienen más casos sospechosos?',
-  '¿Qué ciudades presentan mayor concentración de alertas?',
+  '¿Qué ciudades presentan más alertas?',
   '¿Qué documentos faltan en los casos más delicados?',
 ]
 

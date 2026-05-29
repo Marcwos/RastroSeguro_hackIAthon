@@ -11,6 +11,7 @@ import { ScoreWaterfall } from '@/components/explainability/score-waterfall'
 import { RuleTrace } from '@/components/explainability/rule-trace'
 import { NarrativeCompare, type SimilarMatch } from '@/components/explainability/narrative-compare'
 import { resolveMainDriverLabel } from '@/lib/graph-insights'
+import { COMPONENT_LABELS } from '@/lib/score-weights'
 
 const num = (value: unknown) => Number(value ?? 0)
 
@@ -104,12 +105,12 @@ export function StepAnalysis() {
       accion,
       ``,
       `## Factores del puntaje (0-100)`,
-      `- Reglas: ${num(waterfallComponents.reglas)}`,
-      `- Modelo: ${num(waterfallComponents.modelo)}`,
-      `- Anomalías: ${num(waterfallComponents.anomalia)}`,
-      `- Narrativa: ${num(waterfallComponents.nlp)}`,
-      `- Relaciones: ${num(waterfallComponents.grafo)}`,
-      `- Categorías: ${num(waterfallComponents.categorico)}`,
+      `- ${COMPONENT_LABELS.score_reglas}: ${num(waterfallComponents.reglas)}`,
+      `- ${COMPONENT_LABELS.score_modelo}: ${num(waterfallComponents.modelo)}`,
+      `- ${COMPONENT_LABELS.score_anomalia}: ${num(waterfallComponents.anomalia)}`,
+      `- ${COMPONENT_LABELS.score_nlp}: ${num(waterfallComponents.nlp)}`,
+      `- ${COMPONENT_LABELS.score_grafo}: ${num(waterfallComponents.grafo)}`,
+      `- ${COMPONENT_LABELS.score_categorico}: ${num(waterfallComponents.categorico)}`,
       ``,
       `## Señales detectadas`,
       ...(alertas.length
@@ -185,7 +186,7 @@ export function StepAnalysis() {
           <aside className="institutional-card col-span-12 p-4 lg:col-span-4">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="label-mono-md font-bold uppercase">Señales clave</h3>
-              <span className="label-mono text-muted-foreground">Top 3</span>
+              <span className="label-mono text-muted-foreground">Principales 3</span>
             </div>
             <div className="space-y-3">
               {topAlerts.map((a, i) => (

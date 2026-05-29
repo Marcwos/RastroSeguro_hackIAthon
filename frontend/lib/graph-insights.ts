@@ -1,14 +1,15 @@
 import { ClaimSummary } from '@/lib/api'
 import { ClaimGraphPayload } from '@/components/graph/graph-types'
+import { humanizeComponentKey, humanizeEntityType } from '@/lib/human-labels'
 import { COMPONENT_LABELS, ScoreComponentKey } from '@/lib/score-weights'
 
 const SPIDER_AXES: { key: ScoreComponentKey; label: string }[] = [
-  { key: 'score_reglas', label: 'Reglas' },
-  { key: 'score_modelo', label: 'Modelo' },
-  { key: 'score_anomalia', label: 'Anomalía' },
-  { key: 'score_nlp', label: 'Narrativa' },
-  { key: 'score_grafo', label: 'Relaciones' },
-  { key: 'score_categorico', label: 'Categórico' },
+  { key: 'score_reglas', label: COMPONENT_LABELS.score_reglas },
+  { key: 'score_modelo', label: COMPONENT_LABELS.score_modelo },
+  { key: 'score_anomalia', label: COMPONENT_LABELS.score_anomalia },
+  { key: 'score_nlp', label: COMPONENT_LABELS.score_nlp },
+  { key: 'score_grafo', label: COMPONENT_LABELS.score_grafo },
+  { key: 'score_categorico', label: COMPONENT_LABELS.score_categorico },
 ]
 
 const num = (v: unknown) => Number(v ?? 0)
@@ -43,49 +44,43 @@ export function getTopSpiderDrivers(selectedClaim: ClaimSummary, claims: ClaimSu
 }
 
 export function buildSpiderNarrative(selectedClaim: ClaimSummary | null, claims: ClaimSummary[]): string {
-  if (!selectedClaim) return 'Selecciona un caso para ver el patrón de riesgo.'
+  if (!selectedClaim) return 'Selecciona un caso para ver la comparación con la cartera.'
   const drivers = getTopSpiderDrivers(selectedClaim, claims, 3)
   if (!drivers.length) {
-    return 'Este caso no supera el promedio de la cartera en ningún componente clave del puntaje.'
+    return 'Este caso no supera el promedio de la cartera en ninguna señal clave del puntaje.'
   }
   const parts = drivers.map((d) => `${d.dimension} (+${d.diff})`)
-  return `El caso supera el promedio de cartera en ${parts.join(', ')}. Esto indica dónde conviene profundizar la revisión humana.`
+  return `El caso destaca respecto al promedio en ${parts.join(', ')}. Conviene revisar esos puntos con criterio humano.`
 }
 
 export function buildNetworkInsight(payload: ClaimGraphPayload): string {
   const connections = payload.connections?.length ?? 0
   const alert = payload.alerta_red
   if (!connections) {
-    return 'La red del caso no muestra conexiones adicionales con otras entidades del portafolio.'
+    return 'Este caso no muestra conexiones adicionales con otros siniestros de la cartera.'
   }
   const topEntity = [...payload.recurring_entities].sort((a, b) => b.total_siniestros - a.total_siniestros)[0]
   const entityPart = topEntity
-    ? ` La entidad más recurrente es ${topEntity.type} «${topEntity.value}» (${topEntity.total_siniestros} casos).`
+    ? ` El elemento que más se repite es ${humanizeEntityType(topEntity.type)} «${topEntity.value}» (${topEntity.total_siniestros} casos).`
     : ''
-  const alertPart = alert ? ' Se detectó alerta de red.' : ''
-  return `El caso tiene ${connections} conexión(es) en la red.${entityPart}${alertPart}`
+  const alertPart = alert ? ' Se detectó una alerta en la red de relaciones.' : ''
+  return `El caso tiene ${connections} conexión(es) con otros elementos.${entityPart}${alertPart}`
 }
 
-export function buildEntitiesInsight(payload: ClaimGraphPayload): string {
+export function buildRecurrenceInsight(payload: ClaimGraphPayload): string {
   const entities = payload.recurring_entities
   if (!entities.length) {
-    return 'No hay entidades recurrentes vinculadas a este caso en el portafolio analizado.'
+    return 'No hay elementos que se repitan de forma relevante en la cartera para este caso.'
   }
   const top = [...entities].sort((a, b) => b.total_siniestros - a.total_siniestros)[0]
-  return `${entities.length} entidad(es) recurrente(s). La más relevante: ${top.type} «${top.value}» aparece en ${top.total_siniestros} siniestro(s).`
+  return `El principal elemento repetido es ${humanizeEntityType(top.type)} «${top.value}», presente en ${top.total_siniestros} siniestro(s). Esto ayuda a priorizar la revisión.`
 }
 
-export function buildRankingInsight(payload: ClaimGraphPayload): string {
-  const providers = payload.recurring_entities.filter((e) => e.type === 'proveedor' || e.type === 'id_proveedor')
-  if (!providers.length) {
-    return 'No hay concentración notable de proveedores en las entidades vinculadas a este caso.'
-  }
-  const top = [...providers].sort((a, b) => b.total_siniestros - a.total_siniestros)[0]
-  return `El proveedor «${top.value}» concentra ${top.total_siniestros} caso(s) relacionado(s), lo que puede indicar un patrón de revisión prioritario.`
-}
+/** @deprecated use buildRecurrenceInsight */
+export const buildRankingInsight = buildRecurrenceInsight
 
 export function buildRingsInsight(): string {
-  return 'Las redes de fraude agrupan siniestros que comparten entidades. Úsalas para detectar patrones que un caso aislado no revela.'
+  return 'Los grupos relacionados reúnen siniestros que comparten personas, proveedores u otros datos. Sirven para ver patrones que un caso aislado no muestra.'
 }
 
 export function buildChartInsights(
@@ -93,26 +88,16 @@ export function buildChartInsights(
   claims: ClaimSummary[],
   payload: ClaimGraphPayload,
 ) {
+  const recurrence = buildRecurrenceInsight(payload)
   return {
     graph: buildNetworkInsight(payload),
     rings: buildRingsInsight(),
-    entities: buildEntitiesInsight(payload),
-    ranking: buildRankingInsight(payload),
+    recurrence,
     spider: buildSpiderNarrative(selectedClaim, claims),
   }
 }
 
 export function resolveMainDriverLabel(component?: string | null): string {
-  if (!component) return 'N/D'
-  const normalized = component.trim().toLowerCase()
-  const map: Record<string, string> = {
-    reglas: COMPONENT_LABELS.score_reglas,
-    modelo: COMPONENT_LABELS.score_modelo,
-    'modelo ml': COMPONENT_LABELS.score_modelo,
-    anomalia: COMPONENT_LABELS.score_anomalia,
-    nlp: COMPONENT_LABELS.score_nlp,
-    grafo: COMPONENT_LABELS.score_grafo,
-    categorico: COMPONENT_LABELS.score_categorico,
-  }
-  return map[normalized] ?? component
+  if (!component) return 'Sin señal principal'
+  return humanizeComponentKey(component)
 }

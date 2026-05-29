@@ -5,6 +5,7 @@ import { RiskBadge } from '@/components/ui/risk-badge'
 import { getRiskLabel } from '@/lib/claims-data'
 import { buildContributionRows, computeWeightedScore } from '@/lib/score-weights'
 import { resolveMainDriverLabel } from '@/lib/graph-insights'
+import { UI_COPY } from '@/lib/human-labels'
 import { cn, sanitizeAiText } from '@/lib/utils'
 import { ShieldCheck, Target } from 'lucide-react'
 
@@ -63,7 +64,7 @@ export function ScoreObjectiveCard({
     <section className="institutional-card overflow-hidden">
       <div className="section-header flex items-center gap-2">
         <Target className="h-4 w-4" />
-        Score objetivo
+        {UI_COPY.scoreObjective}
       </div>
       <div className="space-y-4 p-4">
         <div className={cn('grid gap-4', compact ? 'md:grid-cols-1' : 'md:grid-cols-[200px_1fr]')}>
@@ -78,7 +79,7 @@ export function ScoreObjectiveCard({
           </div>
 
           <div className="space-y-3">
-            {driverLabel !== 'N/D' && (
+            {driverLabel !== 'Sin señal principal' && (
               <p className="text-sm">
                 <span className="font-semibold">Señal principal:</span> {driverLabel}
                 {driverValue != null ? ` (${driverValue}/100)` : ''}
@@ -99,10 +100,10 @@ export function ScoreObjectiveCard({
           <table className="w-full min-w-[480px] text-sm">
             <thead>
               <tr className="border-b border-border text-left label-mono-md text-muted-foreground">
-                <th className="pb-2 pr-3">Componente</th>
+                <th className="pb-2 pr-3">{UI_COPY.whatInfluenced}</th>
                 <th className="pb-2 pr-3">Valor</th>
-                <th className="pb-2 pr-3">Peso</th>
-                <th className="pb-2 pr-3">Contribución</th>
+                <th className="pb-2 pr-3">{UI_COPY.weight}</th>
+                <th className="pb-2 pr-3">{UI_COPY.contribution}</th>
                 <th className="pb-2">Barra</th>
               </tr>
             </thead>

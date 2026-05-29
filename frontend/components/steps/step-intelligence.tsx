@@ -8,11 +8,12 @@ import { safeGraphPayload } from '@/components/graph/graph-utils'
 import { buildClaimGraph } from '@/components/graph/graph-utils'
 import { ClaimNetworkReactFlow } from '@/components/graph/claim-network-reactflow'
 import { RecurringEntitiesList } from '@/components/graph/recurring-entities-list'
-import { ProviderRankingChart } from '@/components/graph/provider-ranking-chart'
+import { RecurrenceTopChart } from '@/components/graph/recurrence-top-chart'
 import { RiskSpiderChart } from '@/components/graph/risk-spider-chart'
 import { FraudRingsView } from '@/components/graph/fraud-rings-view'
 import { ChartInsight } from '@/components/report/chart-insight'
 import { buildChartInsights } from '@/lib/graph-insights'
+import { UI_COPY } from '@/lib/human-labels'
 
 export function StepIntelligence() {
   const { selectedClaim, selectedClaimId, selectedExplanation, loadClaimExplanation, claims, setCurrentStep } = useAppState()
@@ -47,22 +48,25 @@ export function StepIntelligence() {
     <section className="px-3 py-5 lg:px-6">
       <div className="mx-auto max-w-7xl space-y-4">
         <header>
-          <span className="label-mono uppercase tracking-widest text-muted-foreground">Inteligencia antifraude</span>
-          <h1 className="display-heading text-3xl lg:text-4xl">Paso 4: Inteligencia de Relaciones</h1>
-          <p className="mt-2 text-base text-readable text-muted-foreground">Exploración de red, recurrencias y concentración de entidades.</p>
+          <span className="label-mono uppercase tracking-widest text-muted-foreground">{UI_COPY.alertReview}</span>
+          <h1 className="display-heading text-3xl lg:text-4xl">Paso 4: {UI_COPY.caseConnections}</h1>
+          <p className="mt-2 text-base text-readable text-muted-foreground">
+            Red de relaciones, elementos repetidos y comparación con la cartera.
+          </p>
         </header>
 
         <Tabs defaultValue="graph" className="w-full">
           <TabsList>
             <TabsTrigger value="graph">Red del caso</TabsTrigger>
-            <TabsTrigger value="rings">Redes de fraude</TabsTrigger>
-            <TabsTrigger value="entities">Entidades recurrentes</TabsTrigger>
-            <TabsTrigger value="ranking">Concentración</TabsTrigger>
-            <TabsTrigger value="spider">Patrones (Araña)</TabsTrigger>
+            <TabsTrigger value="rings">{UI_COPY.relatedGroups}</TabsTrigger>
+            <TabsTrigger value="recurrence">Top recurrencias</TabsTrigger>
+            <TabsTrigger value="spider">{UI_COPY.comparePortfolio}</TabsTrigger>
           </TabsList>
           <TabsContent value="graph" className="mt-3 space-y-2">
             <div className="institutional-card space-y-2 p-4">
-              <p className="text-sm text-muted-foreground">Vista completa de la red del siniestro (zoom y desplazamiento habilitados).</p>
+              <p className="text-sm text-muted-foreground">
+                Vista completa de la red del siniestro. Puede ampliar la vista y desplazarse por el diagrama.
+              </p>
               <ClaimNetworkReactFlow nodes={graph.nodes} edges={graph.edges} />
             </div>
             <ChartInsight text={insights.graph} />
@@ -71,17 +75,15 @@ export function StepIntelligence() {
             <FraudRingsView />
             <ChartInsight text={insights.rings} />
           </TabsContent>
-          <TabsContent value="entities" className="mt-3 space-y-2">
-            <div className="institutional-card p-4">
-              <RecurringEntitiesList entities={payload.recurring_entities} limit={12} />
+          <TabsContent value="recurrence" className="mt-3 space-y-4">
+            <div className="institutional-card space-y-4 p-4">
+              <RecurrenceTopChart entities={payload.recurring_entities} />
+              <div>
+                <h3 className="label-mono-md mb-2 font-bold uppercase text-muted-foreground">{UI_COPY.repeatingElements}</h3>
+                <RecurringEntitiesList entities={payload.recurring_entities} limit={12} />
+              </div>
             </div>
-            <ChartInsight text={insights.entities} />
-          </TabsContent>
-          <TabsContent value="ranking" className="mt-3 space-y-2">
-            <div className="institutional-card p-4">
-              <ProviderRankingChart entities={payload.recurring_entities} />
-            </div>
-            <ChartInsight text={insights.ranking} />
+            <ChartInsight text={insights.recurrence} />
           </TabsContent>
           <TabsContent value="spider" className="mt-4">
             <RiskSpiderChart selectedClaim={selectedClaim} claims={claims} />

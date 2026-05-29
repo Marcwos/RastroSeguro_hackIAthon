@@ -11,6 +11,7 @@ import {
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import { buildSpiderNarrative, computeSpiderData, getTopSpiderDrivers } from '@/lib/graph-insights'
 import { ChartInsight } from '@/components/report/chart-insight'
+import { UI_COPY } from '@/lib/human-labels'
 
 const gridStroke = 'color-mix(in oklch, var(--chart-grid) 45%, transparent)'
 
@@ -31,7 +32,9 @@ export function RiskSpiderChart({ selectedClaim, claims }: { selectedClaim: Clai
     <div className="space-y-3">
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="institutional-card p-3 lg:col-span-2">
-          <p className="label-mono mb-2 text-muted-foreground">Patrón de aumento de riesgo (caso vs promedio de la cartera)</p>
+          <p className="label-mono mb-2 text-muted-foreground">
+            Señales del caso {UI_COPY.vsAverage} de la cartera
+          </p>
           <ChartContainer
             config={{
               Caso: { label: 'Caso', color: 'var(--chart-1)' },
@@ -52,18 +55,18 @@ export function RiskSpiderChart({ selectedClaim, claims }: { selectedClaim: Clai
         </div>
 
         <div className="institutional-card p-3">
-          <h4 className="label-mono-md mb-3 font-bold uppercase">Drivers principales</h4>
+          <h4 className="label-mono-md mb-3 font-bold uppercase">{UI_COPY.mainSignals}</h4>
           {topDrivers.length ? (
             <div className="space-y-2">
               {topDrivers.map((d) => (
                 <div key={d.dimension} className="border border-border bg-[var(--surface-low)] p-3">
                   <p className="font-semibold">{d.dimension}</p>
-                  <p className="text-sm text-muted-foreground">+{d.diff} vs promedio</p>
+                  <p className="text-sm text-muted-foreground">+{d.diff} {UI_COPY.vsAverage}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Este caso no supera el promedio en componentes clave.</p>
+            <p className="text-sm text-muted-foreground">Este caso no supera el promedio en señales clave del puntaje.</p>
           )}
         </div>
       </div>

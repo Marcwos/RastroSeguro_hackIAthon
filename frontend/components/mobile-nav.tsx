@@ -8,7 +8,7 @@ const analystItems = [
   { step: 0, label: 'Bandeja', Icon: LayoutDashboard, needsCase: false },
   { step: 1, label: 'Carga', Icon: UploadCloud, needsCase: false },
   { step: 3, label: 'Riesgo', Icon: BarChart3, needsCase: true },
-  { step: 4, label: 'Grafo', Icon: GitBranch, needsCase: true },
+  { step: 4, label: 'Conexiones', Icon: GitBranch, needsCase: true },
   { step: 5, label: 'Reporte', Icon: FileText, needsCase: true },
 ]
 

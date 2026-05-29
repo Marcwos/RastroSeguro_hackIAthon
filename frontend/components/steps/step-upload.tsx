@@ -158,7 +158,7 @@ export function StepUpload() {
       return
     }
 
-    setLocalError('Formato no permitido. Sube un CSV, PDF o TXT.')
+    setLocalError('Formato no permitido. Sube un archivo de datos, documento PDF o texto.')
     setStatus('idle')
   }, [setUploadedFile, uploadCsvAndRefresh])
 
@@ -315,7 +315,7 @@ export function StepUpload() {
                         </option>
                       ))}
                     </select>
-                    <span className="text-xs text-muted-foreground">Si el PDF contiene varios siniestros, selecciona cuál se confirmará para scoring.</span>
+                    <span className="text-xs text-muted-foreground">Si el documento contiene varios siniestros, selecciona cuál se confirmará para la evaluación.</span>
                   </label>
                 )}
 
@@ -417,7 +417,7 @@ export function StepUpload() {
           </div>
           <h1 className="display-heading text-3xl lg:text-4xl">Paso 1: Recepción de Información del Siniestro</h1>
           <p className="max-w-2xl text-base text-readable text-muted-foreground">
-            Cargue CSV para scoring directo o PDF/TXT para extracción inteligente con verificación humana antes del Paso 2.
+            Cargue un archivo de datos para evaluación directa, o un documento PDF o texto para extracción con verificación humana antes del Paso 2.
           </p>
         </header>
 
@@ -447,7 +447,7 @@ export function StepUpload() {
               className="absolute inset-0 opacity-0 disabled:pointer-events-none"
               type="file"
               name="claims_file"
-              aria-label="Subir CSV, PDF o TXT de siniestros"
+              aria-label="Subir archivo de datos, documento PDF o texto de siniestros"
               accept=".csv,text/csv,.pdf,application/pdf,.txt,text/plain"
               disabled={isUploading}
               onChange={(e) => handleFileUpload(e.target.files)}
@@ -493,7 +493,7 @@ export function StepUpload() {
               ) : (
                 <>
                   <p className="text-sm leading-relaxed text-muted-foreground">Arrastre el archivo o haga clic para explorarlo desde su equipo.</p>
-                  <p className="label-mono mt-1 text-muted-foreground">Formatos: .csv, .pdf, .txt (Máx 50MB)</p>
+                  <p className="label-mono mt-1 text-muted-foreground">Formatos: archivo de datos, PDF o texto (máx. 50 MB)</p>
                 </>
               )}
             </div>
@@ -503,11 +503,11 @@ export function StepUpload() {
             <Gavel className="h-8 w-8 text-[var(--primary-fixed-dim)]" />
             <div className="space-y-3">
               <p className="dark-panel-kicker label-mono-md uppercase">Protocolo de Integridad</p>
-              <p className="dark-panel-muted text-sm leading-relaxed">CSV mantiene el flujo directo. PDF/TXT pasa por revisión con evidencia por campo.</p>
+              <p className="dark-panel-muted text-sm leading-relaxed">El archivo de datos mantiene el flujo directo. PDF o texto pasa por revisión con evidencia por campo.</p>
               <ul className="dark-panel-muted space-y-2 text-xs leading-relaxed">
-                <li>1. Recibe CSV, PDF o TXT.</li>
+                <li>1. Recibe archivo de datos, PDF o texto.</li>
                 <li>2. Extrae y verifica campos con agentes.</li>
-                <li>3. Solo tras confirmar se procesa el scoring.</li>
+                <li>3. Solo tras confirmar se procesa la evaluación de riesgo.</li>
               </ul>
             </div>
           </div>
@@ -564,7 +564,7 @@ export function StepUpload() {
                 </table>
               </div>
             ) : (
-              <p className="p-6 text-sm text-muted-foreground">{isLoadingClaims || status === 'validating' ? 'Procesando archivo…' : 'Cargue CSV para ver columnas, o PDF/TXT para abrir el modal de revisión.'}</p>
+              <p className="p-6 text-sm text-muted-foreground">{isLoadingClaims || status === 'validating' ? 'Procesando archivo…' : 'Cargue un archivo de datos para ver columnas, o PDF o texto para abrir el modal de revisión.'}</p>
             )}
           </div>
         </div>

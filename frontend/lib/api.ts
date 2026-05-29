@@ -477,7 +477,7 @@ export async function uploadClaimsCsv(file: File) {
     throw new ApiClientError('El API respondió con un formato inválido.', { status: response.status })
   }
   if (!response.ok || !payload.ok) {
-    throw new ApiClientError(payload.error?.message || 'No se pudo procesar el CSV.', {
+    throw new ApiClientError(payload.error?.message || 'No se pudo procesar el archivo de datos.', {
       hint: payload.error?.hint,
       details: payload.error?.details,
       status: response.status,

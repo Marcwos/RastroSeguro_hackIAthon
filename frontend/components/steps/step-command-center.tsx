@@ -431,11 +431,11 @@ export function StepCommandCenter() {
           <div className="dark-panel dark-panel-border border p-6">
             <div className="dark-panel-kicker flex items-center gap-2">
               <GitBranch className="h-5 w-5" />
-              <span className="label-mono-md uppercase">Inteligencia antifraude</span>
+              <span className="label-mono-md uppercase">Revisión de alertas</span>
             </div>
             <h1 className="dark-panel-heading display-heading mt-3 text-3xl lg:text-4xl">Centro de Control Antifraude</h1>
             <p className="dark-panel-muted mt-2 max-w-2xl text-sm">
-              {isAnalyst ? 'Bandeja operativa de riesgo, carga de datos y casos prioritarios para revision con IA.' : 'Panorama ejecutivo de riesgo, concentracion de alertas e impacto para decision gerencial.'}
+              {isAnalyst ? 'Bandeja operativa de riesgo, carga de datos y casos prioritarios para revisión con el asistente.' : 'Panorama ejecutivo de riesgo, recurrencia de alertas e impacto para decisión gerencial.'}
             </p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
               {isAnalyst ? (
@@ -631,8 +631,8 @@ export function StepCommandCenter() {
             <div className="grid gap-4 md:grid-cols-3">
               {[
                 { title: 'Priorización rápida', text: 'Ordena casos por riesgo para enfocar revisión humana.' },
-                { title: 'Patrones visibles', text: 'Expone concentración por proveedor, ramo y ciudad.' },
-                { title: 'Explicabilidad', text: 'Conecta la vista ejecutiva con el análisis IA trazable por caso.' },
+                { title: 'Patrones visibles', text: 'Expone recurrencia por proveedor, ramo y ciudad.' },
+                { title: 'Explicabilidad', text: 'Conecta la vista ejecutiva con el análisis verificable por caso.' },
               ].map((item) => (
                 <div key={item.title} className="institutional-card p-4">
                   <Bot className="h-5 w-5 text-[var(--on-secondary-container)]" />

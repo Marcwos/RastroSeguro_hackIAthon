@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { COMPONENT_LABELS } from '@/lib/score-weights'
 import { Gavel, ReceiptText, ShieldAlert, FileText, Link2, TrendingDown, RotateCcw, Info } from 'lucide-react'
 
 export interface ScoreComponents {
@@ -18,12 +19,12 @@ const NEUTRAL = 50
 
 // Pesos reales del motor (src/scoring/final_score.py)
 const COMPONENT_DEFS = [
-  { key: 'reglas', label: 'Reglas', weight: 0.3, Icon: Gavel, desc: 'Reglas de negocio críticas activadas.' },
-  { key: 'modelo', label: 'Modelo', weight: 0.25, Icon: ReceiptText, desc: 'Señal histórica supervisada.' },
-  { key: 'anomalia', label: 'Anomalías', weight: 0.15, Icon: ShieldAlert, desc: 'Comportamiento fuera de patrón.' },
-  { key: 'nlp', label: 'Narrativa', weight: 0.15, Icon: FileText, desc: 'Similitud textual con casos previos.' },
-  { key: 'grafo', label: 'Relaciones', weight: 0.1, Icon: Link2, desc: 'Entidades recurrentes en la red.' },
-  { key: 'categorico', label: 'Categórico', weight: 0.05, Icon: TrendingDown, desc: 'Contexto cualitativo del caso.' },
+  { key: 'reglas', label: COMPONENT_LABELS.score_reglas, weight: 0.3, Icon: Gavel, desc: 'Reglas de negocio críticas activadas.' },
+  { key: 'modelo', label: COMPONENT_LABELS.score_modelo, weight: 0.25, Icon: ReceiptText, desc: 'Comparación con casos históricos similares.' },
+  { key: 'anomalia', label: COMPONENT_LABELS.score_anomalia, weight: 0.15, Icon: ShieldAlert, desc: 'Comportamiento distinto al habitual.' },
+  { key: 'nlp', label: COMPONENT_LABELS.score_nlp, weight: 0.15, Icon: FileText, desc: 'Similitud del relato con casos previos.' },
+  { key: 'grafo', label: COMPONENT_LABELS.score_grafo, weight: 0.1, Icon: Link2, desc: 'Elementos que se repiten en la red de relaciones.' },
+  { key: 'categorico', label: COMPONENT_LABELS.score_categorico, weight: 0.05, Icon: TrendingDown, desc: 'Contexto cualitativo del caso.' },
 ] as const
 
 const num = (value: unknown) => {
@@ -74,9 +75,9 @@ export function ScoreWaterfall({ componentes, scoreFinal }: ScoreWaterfallProps)
     <div className="space-y-5">
       <header className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
         <div>
-          <h2 className="label-mono-md font-bold uppercase">Desglose del puntaje de riesgo</h2>
+          <h2 className="label-mono-md font-bold uppercase">Desglose del puntaje</h2>
           <p className="text-sm text-muted-foreground">
-            Aporte ponderado de cada componente desde una base neutral de {NEUTRAL}.
+            Cuánto aporta cada señal desde una base neutral de {NEUTRAL}.
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -93,7 +94,7 @@ export function ScoreWaterfall({ componentes, scoreFinal }: ScoreWaterfallProps)
           </div>
           {hasWhatIf && (
             <div className="text-right">
-              <p className="label-mono text-[10px] uppercase text-muted-foreground">Δ what-if</p>
+              <p className="label-mono text-[10px] uppercase text-muted-foreground">Escenario alternativo</p>
               <p className={cn('font-display text-2xl leading-none', delta < 0 ? 'text-[var(--risk-verde)]' : 'text-destructive')}>
                 {delta > 0 ? '+' : ''}
                 {Math.round(delta)}
@@ -126,7 +127,7 @@ export function ScoreWaterfall({ componentes, scoreFinal }: ScoreWaterfallProps)
                     'focus-ring relative h-5 w-9 shrink-0 rounded-full transition-colors',
                     off ? 'bg-[var(--surface-high)]' : 'bg-primary',
                   )}
-                  aria-label={`${off ? 'Reactivar' : 'Neutralizar'} componente ${row.label}`}
+                  aria-label={`${off ? 'Reactivar' : 'Neutralizar'} señal ${row.label}`}
                 >
                   <span
                     className={cn(
@@ -181,7 +182,7 @@ export function ScoreWaterfall({ componentes, scoreFinal }: ScoreWaterfallProps)
                 </span>
               </div>
               <p className="mt-1.5 pl-12 text-xs text-muted-foreground">
-                {row.desc} <span className="text-foreground/70">Valor crudo: {Math.round(row.raw)}/100.</span>
+                {row.desc} <span className="text-foreground/70">Valor base: {Math.round(row.raw)}/100.</span>
               </p>
             </div>
           )
@@ -201,7 +202,7 @@ export function ScoreWaterfall({ componentes, scoreFinal }: ScoreWaterfallProps)
             className="focus-ring inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border px-3 py-1.5 label-mono text-xs text-muted-foreground hover:text-foreground"
           >
             <RotateCcw className="h-3.5 w-3.5" />
-            Restablecer what-if
+            Restablecer escenario
           </button>
         )}
       </div>

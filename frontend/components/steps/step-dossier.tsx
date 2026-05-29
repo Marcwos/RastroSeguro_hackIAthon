@@ -22,6 +22,7 @@ import { ClaimDossier, getClaimDossier } from '@/lib/api'
 import { formatCurrency } from '@/lib/claims-data'
 import { RiskBadge } from '@/components/ui/risk-badge'
 import { cn, sanitizeAiText } from '@/lib/utils'
+import { humanizeComponentKey } from '@/lib/human-labels'
 
 const num = (value: unknown) => Number(value ?? 0)
 
@@ -60,19 +61,18 @@ function compactUnknown(value?: string | null) {
 }
 
 const COMPONENT_LABELS: Record<string, string> = {
-  nlp: 'Narrativa',
-  'modelo ml': 'Patrones del modelo',
-  modelo: 'Patrones del modelo',
-  reglas: 'Reglas',
-  anomalia: 'Anomalías',
+  nlp: 'Narrativa del relato',
+  'modelo ml': 'Patrones históricos',
+  modelo: 'Patrones históricos',
+  reglas: 'Reglas de negocio',
+  anomalia: 'Comportamiento inusual',
   grafo: 'Relaciones',
-  categorico: 'Categorías',
+  categorico: 'Contexto del caso',
 }
 
 function labelComponent(key?: string | null): string {
   if (!key) return 'N/D'
-  const normalized = key.trim().toLowerCase()
-  return COMPONENT_LABELS[normalized] ?? key
+  return humanizeComponentKey(key)
 }
 
 function SignalRadar({ dossier }: { dossier: ClaimDossier }) {

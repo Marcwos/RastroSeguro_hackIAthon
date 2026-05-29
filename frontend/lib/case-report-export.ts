@@ -3,6 +3,7 @@ import { formatCurrency, getRiskLabel } from '@/lib/claims-data'
 import { buildChartInsights } from '@/lib/graph-insights'
 import { buildContributionRows } from '@/lib/score-weights'
 import { ClaimGraphPayload } from '@/components/graph/graph-types'
+import { UI_COPY } from '@/lib/human-labels'
 import { sanitizeAiText } from '@/lib/utils'
 
 const num = (v: unknown) => Number(v ?? 0)
@@ -22,7 +23,28 @@ export interface CaseReportExportInput {
   portfolioMarkdown?: string | null
 }
 
-export function buildCaseReportMarkdown(input: CaseReportExportInput): string {
+export interface CaseReportData {
+  claimId: string
+  generatedAt: string
+  scoreFinal: number
+  nivelRiesgo: string
+  accion: string
+  explicacion: string
+  rows: ReturnType<typeof buildContributionRows>
+  insights: ReturnType<typeof buildChartInsights>
+  alertas: string[]
+  uploadedFileName?: string | null
+  claimsCount: number
+  ramo: string
+  cobertura: string
+  montoReclamado: string
+  documentosCompletos: boolean
+  dossier?: ClaimDossier | null
+  portfolioReport?: ExecutiveReport | null
+  portfolioMarkdown?: string | null
+}
+
+export function collectCaseReportData(input: CaseReportExportInput): CaseReportData {
   const { claim, explanation, dossier, graphPayload, claims, uploadedFileName, portfolioReport, portfolioMarkdown } = input
   const scoreFinal = num(explanation?.score_final ?? claim.score_final)
   const nivelRiesgo = explanation?.nivel_riesgo || claim.nivel_riesgo || 'Sin clasificar'
@@ -47,76 +69,101 @@ export function buildCaseReportMarkdown(input: CaseReportExportInput): string {
     score_categorico: rawComponents.categorico ?? claim.score_categorico,
   }
 
-  const rows = buildContributionRows(components)
-  const insights = buildChartInsights(claim, claims, graphPayload)
-  const alertas = (explanation?.alertas?.length ? explanation.alertas : claim.alertas_activadas instanceof Array ? claim.alertas_activadas : []) as unknown[]
+  const alertasRaw = (explanation?.alertas?.length
+    ? explanation.alertas
+    : claim.alertas_activadas instanceof Array
+      ? claim.alertas_activadas
+      : []) as unknown[]
+
+  return {
+    claimId: claim.id_siniestro,
+    generatedAt: new Date().toLocaleString('es-EC'),
+    scoreFinal,
+    nivelRiesgo: getRiskLabel(nivelRiesgo),
+    accion: accion || 'Revisión humana',
+    explicacion,
+    rows: buildContributionRows(components),
+    insights: buildChartInsights(claim, claims, graphPayload),
+    alertas: alertasRaw.map((a) => alertToText(a)),
+    uploadedFileName,
+    claimsCount: claims.length,
+    ramo: claim.ramo ?? 'N/D',
+    cobertura: claim.cobertura ?? 'N/D',
+    montoReclamado: formatCurrency(claim.monto_reclamado),
+    documentosCompletos: yes(claim.documentos_completos),
+    dossier,
+    portfolioReport,
+    portfolioMarkdown,
+  }
+}
+
+export function buildCaseReportMarkdown(input: CaseReportExportInput): string {
+  const data = collectCaseReportData(input)
 
   const lines: string[] = [
     '# Reporte demo — RastroSeguro',
     '',
-    `**Caso:** ${claim.id_siniestro}`,
-    `**Generado:** ${new Date().toISOString()}`,
+    `**Caso:** ${data.claimId}`,
+    `**Generado:** ${data.generatedAt}`,
     '',
-    '## Score objetivo',
+    `## ${UI_COPY.scoreObjective}`,
     '',
-    `- Puntaje final: **${Math.round(scoreFinal)}/100**`,
-    `- Nivel: **${getRiskLabel(nivelRiesgo)}**`,
-    `- Recomendación: ${accion || 'Revisión humana'}`,
+    `- Puntaje final: **${Math.round(data.scoreFinal)}/100**`,
+    `- Nivel: **${data.nivelRiesgo}**`,
+    `- Recomendación: ${data.accion}`,
     '',
-    '### Contribución ponderada',
+    `### ${UI_COPY.contribution}`,
     '',
-    '| Componente | Valor | Peso | Contribución |',
+    `| ${UI_COPY.whatInfluenced} | Valor | ${UI_COPY.weight} | ${UI_COPY.contribution} |`,
     '| --- | --- | --- | --- |',
-    ...rows.map((r) => `| ${r.label} | ${Math.round(r.value)} | ${r.weightPct}% | ${r.contribution} |`),
+    ...data.rows.map((r) => `| ${r.label} | ${Math.round(r.value)} | ${r.weightPct}% | ${r.contribution} |`),
     '',
-    explicacion ? `**Explicación:** ${explicacion}` : '',
+    data.explicacion ? `**Explicación:** ${data.explicacion}` : '',
     '',
     '## Recorrido por etapas',
     '',
     '### Paso 1 — Carga',
-    uploadedFileName ? `- Archivo cargado: \`${uploadedFileName}\`` : '- Dataset activo en el sistema.',
-    `- Total casos en sesión: ${claims.length}`,
+    data.uploadedFileName ? `- Archivo cargado: \`${data.uploadedFileName}\`` : '- Cartera activa en el sistema.',
+    `- Total casos en sesión: ${data.claimsCount}`,
     '',
-    '### Paso 2 — Resumen técnico',
-    `- Ramo: ${claim.ramo ?? 'N/D'} | Cobertura: ${claim.cobertura ?? 'N/D'}`,
-    `- Monto reclamado: ${formatCurrency(claim.monto_reclamado)}`,
-    `- Documentos completos: ${yes(claim.documentos_completos) ? 'Sí' : 'Pendiente o incompleto'}`,
+    '### Paso 2 — Resumen del caso',
+    `- Ramo: ${data.ramo} | Cobertura: ${data.cobertura}`,
+    `- Monto reclamado: ${data.montoReclamado}`,
+    `- Documentos completos: ${data.documentosCompletos ? 'Sí' : 'Pendiente o incompleto'}`,
     '',
-    '### Paso 3 — Riesgo explicable',
-    ...(alertas.length
-      ? alertas.slice(0, 5).map((a) => `- ${alertToText(a)}`)
+    '### Paso 3 — Resultado y motivos',
+    ...(data.alertas.length
+      ? data.alertas.slice(0, 5).map((a) => `- ${a}`)
       : ['- Sin alertas principales registradas.']),
     '',
-    '### Paso 4 — Relaciones y gráficos',
-    `- Red: ${insights.graph}`,
-    `- Entidades: ${insights.entities}`,
-    `- Concentración: ${insights.ranking}`,
-    `- Patrón araña: ${insights.spider}`,
+    '### Paso 4 — Conexiones y gráficos',
+    `- Red: ${data.insights.graph}`,
+    `- Recurrencias: ${data.insights.recurrence}`,
+    `- Comparación con la cartera: ${data.insights.spider}`,
     '',
     '## Gráficos explicados',
     '',
-    `- **Red del caso:** ${insights.graph}`,
-    `- **Entidades recurrentes:** ${insights.entities}`,
-    `- **Concentración proveedor:** ${insights.ranking}`,
-    `- **Patrón araña:** ${insights.spider}`,
+    `- **Red del caso:** ${data.insights.graph}`,
+    `- **Elementos que se repiten:** ${data.insights.recurrence}`,
+    `- **Comparación con la cartera:** ${data.insights.spider}`,
     '',
   ]
 
-  if (dossier) {
+  if (data.dossier) {
     lines.push(
       '## Evidencias del expediente',
       '',
-      dossier.headline || '',
+      data.dossier.headline || '',
       '',
-      ...(dossier.evidence?.slice(0, 5).map((e, i) => `${i + 1}. **${e.senal || e.codigo}:** ${e.mensaje || ''} (+${Math.round(num(e.puntos))})`) ?? []),
+      ...(data.dossier.evidence?.slice(0, 5).map((e, i) => `${i + 1}. **${e.senal || e.codigo}:** ${e.mensaje || ''} (+${Math.round(num(e.puntos))})`) ?? []),
       '',
-      dossier.ethical_guardrail || '',
+      data.dossier.ethical_guardrail || '',
       '',
     )
   }
 
-  if (portfolioReport?.summary) {
-    const s = portfolioReport.summary
+  if (data.portfolioReport?.summary) {
+    const s = data.portfolioReport.summary
     lines.push(
       '## Anexo — Portafolio',
       '',
@@ -124,11 +171,11 @@ export function buildCaseReportMarkdown(input: CaseReportExportInput): string {
       `- Casos rojos: ${s.casos_rojos} (${s.porcentaje_rojo}%)`,
       `- Monto en casos rojos: ${formatCurrency(s.monto_reclamado_casos_rojos)}`,
       '',
-      portfolioReport.ethics_note || '',
+      data.portfolioReport.ethics_note || '',
       '',
     )
-  } else if (portfolioMarkdown) {
-    lines.push('## Anexo — Portafolio', '', portfolioMarkdown, '')
+  } else if (data.portfolioMarkdown) {
+    lines.push('## Anexo — Portafolio', '', data.portfolioMarkdown, '')
   }
 
   lines.push(
@@ -151,3 +198,10 @@ export function downloadCaseReportMarkdown(content: string, claimId: string) {
   link.remove()
   URL.revokeObjectURL(url)
 }
+
+export async function downloadCaseReportPdf(input: CaseReportExportInput): Promise<void> {
+  const { downloadCaseReportPdfFromData } = await import('@/lib/case-report-pdf')
+  const data = collectCaseReportData(input)
+  await downloadCaseReportPdfFromData(data)
+}
+

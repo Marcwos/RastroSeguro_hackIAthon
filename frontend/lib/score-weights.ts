@@ -11,12 +11,12 @@ export const COMPONENT_WEIGHTS = {
 export type ScoreComponentKey = keyof typeof COMPONENT_WEIGHTS
 
 export const COMPONENT_LABELS: Record<ScoreComponentKey, string> = {
-  score_reglas: 'Reglas',
-  score_modelo: 'Modelo',
-  score_anomalia: 'Anomalía',
-  score_nlp: 'Narrativa',
+  score_reglas: 'Reglas de negocio',
+  score_modelo: 'Patrones históricos',
+  score_anomalia: 'Comportamiento inusual',
+  score_nlp: 'Narrativa del relato',
   score_grafo: 'Relaciones',
-  score_categorico: 'Categórico',
+  score_categorico: 'Contexto del caso',
 }
 
 export const WATERFALL_KEYS = ['reglas', 'modelo', 'anomalia', 'nlp', 'grafo', 'categorico'] as const

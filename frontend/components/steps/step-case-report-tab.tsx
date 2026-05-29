@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   ArrowRight,
   Bot,
-  CheckCircle2,
   ClipboardList,
   Download,
   FileText,
@@ -22,7 +21,7 @@ import {
 import { formatCurrency } from '@/lib/claims-data'
 import { safeGraphPayload } from '@/components/graph/graph-utils'
 import { buildChartInsights } from '@/lib/graph-insights'
-import { buildCaseReportMarkdown, downloadCaseReportMarkdown } from '@/lib/case-report-export'
+import { buildCaseReportMarkdown, downloadCaseReportMarkdown, downloadCaseReportPdf } from '@/lib/case-report-export'
 import { ScoreObjectiveCard } from '@/components/report/score-objective-card'
 import { ChartInsight } from '@/components/report/chart-insight'
 import { alertToText } from '@/lib/api'
@@ -33,14 +32,6 @@ const num = (v: unknown) => Number(v ?? 0)
 function yes(value: unknown) {
   return ['si', 'sí', 'true', '1', 'yes', 'completo'].includes(String(value ?? '').trim().toLowerCase()) || value === true
 }
-
-const DEMO_SCRIPT = [
-  'Mostrar score objetivo y desglose ponderado del caso activo.',
-  'Recorrer etapas 1–4 con el chat lateral (preguntas por paso).',
-  'Explicar gráficos: red, entidades, concentración y patrón araña.',
-  'Abrir tab Expediente para evidencias trazables.',
-  'Exportar reporte completo (.md) para cierre ejecutivo.',
-]
 
 export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
   const {
@@ -58,7 +49,8 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
   const [dossier, setDossier] = useState<ClaimDossier | null>(null)
   const [portfolio, setPortfolio] = useState<ExecutiveReport | null>(null)
   const [loading, setLoading] = useState(false)
-  const [exporting, setExporting] = useState(false)
+  const [exportingMd, setExportingMd] = useState(false)
+  const [exportingPdf, setExportingPdf] = useState(false)
 
   const isExecutive = userRole === 'executive'
 
@@ -116,8 +108,8 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
       ? selectedClaim.alertas_activadas
       : []) as unknown[]
 
-  const handleExport = async () => {
-    setExporting(true)
+  const handleExportMarkdown = async () => {
+    setExportingMd(true)
     try {
       const markdown = buildCaseReportMarkdown({
         claim: selectedClaim,
@@ -130,7 +122,24 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
       })
       downloadCaseReportMarkdown(markdown, selectedClaim.id_siniestro)
     } finally {
-      setExporting(false)
+      setExportingMd(false)
+    }
+  }
+
+  const handleExportPdf = async () => {
+    setExportingPdf(true)
+    try {
+      await downloadCaseReportPdf({
+        claim: selectedClaim,
+        explanation: selectedExplanation,
+        dossier,
+        graphPayload,
+        claims,
+        uploadedFileName: uploadedFile?.name ?? null,
+        portfolioReport: portfolio,
+      })
+    } finally {
+      setExportingPdf(false)
     }
   }
 
@@ -169,7 +178,7 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
             step={1}
             icon={UploadCloud}
             title="Carga"
-            text={uploadedFile?.name ? `Archivo: ${uploadedFile.name}` : isDataLoaded ? 'Dataset activo en el sistema.' : 'Datos del portafolio disponibles.'}
+            text={uploadedFile?.name ? `Archivo: ${uploadedFile.name}` : isDataLoaded ? 'Cartera activa en el sistema.' : 'Datos del portafolio disponibles.'}
           />
           <StageCard
             step={2}
@@ -200,9 +209,8 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
         <div className="section-header">Gráficos explicados</div>
         <div className="space-y-2 p-4">
           <ChartInsight text={`Red del caso: ${chartInsights.graph}`} />
-          <ChartInsight text={`Entidades recurrentes: ${chartInsights.entities}`} />
-          <ChartInsight text={`Concentración: ${chartInsights.ranking}`} />
-          <ChartInsight text={`Patrón araña: ${chartInsights.spider}`} />
+          <ChartInsight text={`Recurrencias: ${chartInsights.recurrence}`} />
+          <ChartInsight text={`Comparación con la cartera: ${chartInsights.spider}`} />
         </div>
       </section>
 
@@ -217,7 +225,7 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
           </div>
           {portfolio.top_casos?.length ? (
             <div className="border-t border-border px-4 pb-4">
-              <p className="label-mono-md mb-2 font-bold uppercase text-muted-foreground">Top casos del portafolio</p>
+              <p className="label-mono-md mb-2 font-bold uppercase text-muted-foreground">Principales casos del portafolio</p>
               <div className="flex flex-wrap gap-2">
                 {portfolio.top_casos.slice(0, 5).map((c) => (
                   <span key={String(c.id_siniestro)} className="rounded-md border border-border bg-[var(--surface-low)] px-2 py-1 font-mono text-xs">
@@ -230,27 +238,24 @@ export function StepCaseReportTab({ compact = false }: { compact?: boolean }) {
         </section>
       )}
 
-      <section className="institutional-card overflow-hidden">
-        <div className="section-header flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4" />
-          Guion demo
-        </div>
-        <ol className="list-decimal space-y-2 p-4 pl-8 text-sm text-muted-foreground">
-          {DEMO_SCRIPT.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ol>
-      </section>
-
       <div className="flex flex-wrap gap-3">
         <button
           type="button"
-          onClick={() => void handleExport()}
-          disabled={exporting}
+          onClick={() => void handleExportPdf()}
+          disabled={exportingPdf || exportingMd}
           className="focus-ring inline-flex items-center gap-2 bg-primary px-5 py-2.5 label-mono-md text-primary-foreground"
         >
-          {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-          Descargar reporte completo
+          {exportingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+          Descargar PDF
+        </button>
+        <button
+          type="button"
+          onClick={() => void handleExportMarkdown()}
+          disabled={exportingPdf || exportingMd}
+          className="focus-ring inline-flex items-center gap-2 border border-border px-5 py-2.5 label-mono-md text-foreground hover:bg-[var(--surface-container)]"
+        >
+          {exportingMd ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+          Descargar texto (.md)
         </button>
         <button
           type="button"

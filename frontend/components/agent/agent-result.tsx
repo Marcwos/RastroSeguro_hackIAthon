@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import type { AgentResponse } from '@/lib/api'
 import { formatCurrency, getRiskBadgeClasses, getRiskLabel, normalizeRiskLevel } from '@/lib/claims-data'
 import { cn } from '@/lib/utils'
+import { UI_COPY } from '@/lib/human-labels'
 import { ArrowUpRight, Database, FileText, Sparkles } from 'lucide-react'
 import { renderMarkdownBlocks } from '@/lib/markdown'
 
@@ -183,7 +184,7 @@ function SourceBadge({ source }: { source?: string }) {
   const config: Record<string, { label: string; Icon: typeof Database }> = {
     tools: { label: 'Datos del motor', Icon: Database },
     rag: { label: 'Base documental', Icon: FileText },
-    llm: { label: 'Síntesis IA', Icon: Sparkles },
+    llm: { label: UI_COPY.assistantSynthesis, Icon: Sparkles },
   }
   const { label, Icon } = config[source] ?? { label: source, Icon: Database }
   return (
