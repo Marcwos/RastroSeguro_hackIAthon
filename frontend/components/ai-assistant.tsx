@@ -349,7 +349,7 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
         userId,
         threadId,
         selectedClaimId: activeClaimId,
-        runtime: 'classic',
+        runtime: 'langgraph',
         userRole,
         uiContext: { step: currentStep, step_title: currentContextTitle },
       })

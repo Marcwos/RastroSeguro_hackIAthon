@@ -105,7 +105,7 @@ export function CommandBar() {
           userId,
           threadId,
           selectedClaimId: activeClaimId,
-          runtime: 'classic',
+          runtime: 'langgraph',
           userRole,
           uiContext: {
             step: userRole === 'executive' ? 0 : 3,

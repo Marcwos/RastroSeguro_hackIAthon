@@ -80,6 +80,17 @@ def _compile_graph(
     StateGraph, START, END = _import_langgraph()
 
     def supervisor_node(state: GraphTurnState) -> GraphTurnState:
+        resolved_intent = state.get("intent")
+        if resolved_intent:
+            uses_documentation = bool(state.get("uses_documentation"))
+            domain = _domain_for_intent(resolved_intent, uses_documentation)
+            return {
+                "intent": resolved_intent,
+                "uses_documentation": uses_documentation,
+                "domain": domain,
+                "agents": ["Supervisor"],
+            }
+
         intent = route(state["question"])
         domain = _domain_for_intent(intent.name, intent.uses_documentation)
         return {
@@ -145,17 +156,24 @@ def run_langgraph_turn(
     claim_id: str | None,
     selected_claim_id: str | None,
     limit: int,
+    intent_name: str | None = None,
+    uses_documentation: bool | None = None,
     tool_dispatcher: Callable[[str, str | None, int, str], Any],
     docs_dispatcher: Callable[[str], Any],
 ) -> dict[str, Any]:
     graph = _compile_graph(tool_dispatcher, docs_dispatcher)
+    initial_state: GraphTurnState = {
+        "question": question,
+        "claim_id": claim_id or selected_claim_id,
+        "selected_claim_id": selected_claim_id,
+        "limit": limit,
+    }
+    if intent_name:
+        initial_state["intent"] = intent_name
+        initial_state["uses_documentation"] = bool(uses_documentation)
+
     state = graph.invoke(
-        {
-            "question": question,
-            "claim_id": claim_id or selected_claim_id,
-            "selected_claim_id": selected_claim_id,
-            "limit": limit,
-        }
+        initial_state
     )
     agents = state.get("agents", [])
     return {

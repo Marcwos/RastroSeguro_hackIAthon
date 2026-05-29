@@ -64,6 +64,20 @@ class AgentTest(unittest.TestCase):
         self.assertTrue(response["ok"])
         self.assertEqual(response["context"]["resolved_claim_id"], "SIN-7777")
 
+    def test_langgraph_respects_contextual_claim_intent(self):
+        with patch("src.application.risk_queries.explain_claim", return_value={"id_siniestro": "SIN-7777"}) as explain, patch(
+            "src.application.risk_queries.get_top_risky_claims",
+            return_value=[{"id_siniestro": "SIN-OTHER"}],
+        ) as top:
+            response = answer_question("que paso aqui?", selected_claim_id="SIN-7777")
+
+        explain.assert_called_once_with("SIN-7777")
+        top.assert_not_called()
+        self.assertTrue(response["ok"])
+        self.assertEqual(response["intent"], "explicar_siniestro")
+        self.assertEqual(response["runtime"]["active"], "langgraph")
+        self.assertIn("Investigador de caso", response["runtime"]["agents"])
+
     def test_missing_scored_file_returns_actionable_error(self):
         with patch(
             "src.application.risk_queries._load_scored",

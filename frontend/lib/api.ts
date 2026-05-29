@@ -452,7 +452,7 @@ export function chatAgent(payload: {
       user_id: payload.userId || 'anonymous',
       thread_id: payload.threadId || null,
       selected_claim_id: payload.selectedClaimId || null,
-      runtime: payload.runtime || 'classic',
+      runtime: payload.runtime || 'langgraph',
       user_role: payload.userRole || 'analyst',
       ui_context: payload.uiContext || null,
     }),

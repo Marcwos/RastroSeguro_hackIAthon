@@ -208,6 +208,8 @@ def _execute_turn(
                 claim_id=claim_id,
                 selected_claim_id=selected_claim_id,
                 limit=limit,
+                intent_name=intent.name,
+                uses_documentation=intent.uses_documentation,
                 tool_dispatcher=dispatch_intent,
                 docs_dispatcher=search_docs,
             )
