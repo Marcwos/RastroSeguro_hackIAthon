@@ -15,14 +15,14 @@ class AgentTest(unittest.TestCase):
         self.env_patch.stop()
 
     def test_router_detects_key_intents(self):
-        self.assertEqual(route_intent("¿Qué proveedores concentran alertas?"), "ranking_proveedores")
-        self.assertEqual(route_intent("Explícame SIN-0045"), "explicar_siniestro")
-        self.assertEqual(route_intent("¿Qué narrativas similares tiene SIN-0045?"), "narrativas_similares")
-        self.assertEqual(route_intent("¿Qué conexiones de grafo tiene SIN-0045?"), "conexiones_grafo")
-        self.assertEqual(route_intent("¿Qué proveedores concentran el 80% de las alertas rojas?"), "concentracion_rojos")
+        self.assertEqual(route_intent("Que proveedores concentran alertas?"), "ranking_proveedores")
+        self.assertEqual(route_intent("Explicame SIN-0045"), "explicar_siniestro")
+        self.assertEqual(route_intent("Que narrativas similares tiene SIN-0045?"), "narrativas_similares")
+        self.assertEqual(route_intent("Que conexiones de grafo tiene SIN-0045?"), "conexiones_grafo")
+        self.assertEqual(route_intent("Que proveedores concentran el 80% de las alertas rojas?"), "concentracion_rojos")
         self.assertEqual(route_intent("Estima el ahorro potencial del portafolio"), "ahorro_potencial")
-        self.assertEqual(route_intent("¿Hay redes de fraude organizadas?"), "redes_fraude")
-        self.assertTrue(route("Qué reglas usan para el score").uses_documentation)
+        self.assertEqual(route_intent("Hay redes de fraude organizadas?"), "redes_fraude")
+        self.assertTrue(route("Que reglas usan para el score").uses_documentation)
 
     def test_entity_extraction(self):
         self.assertEqual(extract_claim_id("explica sin_0045"), "SIN-0045")
@@ -30,7 +30,7 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(extract_limit("top 999 casos"), 50)
 
     def test_missing_claim_id_returns_helpful_error(self):
-        response = answer_question("Explícame este siniestro")
+        response = answer_question("Explicame este siniestro")
 
         self.assertFalse(response["ok"])
         self.assertEqual(response["intent"], "explicar_siniestro")
@@ -38,11 +38,11 @@ class AgentTest(unittest.TestCase):
 
     def test_follow_up_recovers_claim_id_from_history(self):
         history = [
-            {"role": "user", "content": "Explícame el siniestro SIN-0045"},
+            {"role": "user", "content": "Explicame el siniestro SIN-0045"},
             {"role": "assistant", "content": "El siniestro fue marcado en alto riesgo."},
         ]
         with patch("src.agent.tools.explain_claim", return_value={"id_siniestro": "SIN-0045"}) as tool:
-            response = answer_question("¿Y por qué tiene ese score?", history=history)
+            response = answer_question("Y por que tiene ese score?", history=history)
 
         tool.assert_called_once_with("SIN-0045")
         self.assertTrue(response["ok"])
@@ -50,17 +50,25 @@ class AgentTest(unittest.TestCase):
 
     def test_follow_up_without_claim_id_in_history_still_errors(self):
         history = [{"role": "user", "content": "Dame el top de proveedores"}]
-        response = answer_question("Explícame ese siniestro", history=history)
+        response = answer_question("Explicame ese siniestro", history=history)
 
         self.assertFalse(response["ok"])
         self.assertEqual(response["intent"], "explicar_siniestro")
         self.assertIn("SIN-0045", response["hint"])
 
+    def test_selected_claim_id_can_resume_without_repeating_the_id(self):
+        with patch("src.agent.tools.explain_claim", return_value={"id_siniestro": "SIN-7777"}) as tool:
+            response = answer_question("Explicamelo", selected_claim_id="SIN-7777")
+
+        tool.assert_called_once_with("SIN-7777")
+        self.assertTrue(response["ok"])
+        self.assertEqual(response["context"]["resolved_claim_id"], "SIN-7777")
+
     def test_missing_scored_file_returns_actionable_error(self):
         with patch(
             "src.agent.tools._load_scored",
             side_effect=FileNotFoundError(
-                "No se encontró data/processed/siniestros_scored.csv. Ejecuta python -m src.scoring.final_score"
+                "No se encontro data/processed/siniestros_scored.csv. Ejecuta python -m src.scoring.final_score"
             ),
         ):
             response = answer_question("top 10 casos de mayor riesgo")
@@ -89,14 +97,14 @@ class AgentTest(unittest.TestCase):
             ]
         )
         with patch("src.agent.tools._load_scored", return_value=fake_df):
-            response = answer_question("¿Qué asegurados tienen mayor frecuencia de reclamos?")
+            response = answer_question("Que asegurados tienen mayor frecuencia de reclamos?")
         self.assertTrue(response["ok"])
         self.assertEqual(response["intent"], "frecuencia_asegurados")
 
     def test_agent_routes_fraud_rings_intent(self):
         rings_payload = {"total_anillos": 1, "anillos": [], "explicacion_global": "ok"}
         with patch("src.agent.tools.get_fraud_rings", return_value=rings_payload) as tool:
-            response = answer_question("¿Hay redes de fraude organizadas en el portafolio?")
+            response = answer_question("Hay redes de fraude organizadas en el portafolio?")
 
         tool.assert_called_once_with(limit=10)
         self.assertTrue(response["ok"])
@@ -114,6 +122,16 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(response["data"], [{"id_proveedor": "PROV-1"}])
         self.assertEqual(response["llm"]["status"], "disabled_by_config")
         self.assertEqual(response["llm"]["model"], "gpt-4o")
+        self.assertEqual(response["runtime"]["active"], "classic")
+
+    def test_langgraph_runtime_falls_back_cleanly_when_dependency_is_missing(self):
+        with patch("src.agent.tools.get_provider_risk_ranking", return_value=[{"id_proveedor": "PROV-1"}]):
+            response = answer_question("top 3 proveedores", runtime="langgraph")
+
+        self.assertTrue(response["ok"])
+        self.assertEqual(response["runtime"]["requested"], "langgraph")
+        self.assertEqual(response["runtime"]["active"], "classic")
+        self.assertEqual(response["runtime"]["status"], "langgraph_not_installed")
 
     def test_agent_uses_llm_message_when_provider_returns_text(self):
         class FakeProvider:
@@ -141,7 +159,7 @@ class AgentTest(unittest.TestCase):
         self.assertTrue(response["llm"]["enabled"])
 
     def test_documentation_intent_uses_rag_source(self):
-        response = answer_question("¿Qué reglas se usan para calcular el score?")
+        response = answer_question("Que reglas se usan para calcular el score?")
 
         self.assertTrue(response["ok"])
         self.assertEqual(response["intent"], "documentacion")
@@ -150,19 +168,16 @@ class AgentTest(unittest.TestCase):
 
     def test_rag_advanced_relevance_and_chunking(self):
         from src.agent.rag import search_docs
-        
-        # Test query targeting score calculation
+
         results = search_docs("score final compuesto")
         self.assertIsInstance(results, list)
         self.assertGreater(len(results), 0)
-        
-        # Verify that all returned snippets are controlled in size and have source path
+
         for match in results:
             self.assertIn("source", match)
             self.assertIn("snippet", match)
             self.assertLess(len(match["snippet"]), 1000)
-            
-        # Verify that targeted terms match a high ranking section
+
         top_snippet = results[0]["snippet"].lower()
         self.assertTrue(any(word in top_snippet for word in ["score", "final", "compuesto"]))
 

@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from src.agent import tools
 from src.agent.entities import extract_claim_id, extract_limit
+from src.agent.langgraph_runtime import LangGraphUnavailableError, run_langgraph_turn
 from src.agent.llm import LLMRequest, build_llm_provider
 from src.agent.quick_questions import get_quick_questions
 from src.agent.rag import search_docs
@@ -13,53 +15,57 @@ from src.agent.responses import error, success
 from src.agent.router import route
 
 
-def answer_question(question: str, history: Any = None) -> dict[str, Any]:
+def answer_question(
+    question: str,
+    history: Any = None,
+    *,
+    selected_claim_id: str | None = None,
+    thread_id: str | None = None,
+    runtime: str | None = None,
+) -> dict[str, Any]:
     """Process user queries through deterministic tools and optional OpenAI synthesis."""
-    intent = route(question)
-    claim_id = extract_claim_id(question)
+    requested_runtime = (runtime or os.environ.get("RASTRO_AGENT_RUNTIME", "classic")).lower()
     limit = extract_limit(question)
+    execution = _execute_turn(
+        question,
+        history=history,
+        selected_claim_id=selected_claim_id,
+        requested_runtime=requested_runtime,
+        limit=limit,
+    )
+    if execution.get("ok") is False:
+        return execution
 
-    # Follow-up resolution: if the current question needs a claim id but doesn't
-    # carry one, recover the most recent claim id mentioned in the conversation.
-    if intent.requires_claim_id and not claim_id and history:
-        for turn in reversed(list(history)):
-            content = turn.get("content") if isinstance(turn, dict) else getattr(turn, "content", "")
-            recovered = extract_claim_id(content or "")
-            if recovered:
-                claim_id = recovered
-                break
-
-    if intent.requires_claim_id and not claim_id:
-        return error(
-            intent.name,
-            "Necesito el id del siniestro para responder esa pregunta.",
-            "Ejemplo: Explícame el siniestro SIN-0045.",
-        )
-
-    try:
-        data = _dispatch(intent.name, claim_id=claim_id, limit=limit, question=question)
-    except FileNotFoundError as exc:
-        return error(intent.name, str(exc), "Ejecuta primero el scoring para generar data/processed/siniestros_scored.csv.")
-    except ValueError as exc:
-        return error(intent.name, str(exc))
+    intent_name = execution["intent"]
+    data = execution["data"]
+    source = execution["source"]
+    claim_id = execution.get("claim_id")
 
     llm_result = build_llm_provider().generate(
-        LLMRequest(intent=intent.name, data=data, question=question, history=history)
+        LLMRequest(intent=intent_name, data=data, question=question, history=history)
     )
-    llm_metadata = {"llm": llm_result.metadata()}
+    metadata = {
+        "llm": llm_result.metadata(),
+        "runtime": execution["runtime"],
+        "context": {
+            "thread_id": thread_id,
+            "selected_claim_id": selected_claim_id,
+            "resolved_claim_id": claim_id,
+        },
+    }
     if llm_result.has_message:
-        return success(intent.name, llm_result.message or "", data, source="llm", metadata=llm_metadata)
+        return success(intent_name, llm_result.message or "", data, source="llm", metadata=metadata)
 
     return success(
-        intent.name,
-        _message_for(intent.name),
+        intent_name,
+        message_for_intent(intent_name),
         data,
-        source="rag" if intent.uses_documentation else "tools",
-        metadata=llm_metadata,
+        source=source,
+        metadata=metadata,
     )
 
 
-def _dispatch(intent: str, claim_id: str | None, limit: int, question: str) -> Any:
+def dispatch_intent(intent: str, claim_id: str | None, limit: int, question: str) -> Any:
     if intent == "ranking_proveedores":
         return tools.get_provider_risk_ranking(limit=limit)
     if intent == "ranking_ciudades":
@@ -105,31 +111,112 @@ def _dispatch(intent: str, claim_id: str | None, limit: int, question: str) -> A
     return tools.get_top_risky_claims(limit=limit)
 
 
-def _message_for(intent: str) -> str:
+def message_for_intent(intent: str) -> str:
     messages = {
         "top_riesgo": "Casos priorizados por mayor score de riesgo.",
-        "ranking_proveedores": "Ranking de proveedores por concentración de riesgo.",
-        "ranking_ciudades": "Distribución de riesgo por ciudad.",
-        "riesgo_por_ramo": "Comparación de riesgo por ramo.",
+        "ranking_proveedores": "Ranking de proveedores por concentracion de riesgo.",
+        "ranking_ciudades": "Distribucion de riesgo por ciudad.",
+        "riesgo_por_ramo": "Comparacion de riesgo por ramo.",
         "documentos_faltantes": "Casos con documentos faltantes o incompletos.",
         "resumen_ejecutivo": "Resumen ejecutivo generado desde datos procesados.",
         "casos_estrella": "Casos estrella seleccionados para demo ejecutiva.",
-        "impacto_negocio": "Impacto de priorización expresado como exposición a revisar, no ahorro automático.",
-        "explicar_siniestro": "Explicación trazable del siniestro solicitado.",
-        "expediente_siniestro": "Expediente antifraude con evidencias, próximos pasos y guardrail ético.",
+        "impacto_negocio": "Impacto de priorizacion expresado como exposicion a revisar, no ahorro automatico.",
+        "explicar_siniestro": "Explicacion trazable del siniestro solicitado.",
+        "expediente_siniestro": "Expediente antifraude con evidencias, proximos pasos y guardrail etico.",
         "narrativas_similares": "Narrativas similares detectadas para el siniestro solicitado.",
         "conexiones_grafo": "Conexiones y entidades recurrentes del siniestro solicitado.",
         "redes_fraude": "Redes o anillos de fraude detectados por entidades de riesgo compartidas.",
-        "documentacion": "Respuesta basada en documentación interna del proyecto.",
-        "recomendar_revision": "Casos recomendados para revisión prioritaria.",
+        "documentacion": "Respuesta basada en documentacion interna del proyecto.",
+        "recomendar_revision": "Casos recomendados para revision prioritaria.",
         "frecuencia_asegurados": "Asegurados con mayor frecuencia de reclamos.",
-        "montos_atipicos": "Casos con montos atípicos frente a la suma asegurada.",
-        "borde_vigencia": "Siniestros ocurridos cerca del inicio de la póliza.",
+        "montos_atipicos": "Casos con montos atipicos frente a la suma asegurada.",
+        "borde_vigencia": "Siniestros ocurridos cerca del inicio de la poliza.",
         "patrones_repetidos": "Patrones recurrentes en reclamos sospechosos.",
-        "concentracion_rojos": "Proveedores que concentran la mayoría de alertas rojas.",
-        "ahorro_potencial": "Estimación de ahorro potencial por revisión temprana de casos rojos.",
+        "concentracion_rojos": "Proveedores que concentran la mayoria de alertas rojas.",
+        "ahorro_potencial": "Estimacion de ahorro potencial por revision temprana de casos rojos.",
     }
     return messages.get(intent, "Respuesta generada desde herramientas verificables.")
 
 
-__all__ = ["answer_question", "get_quick_questions"]
+def _recover_claim_id_from_history(history: Any) -> str | None:
+    if not history:
+        return None
+    for turn in reversed(list(history)):
+        content = turn.get("content") if isinstance(turn, dict) else getattr(turn, "content", "")
+        recovered = extract_claim_id(content or "")
+        if recovered:
+            return recovered
+    return None
+
+
+def _execute_turn(
+    question: str,
+    *,
+    history: Any,
+    selected_claim_id: str | None,
+    requested_runtime: str,
+    limit: int,
+) -> dict[str, Any]:
+    intent = route(question)
+    claim_id = extract_claim_id(question) or selected_claim_id or _recover_claim_id_from_history(history)
+
+    if intent.requires_claim_id and not claim_id:
+        return error(
+            intent.name,
+            "Necesito el id del siniestro para responder esa pregunta.",
+            "Ejemplo: Explicame el siniestro SIN-0045.",
+        )
+
+    runtime_metadata = {
+        "requested": requested_runtime,
+        "active": "classic",
+        "status": "ok",
+    }
+
+    try:
+        if requested_runtime == "langgraph":
+            graph_turn = run_langgraph_turn(
+                question=question,
+                claim_id=claim_id,
+                selected_claim_id=selected_claim_id,
+                limit=limit,
+                tool_dispatcher=dispatch_intent,
+                docs_dispatcher=search_docs,
+            )
+            return {
+                "ok": True,
+                "intent": graph_turn["intent"],
+                "data": graph_turn["data"],
+                "source": graph_turn["source"],
+                "claim_id": claim_id,
+                "runtime": graph_turn["runtime"],
+            }
+
+        data = dispatch_intent(intent.name, claim_id=claim_id, limit=limit, question=question)
+        return {
+            "ok": True,
+            "intent": intent.name,
+            "data": data,
+            "source": "rag" if intent.uses_documentation else "tools",
+            "claim_id": claim_id,
+            "runtime": runtime_metadata,
+        }
+    except LangGraphUnavailableError as exc:
+        data = dispatch_intent(intent.name, claim_id=claim_id, limit=limit, question=question)
+        runtime_metadata["status"] = "langgraph_not_installed"
+        runtime_metadata["detail"] = str(exc)
+        return {
+            "ok": True,
+            "intent": intent.name,
+            "data": data,
+            "source": "rag" if intent.uses_documentation else "tools",
+            "claim_id": claim_id,
+            "runtime": runtime_metadata,
+        }
+    except FileNotFoundError as exc:
+        return error(intent.name, str(exc), "Ejecuta primero el scoring para generar data/processed/siniestros_scored.csv.")
+    except ValueError as exc:
+        return error(intent.name, str(exc))
+
+
+__all__ = ["answer_question", "dispatch_intent", "get_quick_questions", "message_for_intent"]

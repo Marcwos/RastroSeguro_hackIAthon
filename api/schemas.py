@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Literal
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -27,6 +28,18 @@ class ChatTurn(BaseModel):
 class AgentAskRequest(BaseModel):
     question: str = Field(..., min_length=1)
     history: list[ChatTurn] | None = None
+    selected_claim_id: str | None = None
+    runtime: Literal["classic", "langgraph"] = "classic"
+
+
+class AgentChatRequest(BaseModel):
+    message: str = Field(..., min_length=1)
+    user_id: str = "anonymous"
+    thread_id: str | None = None
+    selected_claim_id: str | None = None
+    role: Literal["user"] = "user"
+    runtime: Literal["classic", "langgraph"] = "classic"
+    persist: bool = True
 
 
 class SimulatorClaimRequest(BaseModel):

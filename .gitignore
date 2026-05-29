@@ -18,6 +18,9 @@ venv/
 dist/
 build/
 
+# Agent chat persistence (local SQLite)
+db/
+
 # Data
 data/raw/
 data/curated/

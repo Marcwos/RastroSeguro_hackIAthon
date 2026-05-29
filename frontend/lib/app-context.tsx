@@ -30,6 +30,7 @@ interface AppState {
   setUploadedFile: (file: File | null) => void
   chatMessages: ChatMessage[]
   addChatMessage: (message: ChatMessage) => void
+  replaceChatMessages: (messages: ChatMessage[]) => void
   clearChatMessages: () => void
   showChat: boolean
   setShowChat: (show: boolean) => void
@@ -42,6 +43,7 @@ export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
+  sectionId?: string | null
   /** Structured agent payload, when present the assistant renders the rich result. */
   response?: AgentResponse
 }
@@ -159,13 +161,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [loadClaims])
 
-  const addChatMessage = (message: ChatMessage) => {
-    setChatMessages(prev => [...prev, message])
-  }
+  const addChatMessage = useCallback((message: ChatMessage) => {
+    setChatMessages((prev) => [...prev, message])
+  }, [])
 
-  const clearChatMessages = () => {
+  const replaceChatMessages = useCallback((messages: ChatMessage[]) => {
+    setChatMessages(messages)
+  }, [])
+
+  const clearChatMessages = useCallback(() => {
     setChatMessages([])
-  }
+  }, [])
 
   return (
     <AppContext.Provider
@@ -194,6 +200,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setUploadedFile,
         chatMessages,
         addChatMessage,
+        replaceChatMessages,
         clearChatMessages,
         showChat,
         setShowChat,

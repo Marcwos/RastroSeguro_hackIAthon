@@ -1,4 +1,6 @@
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
@@ -8,7 +10,18 @@ from api.main import create_app
 
 class ApiBridgeTest(unittest.TestCase):
     def setUp(self):
+        self.temp_dir = TemporaryDirectory()
+        self.env_patch = patch.dict(
+            "os.environ",
+            {"RASTRO_AGENT_HISTORY_DB": str(Path(self.temp_dir.name) / "chat_history.sqlite")},
+            clear=False,
+        )
+        self.env_patch.start()
         self.client = TestClient(create_app())
+
+    def tearDown(self):
+        self.env_patch.stop()
+        self.temp_dir.cleanup()
 
     def test_healthcheck_uses_standard_envelope(self):
         response = self.client.get("/api/health")
@@ -47,7 +60,6 @@ class ApiBridgeTest(unittest.TestCase):
         self.assertTrue(response.json()["ok"])
         self.assertEqual(response.json()["data"]["score_final"], 88)
 
-
     def test_dossier_endpoint_calls_tool(self):
         with patch("api.routes.claims.tools.get_claim_dossier", return_value={"id_siniestro": "SIN-9", "headline": "Expediente"}) as tool:
             response = self.client.get("/api/claims/SIN-9/dossier")
@@ -67,13 +79,13 @@ class ApiBridgeTest(unittest.TestCase):
         self.assertEqual(payload["data"]["count"], 1)
 
     def test_business_impact_endpoint_accepts_review_percent(self):
-        with patch("api.routes.reports.tools.get_business_impact", return_value={"mensaje": "exposición"}) as tool:
+        with patch("api.routes.reports.tools.get_business_impact", return_value={"mensaje": "exposicion"}) as tool:
             response = self.client.get("/api/reports/business-impact?review_percent=0.2")
 
         tool.assert_called_once_with(review_percent=0.2)
         payload = response.json()
         self.assertTrue(payload["ok"])
-        self.assertIn("exposición", payload["data"]["mensaje"])
+        self.assertIn("exposicion", payload["data"]["mensaje"])
 
     def test_fraud_rings_endpoint_calls_tool(self):
         payload_data = {"total_anillos": 1, "anillos": [{"id_anillo": "RING-001"}], "explicacion_global": "ok"}
@@ -100,10 +112,154 @@ class ApiBridgeTest(unittest.TestCase):
         with patch("api.routes.agent.answer_question", return_value=agent_response) as answer:
             response = self.client.post("/api/agent/ask", json={"question": "top casos"})
 
-        answer.assert_called_once_with("top casos", history=None)
+        answer.assert_called_once_with(
+            "top casos",
+            history=None,
+            selected_claim_id=None,
+            runtime="classic",
+        )
         payload = response.json()
         self.assertTrue(payload["ok"])
         self.assertEqual(payload["data"]["message"], "Respuesta")
+
+    def test_agent_chat_persists_thread_and_returns_history(self):
+        agent_response = {
+            "ok": True,
+            "intent": "ranking_proveedores",
+            "message": "Respuesta persistida",
+            "data": [{"id_proveedor": "PROV-9"}],
+            "source": "tools",
+            "runtime": {"requested": "classic", "active": "classic", "status": "ok"},
+            "context": {"resolved_claim_id": "SIN-0045"},
+            "llm": {"status": "disabled_by_config"},
+        }
+        with patch("api.routes.agent.answer_question", return_value=agent_response):
+            response = self.client.post(
+                "/api/agent/chat",
+                json={"message": "Explica SIN-0045", "selected_claim_id": "SIN-0045"},
+            )
+
+        payload = response.json()
+        self.assertTrue(payload["ok"])
+        self.assertIsNotNone(payload["data"]["thread_id"])
+        self.assertEqual(len(payload["data"]["history"]), 2)
+        self.assertEqual(payload["data"]["history"][0]["role"], "user")
+        self.assertEqual(payload["data"]["history"][1]["intent"], "ranking_proveedores")
+
+    def test_agent_thread_endpoint_recovers_persisted_history(self):
+        agent_response = {
+            "ok": True,
+            "intent": "top_riesgo",
+            "message": "Casos priorizados",
+            "data": [],
+            "source": "tools",
+            "runtime": {"requested": "classic", "active": "classic", "status": "ok"},
+            "context": {"resolved_claim_id": None},
+            "llm": {"status": "disabled_by_config"},
+        }
+        with patch("api.routes.agent.answer_question", return_value=agent_response):
+            create_response = self.client.post("/api/agent/chat", json={"message": "top casos"})
+
+        thread_id = create_response.json()["data"]["thread_id"]
+        response = self.client.get(f"/api/agent/threads/{thread_id}")
+        payload = response.json()
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["data"]["thread_id"], thread_id)
+        self.assertEqual(len(payload["data"]["history"]), 2)
+
+    def test_agent_chat_rejects_foreign_thread_for_another_user(self):
+        agent_response = {
+            "ok": True,
+            "intent": "top_riesgo",
+            "message": "Casos priorizados",
+            "data": [],
+            "source": "tools",
+            "runtime": {"requested": "classic", "active": "classic", "status": "ok"},
+            "context": {"resolved_claim_id": None},
+            "llm": {"status": "disabled_by_config"},
+        }
+        with patch("api.routes.agent.answer_question", return_value=agent_response):
+            create_response = self.client.post(
+                "/api/agent/chat",
+                json={"user_id": "analyst-a", "message": "top casos"},
+            )
+        thread_id = create_response.json()["data"]["thread_id"]
+
+        response = self.client.post(
+            "/api/agent/chat",
+            json={"user_id": "analyst-b", "thread_id": thread_id, "message": "intento ajeno"},
+        )
+
+        self.assertEqual(response.status_code, 404)
+        payload = response.json()
+        self.assertFalse(payload["ok"])
+        self.assertIn("thread", payload["error"]["message"].lower())
+
+    def test_agent_sessions_are_scoped_by_user(self):
+        agent_response = {
+            "ok": True,
+            "intent": "top_riesgo",
+            "message": "Casos priorizados",
+            "data": [],
+            "source": "tools",
+            "runtime": {"requested": "classic", "active": "classic", "status": "ok"},
+            "context": {"resolved_claim_id": None},
+            "llm": {"status": "disabled_by_config"},
+        }
+        with patch("api.routes.agent.answer_question", return_value=agent_response):
+            self.client.post("/api/agent/chat", json={"user_id": "analyst-a", "message": "top casos"})
+            self.client.post("/api/agent/chat", json={"user_id": "analyst-b", "message": "top proveedores"})
+
+        response_a = self.client.get("/api/agent/sessions?user_id=analyst-a")
+        response_b = self.client.get("/api/agent/sessions?user_id=analyst-b")
+        sessions_a = response_a.json()["data"]
+        sessions_b = response_b.json()["data"]
+        self.assertEqual(len(sessions_a), 1)
+        self.assertEqual(len(sessions_b), 1)
+        self.assertEqual(sessions_a[0]["user_id"], "analyst-a")
+        self.assertEqual(sessions_b[0]["user_id"], "analyst-b")
+        self.assertNotEqual(sessions_a[0]["thread_id"], sessions_b[0]["thread_id"])
+
+    def test_agent_chat_groups_messages_into_sections(self):
+        responses = [
+            {
+                "ok": True,
+                "intent": "explicar_siniestro",
+                "message": "Explicacion",
+                "data": {"id_siniestro": "SIN-0045"},
+                "source": "tools",
+                "runtime": {"requested": "classic", "active": "classic", "status": "ok"},
+                "context": {"resolved_claim_id": "SIN-0045"},
+                "llm": {"status": "disabled_by_config"},
+            },
+            {
+                "ok": True,
+                "intent": "ranking_proveedores",
+                "message": "Ranking",
+                "data": [],
+                "source": "tools",
+                "runtime": {"requested": "classic", "active": "classic", "status": "ok"},
+                "context": {"resolved_claim_id": None},
+                "llm": {"status": "disabled_by_config"},
+            },
+        ]
+        with patch("api.routes.agent.answer_question", side_effect=responses):
+            first = self.client.post(
+                "/api/agent/chat",
+                json={"user_id": "analyst-a", "message": "Explica SIN-0045"},
+            ).json()["data"]
+            second = self.client.post(
+                "/api/agent/chat",
+                json={
+                    "user_id": "analyst-a",
+                    "thread_id": first["thread_id"],
+                    "message": "top proveedores",
+                },
+            ).json()["data"]
+
+        self.assertEqual(len(second["sections"]), 2)
+        self.assertTrue(all(message["section_id"] for message in second["history"]))
+        self.assertEqual(second["sections"][0]["title"], "Caso SIN-0045")
 
     def test_agent_domain_error_becomes_api_error_with_details(self):
         agent_response = {"ok": False, "message": "Falta id", "hint": "Usa SIN-0045"}

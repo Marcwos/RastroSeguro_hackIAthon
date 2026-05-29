@@ -168,6 +168,9 @@ export interface AgentResponse {
   data?: unknown
   source?: string
   metadata?: unknown
+  llm?: Record<string, unknown>
+  runtime?: Record<string, unknown>
+  context?: Record<string, unknown>
 }
 
 export class ApiClientError extends Error {
@@ -237,10 +240,100 @@ export interface ChatTurn {
   content: string
 }
 
+export interface AgentChatMessage {
+  id: string
+  section_id?: string | null
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: string
+  intent?: string | null
+  source?: string | null
+  metadata?: Record<string, unknown>
+  data?: unknown
+}
+
+export interface AgentChatSection {
+  section_id: string
+  thread_id: string
+  user_id: string
+  title: string
+  kind: string
+  created_at: string
+  updated_at: string
+  message_count: number
+  metadata?: Record<string, unknown>
+}
+
+export interface AgentChatSessionSummary {
+  thread_id: string
+  user_id: string
+  title: string
+  created_at: string
+  updated_at: string
+  selected_claim_id?: string | null
+  last_claim_id?: string | null
+  last_intent?: string | null
+  runtime?: string | null
+  message_count: number
+}
+
+export interface AgentChatThread {
+  thread_id: string
+  user_id: string
+  title: string
+  history: AgentChatMessage[]
+  sections: AgentChatSection[]
+  context: {
+    selected_claim_id?: string | null
+    last_claim_id?: string | null
+    last_intent?: string | null
+    current_section_id?: string | null
+    runtime?: string | null
+    state?: Record<string, unknown>
+  }
+  created_at: string
+  updated_at: string
+}
+
+export interface AgentChatSession extends AgentChatThread {
+  reply: AgentResponse
+}
+
 export function askAgent(question: string, history?: ChatTurn[]) {
   return apiRequest<AgentResponse>('/api/agent/ask', {
     method: 'POST',
     body: JSON.stringify(history && history.length ? { question, history } : { question }),
+  })
+}
+
+export function getAgentThread(threadId: string, userId = 'anonymous') {
+  return apiRequest<AgentChatThread>(
+    `/api/agent/threads/${encodeURIComponent(threadId)}?user_id=${encodeURIComponent(userId)}`,
+  )
+}
+
+export function getAgentSessions(userId = 'anonymous', limit = 25) {
+  return apiRequest<AgentChatSessionSummary[]>(
+    `/api/agent/sessions?user_id=${encodeURIComponent(userId)}&limit=${limit}`,
+  )
+}
+
+export function chatAgent(payload: {
+  message: string
+  userId?: string | null
+  threadId?: string | null
+  selectedClaimId?: string | null
+  runtime?: 'classic' | 'langgraph'
+}) {
+  return apiRequest<AgentChatSession>('/api/agent/chat', {
+    method: 'POST',
+    body: JSON.stringify({
+      message: payload.message,
+      user_id: payload.userId || 'anonymous',
+      thread_id: payload.threadId || null,
+      selected_claim_id: payload.selectedClaimId || null,
+      runtime: payload.runtime || 'classic',
+    }),
   })
 }
 
