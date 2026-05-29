@@ -466,8 +466,11 @@
 }
 
 .landing-shot-note {
-  border-left-color: #0f172a;
   color: #334155;
+}
+
+.landing-shot-skeleton {
+  background: #cbd5e1;
 }
 
 .landing-hero-shell ::selection {
