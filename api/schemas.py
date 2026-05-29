@@ -46,6 +46,12 @@ class SimulatorClaimRequest(BaseModel):
     claim: dict[str, Any] | None = None
 
 
+class ConfirmExtractedDocumentRequest(BaseModel):
+    document_id: str | None = None
+    filename: str | None = None
+    claim: dict[str, Any] = Field(default_factory=dict)
+
+
 class ReportResponseFormat(BaseModel):
     format: str = "dict"
 

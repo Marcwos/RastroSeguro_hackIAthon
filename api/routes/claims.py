@@ -8,8 +8,10 @@ from tempfile import NamedTemporaryFile
 from fastapi import APIRouter, Query
 from fastapi import File, UploadFile
 
+from api.schemas import ConfirmExtractedDocumentRequest
 from api.routes._errors import run_endpoint
 from src.agent import tools
+from src.documents.claim_extraction import extract_document_review, normalize_claim_payload
 from src.explainability.explain_claim import explain_claim
 from src.scoring.final_score import OUTPUT_PATH, run_scoring
 
@@ -72,6 +74,51 @@ async def upload_claims_csv(file: UploadFile = File(...)):
             "uploaded": True,
             "filename": file.filename,
             "rows_processed": rows,
+            "scored_output_path": str(output_path),
+        }
+
+    return run_endpoint(_process)
+
+
+@router.post("/claims/extract-document")
+async def extract_claim_document(file: UploadFile = File(...)):
+    def _process() -> dict:
+        filename = file.filename or "documento"
+        payload = file.file.read()
+        return extract_document_review(filename, payload)
+
+    return run_endpoint(_process)
+
+
+@router.post("/claims/confirm-extracted-document")
+async def confirm_extracted_document(request: ConfirmExtractedDocumentRequest):
+    def _process() -> dict:
+        raw_claim = request.claim or {}
+        if not raw_claim.get("id_siniestro"):
+            raise ValueError("El siniestro confirmado requiere id_siniestro.")
+        if not raw_claim.get("ramo"):
+            raise ValueError("El siniestro confirmado requiere ramo.")
+        if raw_claim.get("monto_reclamado") in (None, ""):
+            raise ValueError("El siniestro confirmado requiere monto_reclamado.")
+        claim = normalize_claim_payload(raw_claim)
+
+        import pandas as pd
+
+        with NamedTemporaryFile(delete=False, suffix=".csv") as tmp:
+            temp_path = Path(tmp.name)
+        try:
+            pd.DataFrame([claim]).to_csv(temp_path, index=False)
+            output_path = run_scoring(input_path=temp_path, output_path=OUTPUT_PATH)
+            rows = len(pd.read_csv(output_path))
+        finally:
+            temp_path.unlink(missing_ok=True)
+
+        return {
+            "uploaded": True,
+            "document_id": request.document_id,
+            "filename": request.filename,
+            "rows_processed": rows,
+            "selected_claim_id": claim.get("id_siniestro"),
             "scored_output_path": str(output_path),
         }
 

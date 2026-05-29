@@ -175,6 +175,112 @@ export interface AgentResponse {
   context?: Record<string, unknown>
 }
 
+export interface ExtractedClaimDraft {
+  id_siniestro?: string | null
+  id_poliza?: string | null
+  id_asegurado?: string | null
+  ramo?: string | null
+  cobertura?: string | null
+  fecha_ocurrencia?: string | null
+  fecha_reporte?: string | null
+  monto_reclamado?: number | string | null
+  monto_estimado?: number | string | null
+  suma_asegurada?: number | string | null
+  estado?: string | null
+  sucursal?: string | null
+  ciudad?: string | null
+  descripcion?: string | null
+  documentos_completos?: boolean | string | null
+  beneficiario?: string | null
+  id_proveedor?: string | null
+  [key: string]: string | number | boolean | null | undefined
+}
+
+export interface FieldEvidence {
+  field: string
+  value?: string | number | boolean | null
+  page?: number | null
+  source_text?: string | null
+  confidence?: number | null
+  inferred?: boolean | null
+  agent?: string | null
+  method?: string | null
+}
+
+export interface ExtractionQuality {
+  score: number
+  verdict: 'confiable' | 'requiere_revision' | 'baja_confianza' | string
+  critical_fields_present: number
+  critical_fields_total: number
+  fields_present: number
+  fields_expected: number
+  evidence_coverage: number
+  completeness: number
+  consistency_score: number
+  security_score: number
+  average_field_confidence: number
+  messages: string[]
+}
+
+export interface DocumentProfile {
+  document_type: string
+  text_chars?: number
+  line_count?: number
+  has_text_layer?: boolean
+  has_table_headers?: boolean
+  has_split_column_blocks?: boolean
+  requires_ocr?: boolean
+  methods_attempted?: string[]
+}
+
+export interface ExtractedClaimCandidate {
+  row_index: number
+  label: string
+  claim: ExtractedClaimDraft
+  field_evidence: FieldEvidence[]
+  confidence: number
+  method?: string | null
+  quality?: ExtractionQuality
+}
+
+export interface SecurityFinding {
+  code?: string | null
+  severity?: string | null
+  message: string
+}
+
+export interface ConsistencyFinding {
+  field?: string | null
+  severity?: string | null
+  message: string
+}
+
+export interface DocumentExtractionReview {
+  document_id: string
+  filename: string
+  file_type: 'pdf' | 'txt' | string
+  document_profile?: DocumentProfile | null
+  preview_base64?: string | null
+  preview_url?: string | null
+  extracted_claim: ExtractedClaimDraft
+  field_evidence: FieldEvidence[]
+  candidate_claims?: ExtractedClaimCandidate[]
+  security_findings: SecurityFinding[]
+  consistency_findings: ConsistencyFinding[]
+  overall_confidence: number
+  extraction_quality?: ExtractionQuality | null
+  requires_human_review: boolean
+  pipeline_agents?: Array<{ name: string; status: string; detail?: string | null }>
+}
+
+export interface UploadResult {
+  uploaded: boolean
+  filename?: string | null
+  rows_processed?: number
+  selected_claim_id?: string | null
+  scored_output_path?: string
+}
+
 export class ApiClientError extends Error {
   hint?: string | null
   details?: unknown
@@ -374,6 +480,49 @@ export async function uploadClaimsCsv(file: File) {
     })
   }
   return payload.data
+}
+
+async function multipartRequest<T>(path: string, file: File, fallbackMessage: string): Promise<T> {
+  const form = new FormData()
+  form.append('file', file)
+
+  let response: Response
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      method: 'POST',
+      body: form,
+    })
+  } catch {
+    throw new ApiClientError('No se pudo conectar con el API de RastroSeguro.', {
+      hint: 'Verifica que FastAPI esté activo en http://localhost:8000.',
+    })
+  }
+
+  const payload = (await response.json().catch(() => null)) as ApiEnvelope<T> | null
+  if (!payload) throw new ApiClientError('El API respondió con un formato inválido.', { status: response.status })
+  if (!response.ok || !payload.ok) {
+    throw new ApiClientError(payload.error?.message || fallbackMessage, {
+      hint: payload.error?.hint,
+      details: payload.error?.details,
+      status: response.status,
+    })
+  }
+  return payload.data as T
+}
+
+export function extractClaimDocument(file: File) {
+  return multipartRequest<DocumentExtractionReview>('/api/claims/extract-document', file, 'No se pudo extraer el documento.')
+}
+
+export function confirmExtractedClaim(payload: {
+  document_id?: string | null
+  filename?: string | null
+  claim: ExtractedClaimDraft
+}) {
+  return apiRequest<UploadResult>('/api/claims/confirm-extracted-document', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
 }
 
 export function toFrontendRiskLevel(level?: string | null): FrontendRiskLevel {
