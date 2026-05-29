@@ -633,6 +633,55 @@
     linear-gradient(180deg, var(--editorial-ivory), color-mix(in oklch, var(--editorial-ivory) 86%, white));
 }
 
+.landing-problem-card-light {
+  position: relative;
+  display: flex;
+  min-height: 17rem;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklch, var(--editorial-ink) 10%, var(--border));
+  border-radius: 1.25rem;
+  padding: 1.8rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), color-mix(in oklch, var(--editorial-ivory) 82%, white)),
+    white;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
+  transition:
+    border-color 300ms var(--ease-out-quart),
+    box-shadow 300ms var(--ease-out-quart),
+    transform 300ms var(--ease-out-quart);
+}
+
+.landing-problem-card-light::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.45), transparent 48%);
+  transform: translateX(-140%);
+  transition: transform 320ms var(--ease-out-quart);
+  pointer-events: none;
+}
+
+.landing-problem-card-light:hover {
+  border-color: color-mix(in oklch, var(--editorial-ink) 18%, var(--border));
+  box-shadow: 0 20px 42px rgba(15, 23, 42, 0.1);
+  transform: translateY(-2px);
+}
+
+.landing-problem-card-light:hover::before {
+  transform: translateX(140%);
+}
+
+.landing-problem-index-light {
+  color: color-mix(in oklch, var(--editorial-ink) 58%, var(--primary));
+}
+
+.landing-problem-card-light h3 {
+  font-size: 1.35rem;
+  line-height: 1.15;
+}
+
 .landing-editorial-lead {
   max-width: 28rem;
 }
@@ -1065,6 +1114,15 @@
     padding: 1.35rem;
   }
 
+  .landing-problem-card-light {
+    min-height: auto;
+    padding: 1.35rem;
+  }
+
+  .landing-problem-card-light h3 {
+    font-size: 1.2rem;
+  }
+
   .landing-stat-copy {
     font-size: 1.85rem;
   }
@@ -1099,7 +1157,8 @@
 }
 
 @media (min-width: 768px) and (max-width: 1100px) {
-  .landing-problem-card {
+  .landing-problem-card,
+  .landing-problem-card-light {
     min-height: 15rem;
   }
 

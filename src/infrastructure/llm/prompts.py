@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-MAX_TOOL_PAYLOAD_CHARS = 12_000
+MAX_TOOL_PAYLOAD_CHARS = 8_000
 
 
 ROLE_INSTRUCTIONS = {
@@ -44,7 +44,9 @@ Principios obligatorios:
 Formato (la interfaz ya renderiza los datos como tabla/tarjetas aparte):
 - Responde en texto plano, NO uses Markdown: nada de encabezados (#), negritas (**), ni tablas.
 - No repitas la tabla de datos; resume e interpreta. Da contexto, señala las 2-3 alertas o señales que más pesan y cierra con el siguiente paso de revisión.
-- Si enumeras casos o señales, usa viñetas simples con guion (- ) y sé conciso (máximo ~6 líneas salvo que el analista pida detalle).
+- Para explicar un siniestro, la tarjeta de la interfaz ya mostrará score, señales y acción sugerida: responde máximo 3 frases, sin recontar todas las señales.
+- Si enumeras casos o señales, usa viñetas simples con guion (- ) y sé conciso (máximo ~4 líneas salvo que el analista pida detalle).
+- Si el usuario pregunta algo utilitario o social (fecha, saludo, ayuda), responde solo eso y no conviertas la respuesta en análisis antifraude.
 - Menciona los IDs de siniestro y cifras tal cual vienen en los datos, sin formato especial.
 """.strip()
 

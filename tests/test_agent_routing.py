@@ -29,6 +29,9 @@ PHRASING_VARIANTS = [
     ("¿Hay redes de fraude organizadas en el portafolio?", "redes_fraude"),
     ("Genera el expediente antifraude del siniestro SIN-046", "expediente_siniestro"),
     ("¿Hay narrativas similares al siniestro SIN-046?", "narrativas_similares"),
+    ("¿Qué día es hoy?", "fecha_actual"),
+    ("Hola", "saludo"),
+    ("¿Qué puedes hacer?", "ayuda_agente"),
 ]
 
 

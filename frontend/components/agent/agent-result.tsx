@@ -5,13 +5,14 @@ import type { AgentResponse } from '@/lib/api'
 import { formatCurrency, getRiskBadgeClasses, getRiskLabel, normalizeRiskLevel } from '@/lib/claims-data'
 import { cn } from '@/lib/utils'
 import { UI_COPY } from '@/lib/human-labels'
-import { ArrowUpRight, Database, FileText, Sparkles } from 'lucide-react'
+import { ArrowUpRight, Bot, Database, FileText, Sparkles } from 'lucide-react'
 import { renderMarkdownBlocks } from '@/lib/markdown'
 
 const CURRENCY_HINTS = ['monto', 'ahorro', 'suma', 'prima', 'valor', 'expuesto', 'reclamado', 'pagado', 'estimado']
 const SCORE_HINTS = ['score', 'puntos', 'porcentaje', 'pct', 'promedio', 'ratio']
 const RISK_KEYS = ['nivel_riesgo', 'nivel', 'riesgo']
 const ID_KEYS = ['id_siniestro', 'siniestro', 'id_anillo']
+const COMPACT_MESSAGE_INTENTS = new Set(['fecha_actual', 'saludo'])
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -275,6 +276,7 @@ function SourceBadge({ source }: { source?: string }) {
   if (!source) return null
   const config: Record<string, { label: string; Icon: typeof Database }> = {
     tools: { label: 'Datos del motor', Icon: Database },
+    agent: { label: 'Respuesta directa', Icon: Bot },
     rag: { label: 'Base documental', Icon: FileText },
     llm: { label: UI_COPY.assistantSynthesis, Icon: Sparkles },
   }
@@ -293,12 +295,16 @@ interface AgentResultProps {
 }
 
 export function AgentResult({ response, onOpenClaim }: AgentResultProps) {
-  const { data, message, source } = response
+  const { data, message, source, intent } = response
   const claimIds = useMemo(() => Array.from(extractClaimIds(data ?? message)), [data, message])
 
   const claimExplanation = isClaimExplanation(data)
+  const compactMessage = COMPACT_MESSAGE_INTENTS.has(intent ?? '')
 
   const body = useMemo(() => {
+    if (compactMessage) {
+      return null
+    }
     if (isClaimExplanation(data)) {
       return <ClaimExplanation data={data} source={source} />
     }
@@ -321,7 +327,7 @@ export function AgentResult({ response, onOpenClaim }: AgentResultProps) {
       return <KeyValueCards obj={data} />
     }
     return null
-  }, [data, source])
+  }, [compactMessage, data, source])
 
   return (
     <div className="space-y-3">

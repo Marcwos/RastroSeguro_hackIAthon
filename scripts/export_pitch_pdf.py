@@ -1,4 +1,4 @@
-"""Export presentation/pitch.md to presentation/pitch.pdf (pure Python, no Pandoc)."""
+"""Export presentation/RastroSeguro-Pitch.md to presentation/pitch.pdf (pure Python, no Pandoc)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 from fpdf import FPDF
 
 ROOT = Path(__file__).resolve().parents[1]
-INPUT = ROOT / "presentation" / "pitch.md"
+INPUT = ROOT / "presentation" / "RastroSeguro-Pitch.md"
 OUTPUT = ROOT / "presentation" / "pitch.pdf"
 
 # Corporate palette

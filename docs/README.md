@@ -2,6 +2,9 @@
 
 Índice de documentación para coordinar el trabajo del equipo y preparar la entrega del **hackIAthon 2026 — Reto Aseguradora del Sur**.
 
+> **¿Qué es el proyecto?** Lee el [README principal](../README.md) o el [pitch](../presentation/RastroSeguro-Pitch.md).  
+> **¿Cómo instalar, desplegar y operar?** Lee la [guía técnica](./guia-tecnica.md).
+
 ## Lectura rápida por rol
 
 | Rol | Leer primero | Objetivo |
@@ -16,6 +19,7 @@
 
 | Archivo | Para qué sirve |
 |---|---|
+| [guia-tecnica.md](./guia-tecnica.md) | Instalación, arquitectura, variables, deploy, tests |
 | [01-guia-general-equipo.md](./01-guia-general-equipo.md) | Resumen operativo para trabajar en paralelo |
 | [02-contratos-integracion.md](./02-contratos-integracion.md) | Contratos de dataset, scoring, explicación, agente y simulador |
 | [03-arquitectura-pipeline.md](./03-arquitectura-pipeline.md) | Arquitectura técnica y flujo de datos |

@@ -71,7 +71,7 @@ class ChatHistoryStore:
                     last_claim_id TEXT,
                     last_intent TEXT,
                     current_section_id TEXT,
-                    runtime TEXT NOT NULL DEFAULT 'classic',
+                    runtime TEXT NOT NULL DEFAULT 'langgraph',
                     state_json TEXT
                 )
                 """
@@ -134,7 +134,7 @@ class ChatHistoryStore:
         *,
         user_id: str = DEFAULT_USER_ID,
         selected_claim_id: str | None | object = _UNSET,
-        runtime: str = "classic",
+        runtime: str = "langgraph",
         title: str | None = None,
         user_role: str = "analyst",
     ) -> dict[str, Any]:
@@ -304,7 +304,7 @@ class ChatHistoryStore:
         next_last_claim_id = last_claim_id or current_context.get("last_claim_id")
         next_last_intent = last_intent or current_context.get("last_intent")
         next_section_id = current_section_id or current_context.get("current_section_id")
-        next_runtime = runtime or current_context.get("runtime") or "classic"
+        next_runtime = runtime or current_context.get("runtime") or "langgraph"
 
         with closing(self._connect()) as connection, connection:
             connection.execute(

@@ -1,212 +1,138 @@
 # RastroSeguro
 
-Plataforma de inteligencia artificial explicable para **priorizar siniestros con señales de posible fraude** en seguros multi-ramo.
+### Inteligencia artificial explicable para priorizar siniestros con señales de posible fraude
 
 Proyecto del equipo para el **hackIAthon 2026 — Reto Aseguradora del Sur**.
 
-> RastroSeguro no acusa fraude ni rechaza reclamos. Genera alertas explicables para que un analista humano revise primero los casos de mayor riesgo.
+> **No acusa. No rechaza pagos. No reemplaza al analista.**
+> Ordena el trabajo: pone primero los casos que más lo necesitan y explica por qué.
 
 ---
 
-## Entregables obligatorios para calificar
+## El problema
 
-| # | Entregable | Ubicación | Cómo verificar |
-|---|------------|-----------|----------------|
-| 1 | **Prototipo funcional** (Dashboard + API) | `frontend/` + `api/` + `notebooks/` | Ver [Demo en 2 minutos](#demo-en-2-minutos) |
-| 2 | **Código fuente** con README detallado | Este repositorio | Estás aquí |
-| 3 | **Dataset** sintético + datos públicos Ecuador | `data/synthetic/` + `data/curated/ecuador/` | Ver [Dataset](#dataset) |
-| 4 | **Presentación ejecutiva** (PDF) | `presentation/pitch.pdf` | Generar con `py -3 scripts/export_pitch_pdf.py` |
+Cada día llegan miles de siniestros. La mayoría son legítimos, pero un porcentaje esconde señales de fraude: pólizas que reclaman a los pocos días de emitirse, proveedores que aparecen una y otra vez, documentos incompletos o inconsistentes, relatos sospechosamente parecidos entre casos distintos.
 
-> **Paquete de entrega:** todos los entregables están organizados en [`entregables/`](entregables/).
+Hoy esas señales se revisan **una por una, a mano**, y el resultado depende de la carga de trabajo, de la experiencia de cada revisor y de la falta de contexto cuando una alerta aislada no muestra si el caso forma parte de un patrón mayor.
+
+El costo no es solo el fraude que se paga: es también el **tiempo perdido** revisando casos limpios y la **inconsistencia** en cómo se decide qué se investiga.
 
 ---
 
-## Demo en 2 minutos
+## Qué es RastroSeguro
 
-### Requisitos
+RastroSeguro es una **plataforma de priorización de siniestros**. Recibe un caso, analiza sus señales de riesgo y entrega:
 
-- Python 3.11+
-- Node.js 18+
-- Dependencias: `pip install -r requirements.txt` y `cd frontend && npm install`
+- Un **puntaje de riesgo de 0 a 100**
+- Un **semáforo claro**: 🟢 Verde · 🟡 Amarillo · 🔴 Rojo
+- Una **explicación en lenguaje claro** de qué disparó la alerta y con qué evidencia
+- Una **acción sugerida** para el analista
 
-### 1. Pipeline de datos y modelos (una vez)
+Todo enmarcado en un principio: **es una priorización para revisión humana, no una acusación de fraude.**
 
-```bash
-py -3 -m pipelines.models.run_carlos_pipeline --rows 25000 --seed 42 --scoring-rows 2000
-py -3 -m pipelines.models.validate_deliverables
+---
+
+## En qué se basa
+
+1. **IA explicable, no veredictos opacos.** Cada puntaje viene con las razones concretas que lo elevaron.
+2. **El humano al centro.** El sistema recomienda y ordena; la decisión siempre es de la persona.
+3. **Trazabilidad total.** Toda alerta queda registrada con evidencia y regla de origen, lista para auditoría.
+4. **Mirada de conjunto.** El riesgo se evalúa en contexto del portafolio: relaciones, patrones y concentraciones.
+
+---
+
+## Cómo funciona (en concepto)
+
+```
+Recepción del caso  →  Lectura de señales  →  Puntaje + semáforo  →  Priorización
+        ↓                      ↓                      ↓                    ↓
+  con verificación      equipo de analistas    explicación clara     el analista
+  humana del documento  especializados         y evidencia por dato   decide y actúa
 ```
 
-### 2. Levantar prototipo
+1. **Recepción con verificación.** El caso entra por archivo o documento (PDF/texto). Si es documento, el sistema extrae campos y alerta inconsistencias, pero **exige confirmación humana** antes de procesar.
+2. **Lectura de señales.** Un coordinador reparte el análisis entre especialistas: reglas de negocio, comportamiento atípico, similitud entre relatos y relaciones entre actores.
+3. **Puntaje y semáforo.** Las señales se integran en un puntaje 0–100 y un nivel Verde/Amarillo/Rojo.
+4. **Explicación y acción.** El caso llega al analista ya explicado: qué se activó, con qué evidencia y qué se recomienda hacer.
 
-Terminal A — API FastAPI:
+---
+
+## Qué resuelve
+
+RastroSeguro detecta y prioriza patrones difíciles de ver a mano:
+
+- Siniestros cerca del **inicio de la póliza**
+- **Proveedores recurrentes** con concentración anómala de alertas
+- **Narrativas clonadas** entre casos distintos
+- **Montos atípicos** frente a la suma asegurada o al histórico
+- **Documentación inconsistente** o incompleta
+- **Redes de fraude**: casos conectados por actores compartidos
+
+Y responde preguntas de negocio en lenguaje natural, por ejemplo:
+*"¿Qué proveedores concentran el 80% de las alertas rojas?"* o
+*"Muéstrame los casos prioritarios y por qué."*
+
+---
+
+## Valor para cada actor
+
+| Actor | Qué gana |
+|-------|----------|
+| **Analista de siniestros** | Una bandeja priorizada y explicada: empieza por lo importante |
+| **Equipo antifraude** | Detección temprana de patrones y redes |
+| **Gerencia** | Visión del riesgo del portafolio e impacto de priorizar bien |
+| **Auditoría / Cumplimiento** | Trazabilidad completa de cada alerta y decisión |
+| **Cliente honesto** | Reclamos legítimos fluyen más rápido |
+
+---
+
+## Demo rápida
+
+Requisitos: Python 3.11+, Node.js 18+.
 
 ```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cd frontend && npm install && cd ..
+
+# Terminal A
 uvicorn api.main:app --reload --port 8000
+
+# Terminal B
+cd frontend && npm run dev
 ```
 
-Terminal B — Dashboard Next.js:
+Abrir **http://localhost:3000** → **Entrar a la plataforma**.
 
-```bash
-cd frontend
-npm run dev
-```
+**Flujo sugerido (~4 min):** Command Center → carga de datos → análisis de caso → agente IA → simulador → reporte de auditoría.
 
-Abrir **http://localhost:3000** → landing → **Entrar a la plataforma** (`/platform`).
-
-### 3. Flujo demo sugerido (~4 min)
-
-1. **Command Center** — casos rojos, proveedores de riesgo, ahorro potencial
-2. **Análisis de caso** — score 0–100, semáforo, `rule_trace`, explicación
-3. **Agente IA** — *"¿Qué proveedores concentran el 80% de las alertas rojas?"*
-4. **Simulador** — siniestro 24 h post-póliza → RF-05 con explicación
-5. **Reporte auditoría** — export Markdown con top casos
-
-### Notebooks ejecutables (alternativa al dashboard)
-
-```bash
-jupyter notebook notebooks/
-```
-
-| Notebook | Contenido |
-|----------|-----------|
-| `01_exploracion_datos.ipynb` | Exploración del dataset sintético |
-| `02_modelo_fraude.ipynb` | Entrenamiento del clasificador |
-| `03_evaluacion_modelo.ipynb` | Métricas y casos estrella |
+Instrucciones completas: [`docs/05-instrucciones-ejecucion.md`](docs/05-instrucciones-ejecucion.md)
 
 ---
 
-## Dataset
+## Entregables del reto
 
-### Datos sintéticos (principal)
+| # | Entregable | Ubicación |
+|---|------------|-----------|
+| 1 | Prototipo funcional | `frontend/` + `api/` + `notebooks/` |
+| 2 | Código fuente + README | Este repositorio |
+| 3 | Dataset sintético + datos Ecuador | `data/` · [`entregables/03-dataset/`](entregables/03-dataset/) |
+| 4 | Presentación ejecutiva (PDF) | [`presentation/pitch.pdf`](presentation/pitch.pdf) |
 
-| Archivo | Filas | Descripción |
-|---------|-------|-------------|
-| `data/synthetic/siniestros.csv` | 25 000 | Siniestros multi-ramo con etiqueta de fraude simulada |
-| `data/synthetic/polizas.csv` | ~6 100 | Pólizas vinculadas |
-| `data/synthetic/asegurados.csv` | ~10 800 | Asegurados |
-| `data/synthetic/proveedores.csv` | ~110 | Proveedores/talleres |
-| `data/synthetic/documentos.csv` | ~1 300 | Documentos adjuntos |
-| `data/processed/siniestros_scored.csv` | 25 000 | Siniestros con score final y nivel de riesgo |
-| `data/synthetic/siniestros_qa.json` | — | Métricas de calidad del dataset |
+Paquete de entrega: [`entregables/`](entregables/)
 
-Regenerar:
-
-```bash
-py -3 -m pipelines.data.generate_synthetic_data
-py -3 -m src.scoring.final_score
-```
-
-### Datos públicos Ecuador (contexto)
-
-| Fuente | Archivo curado |
-|--------|----------------|
-| SERCOP (sanciones) | `data/curated/ecuador/sercop_sanciones_curated.csv` |
-| OCDS (contratos) | `data/curated/ecuador/ocds_contratos_curated.csv` |
-| Señales proveedor | `data/curated/ecuador/supplier_risk_features.csv` |
-
-Inventario completo: [`docs/inventario-fuentes-ecuador.md`](docs/inventario-fuentes-ecuador.md)
-
----
-
-## Presentación ejecutiva
-
-- **Markdown fuente:** [`presentation/pitch.md`](presentation/pitch.md)
-- **PDF entregable:** [`presentation/pitch.pdf`](presentation/pitch.pdf)
-
-Generar PDF:
-
-```bash
-py -3 scripts/export_pitch_pdf.py
-```
-
-Contenido (~10 min): problema, solución, demo, arquitectura IA, impacto de negocio, limitaciones y FAQ del jurado.
-
----
-
-## Arquitectura
-
-```txt
-Datos sintéticos + Ecuador → Features → Reglas + ML + Anomalías + NLP + Grafo
-    → Score final (0–100) → API FastAPI → Dashboard Next.js + Agente + Reportes
-```
-
-| Capa | Tecnología |
-|------|------------|
-| Frontend | Next.js 15, React, Tailwind |
-| API | FastAPI, Python 3.11+ |
-| ML | scikit-learn (RandomForest, IsolationForest) |
-| NLP | TF-IDF + similitud coseno |
-| Grafo | Recurrencia de entidades |
-| BD referencia | Postgres/Supabase, Oracle XE (Docker) |
-
-Detalle: [`docs/arquitectura.md`](docs/arquitectura.md)
-
----
-
-## Estado del proyecto
-
-Cumplimiento del PDF del reto:
-
-- Dataset sintético + tablas complementarias (pólizas, asegurados, proveedores, documentos)
-- Contexto Ecuador (SERCOP/OCDS/ECU911/INEC)
-- Score híbrido: reglas + ML + anomalías + NLP + grafo
-- Agente con 12 preguntas del PDF + consulta jurado (80% alertas rojas)
-- Simulación de ahorro potencial
-- Dashboard Next.js + API FastAPI
-- Documentación, pitch PDF, R y Oracle de referencia
-
-Validación automática:
-
-```bash
-py -3 -m pipelines.models.validate_deliverables
-py -3 -m unittest discover -s tests -p "test_*.py"
-```
+Pitch en Markdown: [`presentation/RastroSeguro-Pitch.md`](presentation/RastroSeguro-Pitch.md)
 
 ---
 
 ## Documentación
 
-| Documento | Contenido |
-|-----------|-----------|
-| [Arquitectura](docs/arquitectura.md) | Diagrama y módulos del sistema |
-| [Uso de IA](docs/uso_ia.md) | Algoritmos, variables, métricas, limitaciones |
-| [Reglas de negocio](docs/reglas_negocio.md) | RF-01…RF-07 y matriz PDF |
-| [Modelo de datos](docs/modelo_datos.md) | Tablas y relaciones |
-| [Limitaciones](docs/limitaciones.md) | Ética y alcance |
-| [Instrucciones ejecución](docs/05-instrucciones-ejecucion.md) | Flujo completo paso a paso |
-| [Reto PDF (referencia)](docs/reto-aseguradora-del-sur.md) | Especificación completa |
-
----
-
-## Estructura del repositorio
-
-```txt
-RastroSeguro_hackIAthon/
-├── api/                  # FastAPI (claims, agent, reports, health)
-├── frontend/             # Dashboard Next.js
-├── src/                  # Scoring, reglas, ML, NLP, agente, reportes
-├── pipelines/            # Generación datos, entrenamiento, validación
-├── data/
-│   ├── synthetic/        # Dataset sintético (entregable)
-│   ├── processed/        # Features y siniestros scored
-│   └── curated/ecuador/  # Datos públicos curados
-├── notebooks/            # Notebooks ejecutables (entregable alternativo)
-├── presentation/         # Pitch ejecutivo PDF (entregable)
-├── docs/                 # Documentación técnica
-├── models/               # Artefactos ML (.joblib)
-├── tests/                # Tests unitarios
-└── r/                    # Scripts R de validación
-```
-
----
-
-## Herramientas adicionales
-
-| Herramienta | Ruta |
-|-------------|------|
-| Análisis R | `r/` + `renv.lock` |
-| Oracle XE (Docker) | `docker/oracle-xe/` |
-| Esquema Oracle | `db/oracle/schema.sql` |
+| Para… | Ver |
+|-------|-----|
+| Entender el proyecto (negocio) | [`presentation/RastroSeguro-Pitch.md`](presentation/RastroSeguro-Pitch.md) |
+| Desarrollar / desplegar / operar | [`docs/guia-tecnica.md`](docs/guia-tecnica.md) |
+| Índice completo del equipo | [`docs/README.md`](docs/README.md) |
+| Especificación del reto | [`docs/reto-aseguradora-del-sur.md`](docs/reto-aseguradora-del-sur.md) |
 
 ---
 
@@ -214,4 +140,4 @@ RastroSeguro_hackIAthon/
 
 **Carlos** (datos/modelos) · **Jeremy** (scoring/agente) · **Justin** (dashboard/demo)
 
-hackIAthon 2026 — Reto Aseguradora del Sur
+*hackIAthon 2026 — Reto Aseguradora del Sur*

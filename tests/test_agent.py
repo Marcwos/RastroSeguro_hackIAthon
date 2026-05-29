@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
 from src.agent.antifraud_agent import answer_question, get_quick_questions
@@ -22,6 +23,9 @@ class AgentTest(unittest.TestCase):
         self.assertEqual(route_intent("Que proveedores concentran el 80% de las alertas rojas?"), "concentracion_rojos")
         self.assertEqual(route_intent("Estima el ahorro potencial del portafolio"), "ahorro_potencial")
         self.assertEqual(route_intent("Hay redes de fraude organizadas?"), "redes_fraude")
+        self.assertEqual(route_intent("Que dia es hoy?"), "fecha_actual")
+        self.assertEqual(route_intent("Hola"), "saludo")
+        self.assertEqual(route_intent("Que puedes hacer?"), "ayuda_agente")
         self.assertTrue(route("Que reglas usan para el score").uses_documentation)
 
     def test_entity_extraction(self):
@@ -63,6 +67,40 @@ class AgentTest(unittest.TestCase):
         tool.assert_called_once_with("SIN-7777")
         self.assertTrue(response["ok"])
         self.assertEqual(response["context"]["resolved_claim_id"], "SIN-7777")
+
+    def test_langgraph_respects_contextual_claim_intent(self):
+        with patch("src.application.risk_queries.explain_claim", return_value={"id_siniestro": "SIN-7777"}) as explain, patch(
+            "src.application.risk_queries.get_top_risky_claims",
+            return_value=[{"id_siniestro": "SIN-OTHER"}],
+        ) as top:
+            response = answer_question("que paso aqui?", selected_claim_id="SIN-7777")
+
+        explain.assert_called_once_with("SIN-7777")
+        top.assert_not_called()
+        self.assertTrue(response["ok"])
+        self.assertEqual(response["intent"], "explicar_siniestro")
+        self.assertEqual(response["runtime"]["active"], "langgraph")
+        self.assertIn("Investigador de caso", response["runtime"]["agents"])
+
+    def test_date_question_with_selected_claim_does_not_explain_claim(self):
+        fixed_now = datetime(2026, 5, 29, 10, 0, tzinfo=timezone(timedelta(hours=-5), "America/Guayaquil"))
+        with patch("src.agent.antifraud_agent._now_in_timezone", return_value=fixed_now), patch(
+            "src.application.risk_queries.explain_claim",
+            return_value={"id_siniestro": "SIN-000678"},
+        ) as explain, patch(
+            "src.application.risk_queries.get_top_risky_claims",
+            return_value=[{"id_siniestro": "SIN-OTHER"}],
+        ) as top:
+            response = answer_question("que dia es hoy", selected_claim_id="SIN-000678")
+
+        explain.assert_not_called()
+        top.assert_not_called()
+        self.assertTrue(response["ok"])
+        self.assertEqual(response["intent"], "fecha_actual")
+        self.assertEqual(response["source"], "agent")
+        self.assertIn("viernes, 29 de mayo de 2026", response["message"])
+        self.assertEqual(response["llm"]["status"], "bypassed_for_direct_intent")
+        self.assertIn("Asistente general", response["runtime"]["agents"])
 
     def test_missing_scored_file_returns_actionable_error(self):
         with patch(
