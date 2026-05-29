@@ -25,7 +25,6 @@ Score final compuesto (0–100) + semáforo Verde/Amarillo/Rojo
         ▼
 Explicación por siniestro
         │
-        ├── Streamlit (app/main.py)
         ├── FastAPI (api/main.py) ──► Next.js frontend
         ├── Agente antifraude (src/agent/)
         └── Reportes ejecutivos / auditoría
@@ -46,17 +45,11 @@ Explicación por siniestro
 | Agente | `src/agent/` | Herramientas determinísticas + LLM opcional |
 | Reportes | `src/reports/` | Resumen ejecutivo, ahorro estimado, auditoría |
 | API | `api/` | Puente REST para Next.js |
-| UI | `app/`, `frontend/` | Streamlit y dashboard Next.js |
+| UI | `frontend/` | Dashboard Next.js |
 | Base de datos | `db/supabase/`, `db/oracle/` | Esquemas Postgres y Oracle de referencia |
 | Análisis R | `r/` | Validación reproducible de métricas |
 
 ## Interfaces de despliegue
-
-### Streamlit (demo rápida)
-
-```bash
-streamlit run app/main.py
-```
 
 ### API FastAPI + Next.js
 

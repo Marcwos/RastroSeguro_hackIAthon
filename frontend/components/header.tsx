@@ -1,7 +1,8 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useAppState } from '@/lib/app-context'
-import { Bell, CircleUserRound } from 'lucide-react'
+import { Bell, CircleUserRound, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/theme-toggle'
 
@@ -13,8 +14,15 @@ const tabs = [
 ]
 
 export function Header() {
-  const { currentStep, setCurrentStep, isDataLoaded, selectedClaimId } = useAppState()
+  const { currentStep, setCurrentStep, isDataLoaded, selectedClaimId, setShowCommandBar } = useAppState()
   const canNavigateTo = (step: number) => step === 1 || (isDataLoaded && selectedClaimId)
+  const [shortcutLabel, setShortcutLabel] = useState('Ctrl K')
+
+  useEffect(() => {
+    if (typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)) {
+      setShortcutLabel('⌘ K')
+    }
+  }, [])
 
   return (
     <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-border bg-background/90 px-4 backdrop-blur-md lg:px-8">
@@ -47,6 +55,24 @@ export function Header() {
         )}
       </div>
       <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setShowCommandBar(true)}
+          className="focus-ring hidden items-center gap-2 rounded-lg border border-border bg-[var(--surface-low)] px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-foreground sm:flex"
+          aria-label="Preguntar al agente antifraude"
+        >
+          <Search className="h-4 w-4" />
+          <span className="hidden md:inline">Preguntar a la IA</span>
+          <kbd className="label-mono rounded border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground">{shortcutLabel}</kbd>
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowCommandBar(true)}
+          className="focus-ring rounded-md p-1.5 text-foreground hover:bg-[var(--surface-container)] sm:hidden"
+          aria-label="Preguntar al agente antifraude"
+        >
+          <Search className="h-5 w-5" />
+        </button>
         <ThemeToggle />
         <button type="button" aria-label="Notificaciones" className="focus-ring rounded-md p-1.5 text-foreground hover:bg-[var(--surface-container)]">
           <Bell className="h-5 w-5" />

@@ -7,7 +7,7 @@ Para trabajar mejor en paralelo, la coordinación vigente está resumida en:
 - [`04-demo-y-vistas.md`](./04-demo-y-vistas.md)
 - [`equipo/carlos-datos-modelos.md`](./equipo/carlos-datos-modelos.md)
 - [`equipo/jeremy-scoring-agente.md`](./equipo/jeremy-scoring-agente.md)
-- [`equipo/justin-dashboard-demo.md`](./equipo/justin-dashboard-demo.md)
+- [`equipo/justin-nextjs-puente-api.md`](./equipo/justin-nextjs-puente-api.md)
 
 Decisión actual: mantenemos funcionalidades avanzadas, pero reducimos pantallas independientes. Las capacidades de grafo, narrativas, agente, simulador y reporte se agrupan en vistas con tabs internas. “Modo jurado” deja de ser un módulo formal y pasa a cubrirse como **casos estrella / demo ejecutiva**.
 
@@ -355,7 +355,7 @@ Justin será responsable de que la solución sea entendible, demostrable y visua
 ### Responsabilidades principales
 
 ```txt
-Aplicación Streamlit
+Aplicación Next.js
 Dashboard ejecutivo
 Carga de dataset
 Bandeja de revisión
@@ -373,7 +373,7 @@ Apoyo en pitch y demo
 ### Módulos a construir
 
 ```txt
-app/main.py
+frontend/
 
 app/pages/dashboard.py
 app/pages/upload_dataset.py
@@ -393,7 +393,7 @@ src/reports/generate_report.py
 ### Entregables de Justin
 
 ```txt
-App funcional en Streamlit
+App funcional en Next.js
 Dashboard ejecutivo
 Filtros por ramo, riesgo, ciudad y proveedor
 Tabla de siniestros priorizados
@@ -468,7 +468,7 @@ Resumen ejecutivo automático
 Justin puede apoyarse en IA para:
 
 ```txt
-Crear componentes Streamlit
+Crear componentes Next.js
 Mejorar diseño visual
 Crear gráficos con Plotly
 Generar grafo con NetworkX o PyVis
@@ -740,10 +740,11 @@ Salida:
 data/processed/siniestros_scored.csv
 ```
 
-### Ejecutar app
+### Ejecutar API + frontend
 
 ```bash
-streamlit run app/main.py
+uvicorn api.main:app --reload --port 8000
+cd frontend && npm run dev
 ```
 
 ---
@@ -780,7 +781,7 @@ Generar explicación textual simple.
 Justin:
 
 ```txt
-Crear app Streamlit.
+Crear app Next.js.
 Cargar CSV.
 Mostrar métricas principales.
 Mostrar tabla de siniestros.
@@ -1048,7 +1049,7 @@ Antes de mergear, se verifica que la app corra.
 Checklist antes de integrar:
 
 ```txt
-¿Corre streamlit run app/main.py?
+¿Corre cd frontend && npm run dev?
 ¿Carga el dataset?
 ¿Existe data/processed/siniestros_scored.csv?
 ¿La tabla principal funciona?

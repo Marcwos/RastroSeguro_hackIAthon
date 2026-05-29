@@ -1,6 +1,6 @@
 # Migración Next.js + puente API Python
 
-Este documento define cómo dividimos el trabajo para migrar la interfaz de Streamlit a Next.js sin romper el cerebro de RastroSeguro.
+Este documento define cómo consolidamos la interfaz en Next.js sin romper el cerebro de RastroSeguro.
 
 ## Estado actual
 
@@ -27,7 +27,7 @@ curl http://localhost:8000/api/health
 - **Justin** construye el frontend en Next.js.
 - **Jeremy** construye el puente API en Python.
 - El núcleo existente en `src/` se mantiene como fuente de verdad.
-- Streamlit queda como referencia funcional mientras Next alcanza la demo.
+- Next.js (`frontend/`) es el único frontend de la demo.
 
 ```txt
 frontend/ Next.js
@@ -41,9 +41,9 @@ data/processed/siniestros_scored.csv
 
 ## Regla principal
 
-No vamos a traducir Streamlit línea por línea. Next.js debe consumir contratos limpios desde la API.
+Next.js debe consumir contratos limpios desde la API, sin depender de implementaciones legacy.
 
-El objetivo de Justin no es replicar `app/main.py`, sino construir una demo visual fuerte usando endpoints estables.
+El objetivo de Justin es construir una demo visual fuerte usando endpoints estables.
 
 ---
 
@@ -549,13 +549,12 @@ Next detalle → FastAPI → explain_claim → JSON → UI
 
 ## Reglas para no perder tiempo
 
-1. No borrar Streamlit todavía.
-2. No meter auth ni login.
-3. No crear base de datos nueva.
-4. No duplicar lógica Python en TypeScript.
-5. No crear más de tres vistas principales.
-6. No cambiar contratos sin avisar al otro.
-7. Si un endpoint falla por falta de CSV, devolver error claro con `hint`.
+1. No meter auth ni login.
+2. No crear base de datos nueva.
+3. No duplicar lógica Python en TypeScript.
+4. No crear más de tres vistas principales.
+5. No cambiar contratos sin avisar al otro.
+6. Si un endpoint falla por falta de CSV, devolver error claro con `hint`.
 
 ---
 

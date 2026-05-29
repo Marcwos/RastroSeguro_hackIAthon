@@ -65,10 +65,11 @@ Salida esperada:
 data/processed/siniestros_scored.csv
 ```
 
-### 4. Ejecutar app
+### 4. Ejecutar API + frontend Next.js
 
 ```bash
-streamlit run app/main.py
+uvicorn api.main:app --reload --port 8000
+cd frontend && npm run dev
 ```
 
 ## Verificación rápida
@@ -80,7 +81,7 @@ Antes de integrar cambios, confirmar:
 - [ ] `score_final` está entre 0 y 100.
 - [ ] `nivel_riesgo` contiene Verde, Amarillo o Rojo.
 - [ ] Las alertas son explicables.
-- [ ] La app carga sin errores.
+- [ ] El frontend Next.js carga sin errores.
 - [ ] No se subieron credenciales ni datos reales.
 
 

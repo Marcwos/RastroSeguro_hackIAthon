@@ -4,14 +4,17 @@ import { useEffect } from 'react'
 import { useAppState } from '@/lib/app-context'
 import { alertToText } from '@/lib/api'
 import { getRiskBadgeClasses, getActionPanelClasses, getRiskColor, getRiskLabel } from '@/lib/claims-data'
-import { AlertTriangle, ArrowLeft, Bot, BrainCircuit, CheckCircle2, Download, FileText, Gavel, Info, Link2, ReceiptText, ShieldAlert, TrendingDown } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Bot, BrainCircuit, CheckCircle2, Download, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { safeGraphPayload } from '@/components/graph/graph-utils'
+import { ScoreWaterfall } from '@/components/explainability/score-waterfall'
+import { RuleTrace } from '@/components/explainability/rule-trace'
+import { NarrativeCompare, type SimilarMatch } from '@/components/explainability/narrative-compare'
 
 const num = (value: unknown) => Number(value ?? 0)
 
 export function StepAnalysis() {
-  const { selectedClaim, selectedClaimId, selectedExplanation, isLoadingExplanation, apiError, apiHint, loadClaimExplanation, setCurrentStep, setShowChat } = useAppState()
+  const { claims, selectedClaim, selectedClaimId, selectedExplanation, isLoadingExplanation, apiError, apiHint, loadClaimExplanation, setCurrentStep, setShowChat } = useAppState()
 
   useEffect(() => {
     if (selectedClaim && selectedClaimId && selectedExplanation?.id_siniestro !== selectedClaimId) {
@@ -43,21 +46,77 @@ export function StepAnalysis() {
     selectedClaim.id_siniestro,
   )
 
-  const drivers = [
-    { label: 'Reglas', value: num(componentes?.reglas ?? selectedClaim.score_reglas), desc: 'Reglas críticas activadas.', Icon: Gavel },
-    { label: 'Modelo', value: num(componentes?.modelo ?? selectedClaim.score_modelo), desc: 'Señal histórica predictiva.', Icon: ReceiptText },
-    { label: 'Anomalías', value: num(componentes?.anomalia ?? selectedClaim.score_anomalia), desc: 'Comportamiento fuera de patrón.', Icon: ShieldAlert },
-    { label: 'Narrativa', value: num(componentes?.nlp ?? selectedClaim.score_nlp), desc: 'Texto similar a casos previos.', Icon: FileText },
-    { label: 'Relaciones', value: num(componentes?.grafo ?? selectedClaim.score_grafo), desc: 'Entidades recurrentes.', Icon: Link2 },
-    { label: 'Categórico', value: num(componentes?.categorico ?? selectedClaim.score_categorico), desc: 'Contexto cualitativo.', Icon: TrendingDown },
-  ].sort((a, b) => b.value - a.value)
-
-  const topDrivers = drivers.filter((d) => d.value > 0).slice(0, 3)
+  const waterfallComponents = componentes ?? {
+    reglas: selectedClaim.score_reglas,
+    modelo: selectedClaim.score_modelo,
+    anomalia: selectedClaim.score_anomalia,
+    nlp: selectedClaim.score_nlp,
+    grafo: selectedClaim.score_grafo,
+    categorico: selectedClaim.score_categorico,
+  }
   const topAlerts = (alertas.length ? alertas : ['Sin alertas críticas principales.']).slice(0, 3)
   const topEntity = [...graphPayload.recurring_entities].sort((a, b) => b.total_siniestros - a.total_siniestros)[0]
   const relationSummary = topEntity
     ? `${topEntity.type} ${topEntity.value} aparece en ${topEntity.total_siniestros} siniestros.`
     : 'No se detectan entidades recurrentes fuertes en la red del caso.'
+
+  const nlpDetails = hasCurrentExplanation
+    ? ((selectedExplanation?.detalles_avanzados as Record<string, unknown> | undefined)?.nlp as
+        | { similares?: unknown[] }
+        | undefined)
+    : undefined
+  const similarMatches: SimilarMatch[] = Array.isArray(nlpDetails?.similares)
+    ? (nlpDetails.similares as Array<Record<string, unknown>>)
+        .map((m) => ({ target_id: String(m.target_id ?? ''), similarity: Number(m.similarity ?? 0) }))
+        .filter((m) => m.target_id)
+    : []
+  const currentNarrative = selectedClaim.narrativa || selectedClaim.descripcion || ''
+  const lookupNarrative = (id: string) => {
+    const match = claims.find((c) => c.id_siniestro === id)
+    return match?.narrativa || match?.descripcion || undefined
+  }
+
+  const exportCertificate = () => {
+    const lines = [
+      `# Certificado técnico de evaluación de riesgo`,
+      ``,
+      `**Siniestro:** ${selectedClaim.id_siniestro}`,
+      `**Ramo / cobertura:** ${selectedClaim.ramo ?? '—'} / ${selectedClaim.cobertura ?? '—'}`,
+      `**Score final:** ${Math.round(scoreFinal)}/100`,
+      `**Nivel de riesgo:** ${getRiskLabel(nivelRiesgo)}`,
+      ``,
+      `## Explicación`,
+      explicacion,
+      ``,
+      `## Acción recomendada`,
+      accion,
+      ``,
+      `## Componentes del score (0-100)`,
+      `- Reglas: ${num(waterfallComponents.reglas)}`,
+      `- Modelo: ${num(waterfallComponents.modelo)}`,
+      `- Anomalías: ${num(waterfallComponents.anomalia)}`,
+      `- Narrativa (NLP): ${num(waterfallComponents.nlp)}`,
+      `- Relaciones (grafo): ${num(waterfallComponents.grafo)}`,
+      `- Categórico: ${num(waterfallComponents.categorico)}`,
+      ``,
+      `## Traza de reglas activadas`,
+      ...(alertas.length
+        ? alertas.map((a) => `- ${alertToText(a)}`)
+        : ['- Sin reglas de riesgo activadas.']),
+      ``,
+      `---`,
+      `Documento generado por RastroSeguro. El score es una alerta para revisión humana; no constituye una acusación de fraude ni una decisión automática.`,
+    ]
+    const blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `certificado-${selectedClaim.id_siniestro}.md`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <section className="px-4 py-8 lg:px-8">
@@ -127,28 +186,33 @@ export function StepAnalysis() {
             {alertas.length > 3 && <p className="mt-3 text-xs text-muted-foreground">+{alertas.length - 3} alertas adicionales disponibles en el detalle.</p>}
           </aside>
 
-          <section className="institutional-card col-span-12 p-6">
+          <section className="institutional-card col-span-12 p-6 lg:col-span-7">
+            <ScoreWaterfall componentes={waterfallComponents} scoreFinal={scoreFinal} />
+          </section>
+
+          <section className="institutional-card col-span-12 p-6 lg:col-span-5">
             <div className="mb-4 flex flex-col justify-between gap-2 md:flex-row md:items-end">
               <div>
-                <h2 className="label-mono-md font-bold uppercase">Top 3 razones del riesgo</h2>
-                <p className="text-sm text-muted-foreground">Solo mostramos las señales más importantes para evitar ruido visual.</p>
+                <h2 className="label-mono-md font-bold uppercase">Traza de reglas activadas</h2>
+                <p className="text-sm text-muted-foreground">Códigos RF/RB/RV con severidad y evidencia auditable.</p>
               </div>
-              <button onClick={() => setCurrentStep(4)} className="focus-ring self-start border border-border px-4 py-2 label-mono-md text-foreground hover:bg-[var(--surface-container)] md:self-auto">
+              <button onClick={() => setCurrentStep(4)} className="focus-ring shrink-0 self-start border border-border px-4 py-2 label-mono-md text-foreground hover:bg-[var(--surface-container)] md:self-auto">
                 Ver análisis completo
               </button>
             </div>
-            <div className="grid gap-3 md:grid-cols-3">
-              {(topDrivers.length ? topDrivers : drivers.slice(0, 3)).map(({ label, value, desc, Icon }, idx) => (
-                <div key={label} className="border border-border bg-[var(--surface-low)] p-4">
-                  <div className="mb-3 flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-2"><Icon className="h-4 w-4" /><span className="label-mono-md font-bold">{idx + 1}. {label}</span></div>
-                    <span className={value > 0 ? 'label-mono-md font-bold text-destructive' : 'label-mono-md text-muted-foreground'}>{value > 0 ? '+' : ''}{Math.round(value * 100) / 100}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{desc}</p>
-                </div>
-              ))}
-            </div>
+            <RuleTrace alertas={alertas} />
           </section>
+
+          {similarMatches.length > 0 && currentNarrative && (
+            <section className="institutional-card col-span-12 p-6">
+              <NarrativeCompare
+                currentId={selectedClaim.id_siniestro}
+                currentNarrative={currentNarrative}
+                matches={similarMatches}
+                lookupNarrative={lookupNarrative}
+              />
+            </section>
+          )}
 
           <section className="institutional-card col-span-12 p-6 lg:col-span-8">
             <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
@@ -171,7 +235,7 @@ export function StepAnalysis() {
                 <p className="mt-1 text-sm italic text-muted-foreground">El score prioriza revisión humana; no acusa ni rechaza automáticamente.</p>
               </div>
             </div>
-            <button className="mt-5 flex w-full items-center justify-center gap-2 border border-border py-2 label-mono-md text-muted-foreground"><Download className="h-4 w-4" />Certificado técnico</button>
+            <button onClick={exportCertificate} className="focus-ring mt-5 flex w-full items-center justify-center gap-2 border border-border py-2 label-mono-md text-foreground transition-colors hover:bg-[var(--surface-container)]"><Download className="h-4 w-4" />Exportar certificado técnico</button>
           </aside>
         </div>
 

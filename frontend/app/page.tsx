@@ -11,9 +11,26 @@ import { StepIntelligence } from '@/components/steps/step-intelligence'
 import { StepDossier } from '@/components/steps/step-dossier'
 import { StepExecutiveDemo } from '@/components/steps/step-executive-demo'
 import { AIAssistant } from '@/components/ai-assistant'
+import { CommandBar } from '@/components/command-bar'
+import { useEffect } from 'react'
 
 function MainContent() {
-  const { currentStep } = useAppState()
+  const { currentStep, showCommandBar, setShowCommandBar } = useAppState()
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setShowCommandBar(!showCommandBar)
+        return
+      }
+      if (event.key === 'Escape' && showCommandBar) {
+        setShowCommandBar(false)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [showCommandBar, setShowCommandBar])
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
@@ -31,6 +48,7 @@ function MainContent() {
         </main>
       </div>
       <AIAssistant />
+      <CommandBar />
     </div>
   )
 }

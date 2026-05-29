@@ -10,7 +10,7 @@
 | Todos | [02-contratos-integracion.md](./02-contratos-integracion.md) | Evitar romper columnas, rutas y funciones compartidas |
 | Carlos | [equipo/carlos-datos-modelos.md](./equipo/carlos-datos-modelos.md) | Dataset, features, modelos y métricas |
 | Jeremy | [equipo/jeremy-scoring-agente.md](./equipo/jeremy-scoring-agente.md) | Reglas, scoring, explicabilidad, agente y simulador |
-| Justin | [equipo/justin-dashboard-demo.md](./equipo/justin-dashboard-demo.md) | Streamlit, vistas, demo y reporte |
+| Justin | [equipo/justin-nextjs-puente-api.md](./equipo/justin-nextjs-puente-api.md) | Next.js, vistas, demo y consumo de API |
 
 ## Documentos de coordinación
 
@@ -29,7 +29,7 @@
 |---|---|
 | Carlos | [equipo/carlos-datos-modelos.md](./equipo/carlos-datos-modelos.md) |
 | Jeremy | [equipo/jeremy-scoring-agente.md](./equipo/jeremy-scoring-agente.md) |
-| Justin | [equipo/justin-dashboard-demo.md](./equipo/justin-dashboard-demo.md) |
+| Justin | [equipo/justin-nextjs-puente-api.md](./equipo/justin-nextjs-puente-api.md) |
 
 ## Documentos base del proyecto
 

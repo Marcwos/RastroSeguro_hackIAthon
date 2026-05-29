@@ -41,7 +41,7 @@ src/scoring/       Score final
 src/explainability/ Explicaciones
 src/agent/         Herramientas, router y RAG
 src/reports/       Reporte ejecutivo
-app/               Streamlit
+frontend/          Next.js
 ```
 
 ## Decisión de UI

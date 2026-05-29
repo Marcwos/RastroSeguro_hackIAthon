@@ -336,7 +336,7 @@ fraudia-claims/
 │   ├── models/fraud_model.py
 │   ├── explainability/explain_score.py
 │   ├── ai_agent/claims_agent.py
-│   └── app/main.py
+│   └── frontend/            # Next.js dashboard
 ├── docs/
 │   ├── arquitectura.md
 │   ├── modelo_datos.md

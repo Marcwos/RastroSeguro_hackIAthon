@@ -23,7 +23,7 @@
 
 - **Runtime principal**: Python + CSV (`data/synthetic/`, `data/processed/`).
 - **API REST**: FastAPI en `api/main.py` — `uvicorn api.main:app --reload --port 8000`.
-- **UI**: Streamlit (`app/main.py`) y Next.js (`frontend/`).
+- **UI**: Next.js (`frontend/`) consumiendo la API FastAPI.
 - **R**: scripts de validación reproducible en `r/`; no integrados en el pipeline de scoring.
 - **Oracle**: esquema DDL y Docker XE de referencia en `db/oracle/`; Postgres/Supabase para analítica cloud.
 - LLM opcional desactivado por defecto (`RASTRO_LLM_ENABLED=false`); el agente funciona de forma determinística sin API externa.

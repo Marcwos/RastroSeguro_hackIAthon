@@ -17,7 +17,7 @@ Cumplimiento del PDF del reto:
 - Score híbrido: reglas + ML + anomalías + NLP + grafo
 - Agente con 12 preguntas del PDF + consulta jurado (80% alertas rojas)
 - Simulación de ahorro potencial
-- Dashboard Streamlit + Next.js + API FastAPI
+- Dashboard Next.js + API FastAPI
 - Documentación, pitch, R y Oracle de referencia
 
 ---
@@ -30,13 +30,7 @@ py -3 -m src.models.validate_deliverables
 py -3 -m unittest discover -s tests -p "test_*.py"
 ```
 
-Demo UI:
-
-```bash
-streamlit run app/main.py
-```
-
-API + frontend:
+Demo UI (API + frontend):
 
 ```bash
 uvicorn api.main:app --reload --port 8000

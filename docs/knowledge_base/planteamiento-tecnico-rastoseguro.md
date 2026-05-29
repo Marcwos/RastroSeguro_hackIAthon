@@ -870,7 +870,7 @@ Stack recomendado:
 
 ```txt
 Python
-Streamlit
+Next.js
 Pandas
 Scikit-learn
 Plotly
@@ -1467,7 +1467,7 @@ Simulador de nuevo siniestro
 Responsable de:
 
 ```txt
-Streamlit
+Next.js
 Dashboard
 Vista multi-ramo
 Gráficos

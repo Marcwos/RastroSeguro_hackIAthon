@@ -42,7 +42,6 @@ Las aseguradoras procesan miles de siniestros con señales dispersas: fechas at�
 ```bash
 uvicorn api.main:app --reload --port 8000
 cd frontend && npm run dev
-streamlit run app/main.py
 ```
 
 ---
@@ -63,7 +62,7 @@ Datos sintéticos → Features → Reglas + ML + Anomalías + NLP + Grafo
 | Grafo | Recurrencia entidades | 10% |
 | Perfil categórico | Por ramo | 5% |
 
-**Stack:** Python, FastAPI, Next.js, Streamlit, Postgres/Supabase, Oracle XE (referencia), R (validación).
+**Stack:** Python, FastAPI, Next.js, Postgres/Supabase, Oracle XE (referencia), R (validación).
 
 Documentación: `docs/arquitectura.md`, `docs/uso_ia.md`, `docs/reglas_negocio.md`
 

@@ -28,6 +28,8 @@ interface AppState {
   clearChatMessages: () => void
   showChat: boolean
   setShowChat: (show: boolean) => void
+  showCommandBar: boolean
+  setShowCommandBar: (show: boolean) => void
 }
 
 export interface ChatMessage {
@@ -53,6 +55,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [showChat, setShowChat] = useState(false)
+  const [showCommandBar, setShowCommandBar] = useState(false)
 
   const selectedClaim = useMemo(
     () => selectedClaimId ? claims.find(c => c.id_siniestro === selectedClaimId) || null : null,
@@ -172,6 +175,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         clearChatMessages,
         showChat,
         setShowChat,
+        showCommandBar,
+        setShowCommandBar,
       }}
     >
       {children}

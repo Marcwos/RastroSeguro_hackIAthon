@@ -32,7 +32,7 @@ La app debe demostrar IA explicable, análisis de riesgo, relaciones y agente, p
 |---|---|---|
 | Carlos | Datos, features, modelos y métricas | Dataset, modelos y métricas |
 | Jeremy | Reglas, scoring, explicación, agente y simulador | `siniestros_scored.csv` y funciones analíticas |
-| Justin | Streamlit, visualización, demo y reporte | App funcional y demo clara |
+| Justin | Next.js, visualización, demo y reporte | App funcional y demo clara |
 
 ## Reglas para trabajar en paralelo
 

@@ -97,7 +97,7 @@ No usar “modo jurado” como concepto formal de producto. Si se necesitan acce
 
 ## Implementación de diferenciadores para destacar
 
-Se agregaron dos secciones explícitas al frontend Next.js (`frontend/`), no a Streamlit:
+Se agregaron dos secciones explícitas al frontend Next.js (`frontend/`):
 
 ### Expediente antifraude
 
