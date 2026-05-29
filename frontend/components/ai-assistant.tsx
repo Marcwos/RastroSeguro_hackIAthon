@@ -29,9 +29,9 @@ function normalizeAssistantText(text: string): string {
 function contextualQuickQuestions(claimId: string | null): string[] {
   if (claimId) {
     return [
-      `¿Por qué el siniestro ${claimId} tiene este score?`,
+      `¿Por qué el siniestro ${claimId} tiene este puntaje de riesgo?`,
       '¿Qué alertas principales explican el riesgo?',
-      '¿Hay narrativas similares o conexiones en el grafo?',
+      '¿Hay narrativas similares o conexiones en la red de relaciones?',
       '¿Qué acción recomienda el motor para este caso?',
     ]
   }

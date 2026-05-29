@@ -6,9 +6,9 @@ import { useAppState } from '@/lib/app-context'
 import { cn } from '@/lib/utils'
 
 const analystPath = [
-  ['1', 'Cargar CSV', 'Sube la base de siniestros o sincroniza datos desde el API.'],
+  ['1', 'Cargar datos', 'Sube la base de siniestros para iniciar la revisión.'],
   ['2', 'Elegir caso', 'Selecciona un siniestro activo para revisar.'],
-  ['3', 'Entender riesgo', 'Lee el score, las reglas, documentos, NLP y grafo.'],
+  ['3', 'Entender riesgo', 'Lee el puntaje, las reglas, documentos, narrativa y red de relaciones.'],
   ['4', 'Cerrar evidencia', 'Usa el expediente para dejar una recomendacion trazable.'],
 ]
 
@@ -19,9 +19,9 @@ const executivePath = [
 ]
 
 const glossary = [
-  ['Score', 'Puntaje de riesgo de 0 a 100. Alto no significa fraude confirmado.'],
+  ['Puntaje de riesgo', 'Calificacion de 0 a 100. Un valor alto no significa fraude confirmado.'],
   ['Semaforo', 'Rojo, amarillo o verde para priorizar revision humana.'],
-  ['Grafo', 'Mapa de conexiones entre siniestros, proveedores, ciudades y patrones.'],
+  ['Red de relaciones', 'Mapa de conexiones entre siniestros, proveedores, ciudades y patrones.'],
   ['Expediente', 'Resumen trazable del caso con alertas y evidencia para revisar.'],
 ]
 
@@ -92,9 +92,9 @@ export function HelpPanel() {
                   <p className="font-display font-semibold text-foreground">Estado actual</p>
                   <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                     {hasCase
-                      ? `Hay un caso activo: ${selectedClaimId}. Ya puedes revisar resumen, riesgo, grafo y expediente.`
+                      ? `Hay un caso activo: ${selectedClaimId}. Ya puedes revisar resumen, riesgo, relaciones y expediente.`
                       : isAnalyst
-                        ? 'Todavia no hay caso activo. Empieza cargando o sincronizando un CSV.'
+                        ? 'Todavia no hay caso activo. Empieza cargando los datos.'
                         : 'Todavia no hay caso activo. Puedes revisar el panel, pero el expediente se activa con datos cargados.'}
                   </p>
                 </div>

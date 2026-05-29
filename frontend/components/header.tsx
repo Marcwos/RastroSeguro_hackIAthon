@@ -20,7 +20,7 @@ export function Header() {
         { step: 1, label: 'Carga', enabled: true },
         { step: 2, label: 'Resumen', enabled: flowReady },
         { step: 3, label: 'Riesgo', enabled: flowReady },
-        { step: 4, label: 'Grafo', enabled: flowReady },
+        { step: 4, label: 'Relaciones', enabled: flowReady },
       ]
     }
     return [
@@ -46,7 +46,7 @@ export function Header() {
           </span>
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--tertiary-fixed-dim)]" />
           <span className="label-mono text-muted-foreground">
-            {isAnalyst ? 'Carga, revision y expediente' : 'KPIs, impacto y caso foco'}
+            {isAnalyst ? 'Carga, revision y expediente' : 'Indicadores, impacto y caso foco'}
           </span>
         </div>
         <nav className="hidden items-center gap-5 md:flex" aria-label="Navegacion superior por perfil">

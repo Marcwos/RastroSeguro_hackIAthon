@@ -83,7 +83,7 @@ export function Sidebar() {
         <NavButton
           active={currentStep === 0}
           icon={LayoutDashboard}
-          label={isAnalyst ? 'Bandeja operativa' : 'Command Center'}
+          label={isAnalyst ? 'Bandeja operativa' : 'Centro de Control'}
           onClick={() => setCurrentStep(0)}
         />
 
@@ -92,14 +92,14 @@ export function Sidebar() {
             <div className="rounded-md border border-border bg-[var(--surface-high)] p-3">
               <p className="label-mono-md font-bold uppercase text-foreground">Flujo del analista</p>
               <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                Carga CSV, valida datos y revisa siniestros con explicabilidad completa.
+                Carga datos, valida casos y revisa siniestros con explicabilidad completa.
               </p>
               <button
                 type="button"
                 onClick={() => setCurrentStep(1)}
                 className="focus-ring mt-4 flex w-full items-center justify-center gap-2 bg-primary px-3 py-2.5 label-mono-md font-bold uppercase text-primary-foreground hover:opacity-95"
               >
-                {inFlow ? 'Volver al flujo' : 'Cargar CSV'}
+                {inFlow ? 'Volver al flujo' : 'Cargar datos'}
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </button>
               <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
@@ -110,10 +110,10 @@ export function Sidebar() {
 
             <div className="space-y-2">
               <p className="label-mono-md px-3 font-bold uppercase text-muted-foreground">Revision tecnica</p>
-              <NavButton active={currentStep === 1} icon={UploadCloud} label="Carga CSV" onClick={() => setCurrentStep(1)} />
+              <NavButton active={currentStep === 1} icon={UploadCloud} label="Carga de datos" onClick={() => setCurrentStep(1)} />
               <NavButton active={currentStep === 2} disabled={!flowReady} icon={ClipboardList} label="Resumen tecnico" onClick={() => setCurrentStep(2)} />
               <NavButton active={currentStep === 3} disabled={!flowReady} icon={BarChart3} label="Riesgo explicable" onClick={() => setCurrentStep(3)} />
-              <NavButton active={currentStep === 4} disabled={!flowReady} icon={GitBranch} label="Grafo de relaciones" onClick={() => setCurrentStep(4)} />
+              <NavButton active={currentStep === 4} disabled={!flowReady} icon={GitBranch} label="Red de relaciones" onClick={() => setCurrentStep(4)} />
               <NavButton active={currentStep === 5} disabled={!flowReady} icon={FileSearch} label="Expediente antifraude" onClick={() => setCurrentStep(5)} />
             </div>
           </>
@@ -122,7 +122,7 @@ export function Sidebar() {
             <div className="rounded-md border border-border bg-[var(--surface-high)] p-3">
               <p className="label-mono-md font-bold uppercase text-foreground">Vista ejecutiva</p>
               <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                Consume KPIs, impacto de negocio, casos criticos y narrativa para decision.
+                Revisa indicadores, impacto de negocio, casos criticos y narrativa para decision.
               </p>
               <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                 <span className={cn('h-2 w-2 shrink-0 rounded-full', flowReady ? 'bg-[var(--tertiary-fixed-dim)]' : 'bg-border')} />

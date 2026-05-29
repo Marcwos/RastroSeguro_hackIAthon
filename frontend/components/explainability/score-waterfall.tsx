@@ -74,7 +74,7 @@ export function ScoreWaterfall({ componentes, scoreFinal }: ScoreWaterfallProps)
     <div className="space-y-5">
       <header className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
         <div>
-          <h2 className="label-mono-md font-bold uppercase">Deconstrucción del score</h2>
+          <h2 className="label-mono-md font-bold uppercase">Desglose del puntaje de riesgo</h2>
           <p className="text-sm text-muted-foreground">
             Aporte ponderado de cada componente desde una base neutral de {NEUTRAL}.
           </p>
@@ -191,7 +191,7 @@ export function ScoreWaterfall({ componentes, scoreFinal }: ScoreWaterfallProps)
       <div className="flex flex-col gap-2 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="flex items-start gap-2 text-xs text-muted-foreground">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          El score final ({Math.round(scoreFinal)}) también aplica calibración de cartera y guardrails de reglas
+          El puntaje final ({Math.round(scoreFinal)}) también aplica calibración de cartera y reglas
           críticas, por lo que puede diferir del riesgo combinado mostrado aquí.
         </p>
         {hasWhatIf && (

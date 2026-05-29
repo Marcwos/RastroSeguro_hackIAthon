@@ -22,7 +22,7 @@ import { useAppState } from '@/lib/app-context'
 import { ClaimDossier, getClaimDossier } from '@/lib/api'
 import { formatCurrency } from '@/lib/claims-data'
 import { RiskBadge } from '@/components/ui/risk-badge'
-import { cn } from '@/lib/utils'
+import { cn, sanitizeAiText } from '@/lib/utils'
 
 const num = (value: unknown) => Number(value ?? 0)
 
@@ -60,6 +60,23 @@ function compactUnknown(value?: string | null) {
   return value && String(value).trim() ? value : 'No informado'
 }
 
+const COMPONENT_LABELS: Record<string, string> = {
+  nlp: 'Narrativa',
+  'modelo ml': 'Patrones del modelo',
+  modelo: 'Patrones del modelo',
+  reglas: 'Reglas',
+  anomalia: 'Anomalías',
+  grafo: 'Red de relaciones',
+  categorico: 'Categórico',
+}
+
+function labelComponent(key?: string | null): string {
+  if (!key) return 'N/D'
+  const normalized = key.trim().toLowerCase()
+  return COMPONENT_LABELS[normalized] ?? key
+}
+
+
 function SignalRadar({ dossier }: { dossier: ClaimDossier }) {
   const rows = dossier.signal_radar?.length
     ? dossier.signal_radar
@@ -67,7 +84,7 @@ function SignalRadar({ dossier }: { dossier: ClaimDossier }) {
         component,
         score: num(value),
         label: num(value) >= 55 ? 'Señal relevante' : 'Señal de apoyo',
-        description: 'Componente calculado para explicar el score final.',
+        description: 'Componente calculado para explicar el puntaje de riesgo.',
       }))
 
   return (
@@ -80,8 +97,8 @@ function SignalRadar({ dossier }: { dossier: ClaimDossier }) {
             <div key={item.component} className="rounded-md border border-border bg-[var(--surface-low)] p-3">
               <div className="mb-2 flex items-start justify-between gap-3">
                 <div>
-                  <p className="label-mono-md font-bold uppercase text-foreground">{item.component}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{item.description || 'Componente de riesgo.'}</p>
+                  <p className="label-mono-md font-bold uppercase text-foreground">{labelComponent(item.component)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{sanitizeAiText(item.description) || 'Componente de riesgo.'}</p>
                 </div>
                 <div className="text-right">
                   <p className="font-display text-2xl font-semibold">{Math.round(score)}</p>
@@ -95,7 +112,7 @@ function SignalRadar({ dossier }: { dossier: ClaimDossier }) {
           )
         })}
         <p className="text-xs text-muted-foreground">
-          Driver principal: {dossier.main_driver?.componente || 'N/D'} ({Math.round(num(dossier.main_driver?.valor))})
+          Señal principal: {labelComponent(dossier.main_driver?.componente)} ({Math.round(num(dossier.main_driver?.valor))})
         </p>
       </div>
     </div>
@@ -106,7 +123,7 @@ function Timeline({ dossier }: { dossier: ClaimDossier }) {
   const fallback = [
     { title: 'Ocurrencia', date: dossier.claim.fecha_ocurrencia || 'Fecha no informada', detail: 'Evento base del siniestro.', tone: 'info' },
     { title: 'Reporte', date: dossier.claim.fecha_reporte || 'Fecha no informada', detail: 'Registro recibido para evaluación.', tone: 'info' },
-    { title: 'Evaluación IA', date: `Score ${Math.round(num(dossier.risk.score_final))}/100`, detail: dossier.risk.accion_sugerida || 'Revisión humana sugerida.', tone: 'warning' },
+    { title: 'Evaluación IA', date: `Puntaje ${Math.round(num(dossier.risk.score_final))}/100`, detail: dossier.risk.accion_sugerida || 'Revisión humana sugerida.', tone: 'warning' },
   ]
   const timeline = dossier.timeline?.length ? dossier.timeline : fallback
 
@@ -144,7 +161,7 @@ function SimilarityPanel({ dossier }: { dossier: ClaimDossier }) {
         <div className="rounded-md border border-border bg-[var(--surface-low)] p-4 lg:col-span-3">
           <p className="font-display text-xl font-semibold">{summary?.headline || 'Sin relaciones críticas detectadas en los datos actuales.'}</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            {dossier.advanced_evidence?.nlp?.explicacion || dossier.advanced_evidence?.grafo?.explicacion || 'RastroSeguro no encontró evidencia avanzada suficiente para afirmar un patrón repetido.'}
+            {sanitizeAiText(dossier.advanced_evidence?.nlp?.explicacion || dossier.advanced_evidence?.grafo?.explicacion) || 'RastroSeguro no encontró evidencia suficiente para afirmar un patrón repetido.'}
           </p>
         </div>
 
@@ -172,7 +189,7 @@ function SimilarityPanel({ dossier }: { dossier: ClaimDossier }) {
         </div>
 
         <div className="space-y-2">
-          <p className="label-mono-md font-bold uppercase text-muted-foreground">Conexiones grafo</p>
+          <p className="label-mono-md font-bold uppercase text-muted-foreground">Conexiones en la red</p>
           <div className="border border-border bg-[var(--surface-low)] p-4">
             <p className="font-display text-3xl font-semibold">{num(summary?.connections_count) || rawConnections.length}</p>
             <p className="mt-1 text-xs text-muted-foreground">Conexiones utilizadas como contexto, no como acusación.</p>
@@ -224,7 +241,7 @@ export function StepDossier() {
   const evidence = useMemo(() => (
     dossier?.evidence.length
       ? dossier.evidence
-      : [{ senal: 'Sin alertas principales', mensaje: 'Revisar componentes ML/NLP/grafo para completar el expediente.', puntos: 0, severidad: 'baja' }]
+      : [{ senal: 'Sin alertas principales', mensaje: 'Completar la revisión documental y de relaciones para cerrar el expediente.', puntos: 0, severidad: 'baja' }]
   ), [dossier])
 
   if (!selectedClaimId) {
@@ -232,7 +249,7 @@ export function StepDossier() {
       <section className="flex min-h-[70vh] flex-col items-center justify-center gap-4 px-4 text-center text-muted-foreground">
         <FileSearch className="h-12 w-12" />
         <p>No hay siniestro seleccionado para generar expediente.</p>
-        <button onClick={() => setCurrentStep(0)} className="bg-primary px-4 py-2 label-mono-md text-white">Ir al Command Center</button>
+        <button onClick={() => setCurrentStep(0)} className="bg-primary px-4 py-2 label-mono-md text-white">Ir al Centro de Control</button>
       </section>
     )
   }
@@ -269,7 +286,7 @@ export function StepDossier() {
           </button>
         </header>
 
-        {loading && <div className="institutional-card flex items-center gap-2 p-5 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Generando sala de investigación desde FastAPI...</div>}
+        {loading && <div className="institutional-card flex items-center gap-2 p-5 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Generando expediente de investigación...</div>}
         {error && <div className="border border-destructive bg-[var(--error-container)] p-4 text-[var(--on-error-container)]">{error}</div>}
 
         {dossier && (
@@ -285,16 +302,16 @@ export function StepDossier() {
                   </div>
                   <h2 className="dark-panel-heading display-heading text-3xl text-white lg:text-4xl">{dossier.headline}</h2>
                   <p className="dark-panel-muted max-w-3xl text-sm leading-7">
-                    {isExecutive
+                    {sanitizeAiText(isExecutive
                       ? dossier.executive_takeaway || dossier.investigation_summary || dossier.explanation
-                      : dossier.investigation_summary || dossier.explanation || 'Expediente generado para revisión humana trazable.'}
+                      : dossier.investigation_summary || dossier.explanation || 'Expediente generado para revisión humana trazable.')}
                   </p>
                   <p className="dark-panel-card rounded-md p-3 text-sm italic text-white/80">{dossier.ethical_guardrail}</p>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                  <HeroMetric label="Score final" value={`${Math.round(score)}/100`} Icon={Fingerprint} />
+                  <HeroMetric label="Puntaje de riesgo" value={`${Math.round(score)}/100`} Icon={Fingerprint} />
                   <HeroMetric label="Monto reclamado" value={formatCurrency(dossier.claim.monto_reclamado)} Icon={Scale} />
-                  <HeroMetric label="Driver principal" value={dossier.main_driver?.componente || 'N/D'} Icon={Sparkles} />
+                  <HeroMetric label="Señal principal" value={labelComponent(dossier.main_driver?.componente)} Icon={Sparkles} />
                 </div>
               </div>
             </section>

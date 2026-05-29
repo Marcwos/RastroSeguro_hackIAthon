@@ -5,7 +5,7 @@ import { useAppState } from '@/lib/app-context'
 import { alertToText } from '@/lib/api'
 import { getRiskBadgeClasses, getActionPanelClasses, getRiskColor, getRiskLabel } from '@/lib/claims-data'
 import { AlertTriangle, ArrowLeft, Bot, BrainCircuit, CheckCircle2, Download, Info } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, sanitizeAiText } from '@/lib/utils'
 import { safeGraphPayload } from '@/components/graph/graph-utils'
 import { ScoreWaterfall } from '@/components/explainability/score-waterfall'
 import { RuleTrace } from '@/components/explainability/rule-trace'
@@ -33,8 +33,9 @@ export function StepAnalysis() {
 
   const scoreFinal = num(selectedExplanation?.score_final ?? selectedClaim.score_final)
   const nivelRiesgo = selectedExplanation?.nivel_riesgo || selectedClaim.nivel_riesgo || 'Sin clasificar'
-  const explicacion = selectedExplanation?.explicacion || selectedClaim.explicacion || 'La explicación se cargará desde el motor antifraude cuando el API esté disponible.'
-  const accion = selectedExplanation?.accion_sugerida || selectedClaim.accion_sugerida || 'Revisar el caso con criterio humano.'
+  const rawExplicacion = selectedExplanation?.explicacion || selectedClaim.explicacion || 'La explicación se cargará desde el motor antifraude cuando el sistema esté disponible.'
+  const explicacion = sanitizeAiText(rawExplicacion)
+  const accion = sanitizeAiText(selectedExplanation?.accion_sugerida || selectedClaim.accion_sugerida || 'Revisar el caso con criterio humano.')
   const componentes = selectedExplanation?.componentes_score
   const alertas = (selectedExplanation?.alertas?.length ? selectedExplanation.alertas : selectedClaim.alertas_activadas instanceof Array ? selectedClaim.alertas_activadas : []) as unknown[]
   const riskColor = getRiskColor(nivelRiesgo)
@@ -82,7 +83,7 @@ export function StepAnalysis() {
       ``,
       `**Siniestro:** ${selectedClaim.id_siniestro}`,
       `**Ramo / cobertura:** ${selectedClaim.ramo ?? '—'} / ${selectedClaim.cobertura ?? '—'}`,
-      `**Score final:** ${Math.round(scoreFinal)}/100`,
+      `**Puntaje de riesgo:** ${Math.round(scoreFinal)}/100`,
       `**Nivel de riesgo:** ${getRiskLabel(nivelRiesgo)}`,
       ``,
       `## Explicación`,
@@ -91,12 +92,12 @@ export function StepAnalysis() {
       `## Acción recomendada`,
       accion,
       ``,
-      `## Componentes del score (0-100)`,
+      `## Componentes del puntaje (0-100)`,
       `- Reglas: ${num(waterfallComponents.reglas)}`,
       `- Modelo: ${num(waterfallComponents.modelo)}`,
       `- Anomalías: ${num(waterfallComponents.anomalia)}`,
-      `- Narrativa (NLP): ${num(waterfallComponents.nlp)}`,
-      `- Relaciones (grafo): ${num(waterfallComponents.grafo)}`,
+      `- Narrativa: ${num(waterfallComponents.nlp)}`,
+      `- Red de relaciones: ${num(waterfallComponents.grafo)}`,
       `- Categórico: ${num(waterfallComponents.categorico)}`,
       ``,
       `## Traza de reglas activadas`,
@@ -105,7 +106,7 @@ export function StepAnalysis() {
         : ['- Sin reglas de riesgo activadas.']),
       ``,
       `---`,
-      `Documento generado por RastroSeguro. El score es una alerta para revisión humana; no constituye una acusación de fraude ni una decisión automática.`,
+      `Documento generado por RastroSeguro. El puntaje es una alerta para revisión humana; no constituye una acusación de fraude ni una decisión automática.`,
     ]
     const blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' })
     const url = URL.createObjectURL(blob)
@@ -129,7 +130,7 @@ export function StepAnalysis() {
           </div>
           <div className="flex items-center gap-2 border border-border bg-[var(--surface-high)] px-4 py-2">
             <Info className="h-4 w-4" />
-            <span className="label-mono">{isLoadingExplanation ? 'CONSULTANDO API...' : 'ANÁLISIS IA DESDE FASTAPI'}</span>
+            <span className="label-mono">{isLoadingExplanation ? 'ANALIZANDO...' : 'ANÁLISIS CON IA'}</span>
           </div>
         </header>
 
@@ -232,7 +233,7 @@ export function StepAnalysis() {
               <Info className="mt-1 h-5 w-5 shrink-0" />
               <div>
                 <h3 className="font-display text-lg font-semibold">Nota legal</h3>
-                <p className="mt-1 text-sm italic text-muted-foreground">El score prioriza revisión humana; no acusa ni rechaza automáticamente.</p>
+                <p className="mt-1 text-sm italic text-muted-foreground">El puntaje prioriza revisión humana; no acusa ni rechaza automáticamente.</p>
               </div>
             </div>
             <button onClick={exportCertificate} className="focus-ring mt-5 flex w-full items-center justify-center gap-2 border border-border py-2 label-mono-md text-foreground transition-colors hover:bg-[var(--surface-container)]"><Download className="h-4 w-4" />Exportar certificado técnico</button>

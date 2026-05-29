@@ -14,7 +14,7 @@ const AXES = [
   { key: 'score_reglas', label: 'Reglas' },
   { key: 'score_modelo', label: 'Modelo' },
   { key: 'score_anomalia', label: 'Anomalía' },
-  { key: 'score_nlp', label: 'NLP' },
+  { key: 'score_nlp', label: 'Narrativa' },
   { key: 'score_grafo', label: 'Relaciones' },
   { key: 'score_categorico', label: 'Categórico' },
 ] as const
@@ -48,7 +48,7 @@ export function RiskSpiderChart({ selectedClaim, claims }: { selectedClaim: Clai
     <div className="space-y-4">
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="institutional-card p-4 lg:col-span-2">
-          <p className="label-mono mb-2 text-muted-foreground">Patrón de aumento de riesgo (caso vs promedio dataset)</p>
+          <p className="label-mono mb-2 text-muted-foreground">Patrón de aumento de riesgo (caso vs promedio de la cartera)</p>
           <ChartContainer
             config={{
               Caso: { label: 'Caso', color: 'var(--chart-1)' },

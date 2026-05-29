@@ -48,10 +48,10 @@ export function StepIntelligence() {
 
         <Tabs defaultValue="graph" className="w-full">
           <TabsList>
-            <TabsTrigger value="graph">Grafo del caso</TabsTrigger>
+            <TabsTrigger value="graph">Red del caso</TabsTrigger>
             <TabsTrigger value="rings">Redes de fraude</TabsTrigger>
             <TabsTrigger value="entities">Entidades recurrentes</TabsTrigger>
-            <TabsTrigger value="ranking">Rankings</TabsTrigger>
+            <TabsTrigger value="ranking">Concentración</TabsTrigger>
             <TabsTrigger value="spider">Patrones (Araña)</TabsTrigger>
           </TabsList>
           <TabsContent value="graph" className="mt-4 institutional-card space-y-3 p-6">

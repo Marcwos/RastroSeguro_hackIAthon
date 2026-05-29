@@ -96,7 +96,7 @@ export function StepUpload() {
           </div>
           <h1 className="display-heading text-3xl lg:text-4xl">Paso 1: Recepción de Información del Siniestro</h1>
           <p className="max-w-2xl text-base text-readable text-muted-foreground">
-            Cargue un archivo CSV con los registros del siniestro para iniciar la auditoría y priorización.
+            Cargue la base de siniestros para iniciar la auditoría y priorización.
           </p>
         </header>
 
@@ -126,7 +126,7 @@ export function StepUpload() {
               className="absolute inset-0 opacity-0 disabled:pointer-events-none"
               type="file"
               name="claims_csv"
-              aria-label="Subir archivo CSV de siniestros"
+              aria-label="Subir base de datos de siniestros"
               accept=".csv,text/csv"
               disabled={isUploading}
               onChange={(e) => handleFileUpload(e.target.files)}
@@ -142,7 +142,7 @@ export function StepUpload() {
                 </div>
                 <div className="relative text-center">
                   <p className="font-display text-lg font-semibold text-foreground">Cargando archivo…</p>
-                  <p className="mt-1 text-sm text-muted-foreground">Validando estructura y conectando con el servidor</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Validando estructura y conectando con el sistema</p>
                 </div>
                 <div className="relative h-1.5 w-48 overflow-hidden rounded-full bg-[var(--surface-container)]">
                   <div className="upload-progress h-full rounded-full bg-primary motion-reduce:animate-none" />
@@ -189,9 +189,9 @@ export function StepUpload() {
               ) : (
                 <>
                   <p className="text-sm leading-relaxed text-muted-foreground">
-                    Arrastre un archivo CSV o haga clic para explorarlo desde su equipo.
+                    Arrastre el archivo de datos o haga clic para explorarlo desde su equipo.
                   </p>
-                  <p className="label-mono mt-1 text-muted-foreground">Formato permitido: .csv (Máx 50MB)</p>
+                  <p className="label-mono mt-1 text-muted-foreground">Formato .csv (Máx 50MB)</p>
                 </>
               )}
             </div>
@@ -205,7 +205,7 @@ export function StepUpload() {
                 Validacion estructural y preparacion de datos para priorizacion institucional.
               </p>
               <ul className="dark-panel-muted space-y-2 text-xs leading-relaxed">
-                <li>1. Recibe el CSV.</li>
+                <li>1. Recibe el archivo de datos.</li>
                 <li>2. Valida columnas y registros.</li>
                 <li>3. Selecciona el caso que se va a revisar.</li>
               </ul>
@@ -238,7 +238,7 @@ export function StepUpload() {
                   <SelectContent>
                     {claims.map((claim) => (
                       <SelectItem key={claim.id_siniestro} value={claim.id_siniestro}>
-                        {claim.id_siniestro} · {claim.ramo || 'Sin ramo'} · Score {Math.round(Number(claim.score_final || 0))}
+                        {claim.id_siniestro} · {claim.ramo || 'Sin ramo'} · Puntaje {Math.round(Number(claim.score_final || 0))}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -283,7 +283,7 @@ export function StepUpload() {
               <p className="p-6 text-sm text-muted-foreground">
                 {isLoadingClaims
                   ? 'Procesando archivo…'
-                  : 'Suba un CSV para ver la previsualización de columnas.'}
+                  : 'Cargue el archivo para ver la previsualización de columnas.'}
               </p>
             )}
           </div>
@@ -293,7 +293,7 @@ export function StepUpload() {
           <div className="flex min-w-0 items-center gap-2">
             <span className={cn('h-2 w-2 rounded-full', isApiReady ? 'bg-[var(--tertiary-fixed-dim)]' : 'bg-destructive')} />
             <span className="label-mono truncate text-foreground">
-              {isApiReady ? 'Servidor de Validación Activo' : 'Esperando API de RastroSeguro'}
+              {isApiReady ? 'Sistema listo' : 'Conectando con RastroSeguro...'}
             </span>
             {(status === 'validating' || isLoadingClaims) && <Loader2 className="h-4 w-4 animate-spin" />}
           </div>

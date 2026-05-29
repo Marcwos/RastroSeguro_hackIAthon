@@ -5,15 +5,15 @@ import { useAppState } from '@/lib/app-context'
 import { cn } from '@/lib/utils'
 
 const analystSteps = [
-  { step: 1, label: 'Cargar datos', helper: 'Sube o selecciona el CSV.' },
-  { step: 2, label: 'Validar caso', helper: 'Revisa datos clave antes del score.' },
-  { step: 3, label: 'Explicar riesgo', helper: 'Entiende reglas, ML, NLP y grafo.' },
+  { step: 1, label: 'Cargar datos', helper: 'Sube o selecciona el archivo de siniestros.' },
+  { step: 2, label: 'Validar caso', helper: 'Revisa datos clave antes del análisis.' },
+  { step: 3, label: 'Explicar riesgo', helper: 'Entiende reglas, narrativa y red de relaciones.' },
   { step: 4, label: 'Ver relaciones', helper: 'Encuentra patrones conectados.' },
   { step: 5, label: 'Cerrar expediente', helper: 'Deja evidencia accionable.' },
 ]
 
 const executiveSteps = [
-  { step: 0, label: 'Panorama', helper: 'KPIs y concentraciones.' },
+  { step: 0, label: 'Panorama', helper: 'Indicadores y concentraciones.' },
   { step: 6, label: 'Impacto', helper: 'Prioridad e impacto de negocio.' },
   { step: 5, label: 'Caso foco', helper: 'Detalle trazable del siniestro.' },
 ]
@@ -33,7 +33,7 @@ function getCurrentAction({
     if (!flowReady) {
       return {
         title: 'Empieza cargando datos',
-        body: 'Sube un CSV o sincroniza el API. Cuando exista un caso activo se habilitan resumen, riesgo, grafo y expediente.',
+        body: 'Carga los datos del siniestro. Cuando exista un caso activo se habilitan resumen, riesgo, relaciones y expediente.',
         action: 'Ir a carga',
         target: 1,
       }
@@ -47,10 +47,10 @@ function getCurrentAction({
       }
     }
     if (currentStep === 2) {
-      return { title: 'Siguiente: explicar riesgo', body: 'Revisa que los datos del caso sean correctos y abre el score explicable.', action: 'Analizar riesgo', target: 3 }
+      return { title: 'Siguiente: explicar riesgo', body: 'Revisa que los datos del caso sean correctos y abre el análisis explicable.', action: 'Analizar riesgo', target: 3 }
     }
     if (currentStep === 3) {
-      return { title: 'Siguiente: relaciones', body: 'Complementa el score con conexiones de proveedor, narrativa y patrones similares.', action: 'Ver grafo', target: 4 }
+      return { title: 'Siguiente: relaciones', body: 'Complementa el análisis con conexiones de proveedor, narrativa y patrones similares.', action: 'Ver relaciones', target: 4 }
     }
     return { title: 'Cierra con evidencia', body: 'Usa el expediente para resumir hallazgos, alertas y recomendacion para revision humana.', action: 'Abrir expediente', target: 5 }
   }
@@ -69,7 +69,7 @@ function getCurrentAction({
   }
 
   return {
-    title: 'Convierte KPIs en decision',
+    title: 'Convierte indicadores en decision',
     body: `Hay un caso activo (${selectedClaimId}). Puedes entrar al expediente o consultar al agente para explicar el riesgo.`,
     action: 'Abrir caso',
     target: 5,

@@ -71,7 +71,7 @@ export function StepSummary() {
     selectedClaim.narrativa ||
     selectedClaim.descripcion ||
     selectedExplanation?.explicacion ||
-    'El API entregó un resumen técnico del siniestro. Continúe al análisis para revisar señales explicables y priorización.'
+    'RastroSeguro procesó el siniestro. Continúe al análisis para revisar señales explicables y priorización.'
 
   const documentosCompletos = yes(selectedClaim.documentos_completos)
   const documentosIncompletos = no(selectedClaim.documentos_completos)
@@ -82,8 +82,8 @@ export function StepSummary() {
       tipo: 'declaracion',
       estado: documentosIncompletos ? ('pendiente' as const) : ('completo' as const),
       detalle: documentosCompletos
-        ? 'Documentos mínimos marcados como completos por backend'
-        : 'El backend detecta expediente documental incompleto',
+        ? 'Documentos mínimos verificados por el sistema'
+        : 'El sistema detecta expediente documental incompleto',
     },
     {
       nombre: 'Control de inconsistencias',
@@ -94,10 +94,10 @@ export function StepSummary() {
         : 'Sin inconsistencias documentales registradas',
     },
     {
-      nombre: 'Trazabilidad de score IA',
+      nombre: 'Trazabilidad del análisis IA',
       tipo: 'telemetria',
       estado: 'completo' as const,
-      detalle: 'Registro auditable de componentes y explicación del score',
+      detalle: 'Registro auditable de los componentes y la explicación del puntaje',
     },
   ]
 
@@ -223,7 +223,7 @@ export function StepSummary() {
                   <span className="dark-panel-heading font-display text-3xl font-semibold">
                     {isLoadingExplanation ? 'Sincronizando' : 'Listo'}
                   </span>
-                  <span className="label-mono-md text-[var(--tertiary-fixed)]">API conectada</span>
+                  <span className="label-mono-md text-[var(--tertiary-fixed)]">Sistema conectado</span>
                 </div>
                 <div className="mt-2 h-2 bg-[var(--surface-high)]">
                   <div className="h-full bg-[var(--tertiary-fixed-dim)]" style={{ width: selectedExplanation ? '100%' : '75%' }} />

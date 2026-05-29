@@ -54,7 +54,7 @@ export function StepExecutiveDemo() {
             </div>
             <h1 className="dark-panel-heading display-heading mt-4 text-4xl lg:text-5xl">Casos prioritarios e impacto de negocio</h1>
             <p className="dark-panel-muted mt-3 max-w-2xl text-base">
-              Vista para gerencia, riesgos y auditoria: exposicion priorizada, casos relevantes y lectura operativa conectada al backend.
+              Vista para gerencia, riesgos y auditoria: exposicion priorizada, casos relevantes y lectura operativa del portafolio.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <button onClick={() => setShowChat(true)} className="dark-panel-cta inline-flex items-center gap-2 px-5 py-3 label-mono-md font-bold uppercase">
@@ -63,7 +63,7 @@ export function StepExecutiveDemo() {
               </button>
               <button onClick={() => setCurrentStep(0)} className="inline-flex items-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-white">
                 <ArrowLeft className="h-4 w-4" />
-                Command Center
+                Centro de Control
               </button>
             </div>
           </div>
@@ -84,7 +84,7 @@ export function StepExecutiveDemo() {
         {loading && (
           <div className="institutional-card flex items-center gap-2 p-5 text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Preparando vista desde FastAPI...
+            Preparando vista...
           </div>
         )}
         {error && <div className="border border-destructive bg-[var(--error-container)] p-4 text-[var(--on-error-container)]">{error}</div>}
@@ -143,7 +143,7 @@ export function StepExecutiveDemo() {
             <ol className="space-y-3 p-5 text-sm">
               {[
                 'Abrir un rojo evidente y mostrar reglas/documentos.',
-                'Abrir un rojo no evidente y explicar grafo/NLP.',
+                'Abrir un rojo no evidente y explicar la red de relaciones y narrativa.',
                 'Revisar un amarillo etico: alerta, no acusacion.',
                 'Preguntar al agente por proveedores con mas alertas.',
                 'Simular un siniestro nuevo ocurrido cerca del inicio de poliza.',

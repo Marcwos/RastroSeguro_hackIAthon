@@ -143,7 +143,7 @@ export function FraudRingsView() {
                   <p className="text-sm text-muted-foreground">{selectedRing.explicacion}</p>
                 </div>
                 <div className="flex flex-wrap gap-2 text-xs">
-                  <span className="rounded border border-border px-2 py-1">Score red: {selectedRing.ring_risk_score}</span>
+                  <span className="rounded border border-border px-2 py-1">Puntaje de la red: {selectedRing.ring_risk_score}</span>
                   <span className="rounded border border-border px-2 py-1">Promedio: {selectedRing.score_promedio}</span>
                   <span className="rounded border border-border px-2 py-1">{selectedRing.pct_rojos}% rojos</span>
                 </div>

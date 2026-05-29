@@ -134,7 +134,7 @@ function DataTable({ rows }: { rows: Record<string, unknown>[] }) {
       </table>
       {rows.length > 12 && (
         <p className="border-t border-border px-3 py-1.5 text-xs text-muted-foreground">
-          +{rows.length - 12} filas adicionales disponibles vía API.
+          +{rows.length - 12} filas adicionales disponibles en el detalle completo.
         </p>
       )}
     </div>

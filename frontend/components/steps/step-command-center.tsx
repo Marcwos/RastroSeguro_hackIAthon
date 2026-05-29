@@ -60,7 +60,7 @@ function ReportDialog({ report, loading, onLoad }: { report: ExecutiveReport | n
       <DialogContent className="max-h-[86vh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Reporte ejecutivo RastroSeguro</DialogTitle>
-          <DialogDescription>Resumen generado desde el backend `/api/report` para auditoria y seguimiento ejecutivo.</DialogDescription>
+          <DialogDescription>Resumen ejecutivo generado por RastroSeguro para auditoria y seguimiento.</DialogDescription>
         </DialogHeader>
         {loading ? (
           <div className="flex items-center gap-2 p-8 text-muted-foreground" aria-live="polite"><Loader2 className="h-4 w-4 animate-spin" /> Generando reporte...</div>
@@ -99,7 +99,7 @@ function ReportDialog({ report, loading, onLoad }: { report: ExecutiveReport | n
             </div>
           </div>
         ) : (
-          <div className="p-6 text-sm text-muted-foreground">No se pudo cargar el reporte. Verifica que el API esté activo.</div>
+          <div className="p-6 text-sm text-muted-foreground">No se pudo cargar el reporte. Verifica que el sistema esté disponible.</div>
         )}
       </DialogContent>
     </Dialog>
@@ -170,7 +170,7 @@ function SimulatorDialog() {
       <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Simulador de nuevo siniestro</DialogTitle>
-          <DialogDescription>Prueba de fuego conectada a `POST /api/simulator/claim`; evalúa reglas, modelo, NLP y grafo sin persistir datos.</DialogDescription>
+          <DialogDescription>Evalua un caso de prueba con el motor de riesgo: reglas, narrativa y red de relaciones. No guarda datos reales.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-5 lg:grid-cols-[1fr_.9fr]">
           <div className="space-y-3">
@@ -201,7 +201,7 @@ function SimulatorDialog() {
               <div className="space-y-4 p-5">
                 <div className="flex items-end justify-between">
                   <div>
-                    <p className="label-mono text-muted-foreground">SCORE FINAL</p>
+                    <p className="label-mono text-muted-foreground">PUNTAJE FINAL</p>
                     <p className="font-display text-5xl font-semibold">{Math.round(num(result.score_final))}</p>
                   </div>
                   <RiskBadge level={normalizeRisk(result.nivel_riesgo)} className="px-3 py-2" />
@@ -215,7 +215,7 @@ function SimulatorDialog() {
                 </div>
               </div>
             ) : (
-              <div className="flex min-h-[320px] items-center justify-center p-8 text-center text-sm text-muted-foreground">Complete el formulario y ejecute una simulación para ver score, alertas y recomendación.</div>
+              <div className="flex min-h-[320px] items-center justify-center p-8 text-center text-sm text-muted-foreground">Complete el formulario y ejecute una simulación para ver el puntaje, las alertas y la recomendación.</div>
             )}
           </div>
         </div>
@@ -272,7 +272,7 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
         ))}
         <circle cx={center.x} cy={center.y} r="44" fill="var(--primary-fixed)" opacity=".14" />
         <circle cx={center.x} cy={center.y} r="30" fill="var(--primary-fixed)" opacity=".22" />
-        <text x={center.x} y={center.y - 4} textAnchor="middle" className="fill-white text-[11px] font-bold">DATASET</text>
+        <text x={center.x} y={center.y - 4} textAnchor="middle" className="fill-white text-[11px] font-bold">CARTERA</text>
         <text x={center.x} y={center.y + 12} textAnchor="middle" className="fill-[var(--primary-fixed-dim)] text-[9px]">RIESGO</text>
         {satellites.map((node) => {
           const isActive = hoveredClaim?.id_siniestro === node.claim.id_siniestro
@@ -417,10 +417,10 @@ export function StepCommandCenter() {
   const isAnalyst = userRole === 'analyst'
 
   const kpis = [
-    { label: 'Siniestros evaluados', value: analytics.total.toString(), note: 'Dataset priorizado', Icon: FileSearch },
+    { label: 'Siniestros evaluados', value: analytics.total.toString(), note: 'Cartera priorizada', Icon: FileSearch },
     { label: 'Casos alto/crítico', value: analytics.criticalCount.toString(), note: 'Revisión prioritaria', Icon: AlertTriangle },
     { label: 'Monto expuesto', value: formatCurrency(analytics.totalAmount), note: 'Total reclamado', Icon: CircleDollarSign },
-    { label: 'Score promedio', value: `${analytics.averageScore}/100`, note: 'Riesgo global', Icon: Target },
+    { label: 'Puntaje promedio', value: `${analytics.averageScore}/100`, note: 'Riesgo global', Icon: Target },
     { label: 'Ahorro potencial', value: formatCurrency(analytics.savingsEstimate), note: 'Estimación ilustrativa', Icon: CircleDollarSign },
   ]
 
@@ -433,18 +433,18 @@ export function StepCommandCenter() {
               <GitBranch className="h-5 w-5" />
               <span className="label-mono-md uppercase">RastroSeguro Intelligence Layer</span>
             </div>
-            <h1 className="dark-panel-heading display-heading mt-4 text-4xl lg:text-5xl">Command Center Antifraude</h1>
+            <h1 className="dark-panel-heading display-heading mt-4 text-4xl lg:text-5xl">Centro de Control Antifraude</h1>
             <p className="dark-panel-muted mt-3 max-w-2xl text-base">
-              {isAnalyst ? 'Bandeja operativa de riesgo, carga de CSV y casos prioritarios para revision con IA.' : 'Panorama ejecutivo de riesgo, concentracion de alertas e impacto para decision gerencial.'}
+              {isAnalyst ? 'Bandeja operativa de riesgo, carga de datos y casos prioritarios para revision con IA.' : 'Panorama ejecutivo de riesgo, concentracion de alertas e impacto para decision gerencial.'}
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               {isAnalyst ? (
                 <Button onClick={() => setCurrentStep(1)} className="dark-panel-cta h-auto px-5 py-3 label-mono-md font-bold uppercase">
-                  Cargar CSV / iniciar análisis <ArrowRight className="h-4 w-4" />
+                  Cargar datos / iniciar análisis <ArrowRight className="h-4 w-4" />
                 </Button>
               ) : (
                 <span className="inline-flex items-center justify-center gap-2 rounded-md border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-[var(--primary-fixed-dim)]">
-                  CSV gestionado por analista
+                  Datos gestionados por analista
                 </span>
               )}
               <Button variant="outline-inverse" onClick={() => { void loadClaims(); void loadCommandCenterData() }} className="h-auto px-5 py-3 label-mono-md font-bold uppercase">
@@ -486,12 +486,12 @@ export function StepCommandCenter() {
             <UploadCloud className="h-12 w-12 text-muted-foreground" />
             <div>
               <h2 className="font-display text-2xl font-semibold">Sin datos para visualizar</h2>
-              <p className="mt-2 text-sm text-muted-foreground">Conecte el API o cargue un CSV para activar el Command Center.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Cargue los datos para activar el Centro de Control.</p>
             </div>
             {isAnalyst ? (
               <Button onClick={() => setCurrentStep(1)} className="h-auto px-5 py-3 label-mono-md font-bold uppercase">Ir a carga de datos</Button>
             ) : (
-              <p className="max-w-md text-sm text-muted-foreground">Solicita al analista cargar el CSV para que esta vista muestre KPIs, impacto y casos críticos.</p>
+              <p className="max-w-md text-sm text-muted-foreground">Solicita al analista cargar los datos para que esta vista muestre los indicadores, impacto y casos críticos.</p>
             )}
           </div>
         ) : (
@@ -544,7 +544,7 @@ export function StepCommandCenter() {
               <div className="institutional-card col-span-12 overflow-hidden lg:col-span-4">
                 <div className="section-header flex items-center gap-2"><Building2 className="h-4 w-4" />Riesgo por proveedor</div>
                 <div className="p-4">
-                  <ChartContainer config={{ avgRisk: { label: 'Score promedio', color: 'var(--chart-4)' } }} className="h-[240px] w-full">
+                  <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-4)' } }} className="h-[240px] w-full">
                     <BarChart data={analytics.providerRows} layout="vertical" margin={{ left: 8, right: 8 }}>
                       <CartesianGrid horizontal={false} />
                       <XAxis type="number" domain={[0, 100]} hide />
@@ -558,7 +558,7 @@ export function StepCommandCenter() {
               <div className="institutional-card col-span-12 overflow-hidden lg:col-span-4">
                 <div className="section-header flex items-center gap-2"><UsersRound className="h-4 w-4" />Riesgo por ramo</div>
                 <div className="p-4">
-                  <ChartContainer config={{ avgRisk: { label: 'Score promedio', color: 'var(--chart-3)' } }} className="h-[240px] w-full">
+                  <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-3)' } }} className="h-[240px] w-full">
                     <BarChart data={analytics.branchRows} margin={{ left: 4, right: 4 }}>
                       <CartesianGrid vertical={false} />
                       <XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={10} />
@@ -572,7 +572,7 @@ export function StepCommandCenter() {
               <div className="institutional-card col-span-12 overflow-hidden lg:col-span-4">
                 <div className="section-header flex items-center gap-2"><MapPin className="h-4 w-4" />Riesgo por ciudad</div>
                 <div className="p-4">
-                  <ChartContainer config={{ avgRisk: { label: 'Score promedio', color: 'var(--chart-1)' } }} className="h-[240px] w-full">
+                  <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-1)' } }} className="h-[240px] w-full">
                     <BarChart data={analytics.cityRows} margin={{ left: 4, right: 4 }}>
                       <CartesianGrid vertical={false} />
                       <XAxis dataKey="name" tickLine={false} axisLine={false} fontSize={10} />
@@ -586,7 +586,7 @@ export function StepCommandCenter() {
             </div>
 
             <div className="institutional-card overflow-hidden">
-              <div className="section-header flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><span>Top 10 casos prioritarios (Historial)</span><span>{isLoadingClaims ? 'Sincronizando...' : 'Ordenado por score final'}</span></div>
+              <div className="section-header flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><span>10 casos prioritarios (Historial)</span><span>{isLoadingClaims ? 'Sincronizando...' : 'Ordenado por puntaje de riesgo'}</span></div>
               <div className="border-b border-border bg-[var(--surface-low)] p-3">
                 <div className="flex flex-col gap-2 md:flex-row md:items-center">
                   <Input
@@ -604,7 +604,7 @@ export function StepCommandCenter() {
                 <table className="zebra w-full text-left">
                   <thead>
                     <tr className="border-b border-border bg-[var(--surface-low)]">
-                      {['ID', 'Ramo', 'Ciudad', 'Proveedor', 'Monto', 'Score', 'Nivel', 'Alertas', 'Acción'].map((header) => (
+                      {['ID', 'Ramo', 'Ciudad', 'Proveedor', 'Monto', 'Puntaje', 'Nivel', 'Alertas', 'Acción'].map((header) => (
                         <th key={header} className="label-mono px-4 py-2 text-muted-foreground">{header}</th>
                       ))}
                     </tr>
