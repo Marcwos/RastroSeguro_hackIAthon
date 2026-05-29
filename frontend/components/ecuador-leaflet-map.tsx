@@ -2,8 +2,8 @@
 
 import L from 'leaflet'
 import { Circle, MapContainer, Marker, TileLayer, Tooltip, useMap } from 'react-leaflet'
-import { useTheme } from 'next-themes'
 import { useEffect, useMemo, useState } from 'react'
+import { useTheme } from '@/components/theme-provider'
 import { cn } from '@/lib/utils'
 
 export type MapLocation = {

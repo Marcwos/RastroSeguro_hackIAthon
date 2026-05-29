@@ -397,9 +397,9 @@
   position: absolute;
   border-radius: 9999px;
   filter: blur(40px);
-  opacity: 0.5;
+  opacity: 0.34;
   pointer-events: none;
-  animation: landingFloat 10s ease-in-out infinite;
+  will-change: auto;
 }
 
 .landing-orb-primary {
@@ -546,7 +546,6 @@
 .landing-node,
 .landing-metric-card {
   transition:
-    transform 220ms ease,
     box-shadow 220ms ease,
     border-color 220ms ease,
     background-color 220ms ease;
@@ -555,20 +554,12 @@
 .landing-panel:hover,
 .landing-workflow-card:hover,
 .landing-signal-card:hover,
-.landing-node:hover,
 .landing-metric-card:hover {
-  transform: translateY(-3px);
-}
-
-.landing-panel:hover,
-.landing-workflow-card:hover,
-.landing-signal-card:hover,
-.landing-metric-card:hover {
-  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.09);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
 }
 
 .landing-node:hover {
-  box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
 }
 
 @keyframes landingReveal {
@@ -583,16 +574,7 @@
 }
 
 .landing-reveal {
-  animation: landingReveal 700ms cubic-bezier(.22, 1, .36, 1) both;
-}
-
-@keyframes landingFloat {
-  0%, 100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(0, -14px, 0) scale(1.04);
-  }
+  animation: landingReveal 520ms cubic-bezier(.22, 1, .36, 1) both;
 }
 
 @keyframes landingPulseBorder {
@@ -610,17 +592,7 @@
 }
 
 .landing-demo-wrap {
-  perspective: 1400px;
-}
-
-.landing-demo-wrap > * {
-  transform: rotateY(-7deg) rotateX(3deg);
-  transform-style: preserve-3d;
-  transition: transform 360ms var(--ease-out-quart), box-shadow 360ms var(--ease-out-quart);
-}
-
-.landing-demo-wrap:hover > * {
-  transform: rotateY(-3deg) rotateX(1deg) translateY(-6px);
+  perspective: none;
 }
 
 .landing-demo-spin {
@@ -751,12 +723,9 @@
     rgba(7, 15, 31, 0.2);
   box-shadow: 0 18px 40px rgba(2, 6, 23, 0.2);
   overflow: hidden;
-  transform-style: preserve-3d;
   transition:
-    transform 300ms var(--ease-out-quart),
     border-color 300ms var(--ease-out-quart),
     box-shadow 300ms var(--ease-out-quart);
-  animation: landingReveal 720ms cubic-bezier(.22, 1, .36, 1) both;
 }
 
 .landing-problem-index {
@@ -771,7 +740,7 @@
   inset: 0;
   background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.12), transparent 48%);
   transform: translateX(-140%);
-  transition: transform 600ms var(--ease-out-quart);
+  transition: transform 320ms var(--ease-out-quart);
   pointer-events: none;
 }
 
@@ -779,14 +748,6 @@
 .landing-solution-frame:hover::before,
 .landing-closing-panel:hover::before {
   transform: translateX(140%);
-}
-
-.landing-problem-card:nth-child(2) {
-  animation-delay: 120ms;
-}
-
-.landing-problem-card:nth-child(3) {
-  animation-delay: 220ms;
 }
 
 .landing-problem-card h3 {
@@ -817,8 +778,6 @@
     color-mix(in oklch, var(--editorial-ink) 90%, white 10%);
   box-shadow: 0 22px 48px rgba(2, 6, 23, 0.24);
   overflow: hidden;
-  transform-style: preserve-3d;
-  animation: landingPulseBorder 6s ease-in-out infinite;
 }
 
 .landing-solution-frame ol {
@@ -935,15 +894,9 @@
   background: rgba(255, 255, 255, 0.88);
 }
 
-.landing-tilt-card:hover {
-  transform: translateY(-8px) rotateX(4deg) rotateY(-4deg);
-  border-color: color-mix(in oklch, white 24%, var(--border));
-}
-
 .landing-proof-card:hover {
-  transform: translateX(6px);
   border-color: color-mix(in oklch, var(--primary) 25%, var(--border));
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.07);
 }
 
 /* ---- Risk badges ---- */
@@ -1058,18 +1011,12 @@
     animation: none;
   }
   .landing-orb,
-  .landing-solution-frame,
-  .landing-problem-card {
-    animation: none;
-  }
   .landing-panel:hover,
   .landing-workflow-card:hover,
   .landing-signal-card:hover,
   .landing-node:hover,
   .landing-metric-card:hover,
-  .landing-tilt-card:hover,
-  .landing-proof-card:hover,
-  .landing-demo-wrap:hover > * {
+  .landing-proof-card:hover {
     transform: none;
   }
   .upload-progress {
@@ -1113,12 +1060,6 @@
     border-radius: 1.25rem;
   }
 
-  .landing-demo-wrap > *,
-  .landing-tilt-card:hover,
-  .landing-proof-card:hover {
-    transform: none;
-  }
-
   .landing-problem-card {
     min-height: auto;
     padding: 1.35rem;
@@ -1158,10 +1099,6 @@
 }
 
 @media (min-width: 768px) and (max-width: 1100px) {
-  .landing-demo-wrap > * {
-    transform: rotateY(-4deg) rotateX(2deg);
-  }
-
   .landing-problem-card {
     min-height: 15rem;
   }
