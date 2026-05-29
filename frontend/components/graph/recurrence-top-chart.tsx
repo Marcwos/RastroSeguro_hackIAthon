@@ -1,50 +1,65 @@
 'use client'
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
-import { formatRecurrenceLabel, UI_COPY } from '@/lib/human-labels'
-import { RecurringEntity } from './graph-types'
+import { ClaimSummary } from '@/lib/api'
+import {
+  buildGlobalRecurrenceRanking,
+  formatGlobalRecurrenceLabel,
+  GlobalRecurrenceRow,
+} from '@/lib/global-recurrence'
+import { UI_COPY } from '@/lib/human-labels'
 
 const gridStroke = 'color-mix(in oklch, var(--chart-grid) 45%, transparent)'
 const axisStyle = { fill: 'var(--muted-foreground)', fontSize: 11 }
 
-function shortLabel(text: string, max = 22): string {
+function shortLabel(text: string, max = 28): string {
   if (text.length <= max) return text
   return `${text.slice(0, max - 1)}…`
 }
 
-export function RecurrenceTopChart({ entities }: { entities: RecurringEntity[] }) {
-  const rows = [...entities]
-    .sort((a, b) => b.total_siniestros - a.total_siniestros)
-    .slice(0, 8)
-    .map((e) => ({
-      name: shortLabel(formatRecurrenceLabel(e)),
-      fullName: formatRecurrenceLabel(e),
-      total: e.total_siniestros,
-    }))
+export function RecurrenceTopChart({
+  claims,
+  currentClaimId,
+  limit = 8,
+}: {
+  claims: ClaimSummary[]
+  currentClaimId?: string | null
+  limit?: number
+}) {
+  const rows: GlobalRecurrenceRow[] = buildGlobalRecurrenceRanking(claims, currentClaimId, Math.max(limit, 50)).slice(0, limit)
 
-  if (!rows.length) {
+  const chartRows = rows.map((row) => ({
+    ...row,
+    name: shortLabel(formatGlobalRecurrenceLabel(row, true)),
+    fullName: formatGlobalRecurrenceLabel(row),
+    labelCount: `${row.total} ${row.total === 1 ? 'vez' : 'veces'}`,
+  }))
+
+  if (!chartRows.length) {
     return (
       <p className="text-sm text-muted-foreground">
-        No hay elementos que se repitan en otros siniestros para mostrar.
+        No hay elementos que se repitan en la cartera para mostrar.
       </p>
     )
   }
 
   return (
     <div className="space-y-2">
-      <p className="text-sm text-muted-foreground">{UI_COPY.topRecurrenceSubtitle}</p>
+      <p className="text-sm text-muted-foreground">
+        Ranking global de la cartera: posición, tipo de elemento y cuántas veces aparece en otros siniestros.
+      </p>
       <ChartContainer
         config={{ total: { label: UI_COPY.recurrenceCount, color: 'var(--chart-1)' } }}
-        className="h-[280px] w-full"
+        className="h-[300px] w-full"
       >
-        <BarChart data={rows} layout="vertical" margin={{ left: 8, right: 8 }}>
+        <BarChart data={chartRows} layout="vertical" margin={{ left: 8, right: 12 }}>
           <CartesianGrid horizontal={false} stroke={gridStroke} />
           <XAxis type="number" allowDecimals={false} tickLine={false} axisLine={false} tick={axisStyle} />
           <YAxis
             type="category"
             dataKey="name"
-            width={120}
+            width={148}
             tickLine={false}
             axisLine={false}
             tick={axisStyle}
@@ -52,6 +67,15 @@ export function RecurrenceTopChart({ entities }: { entities: RecurringEntity[] }
           <ChartTooltip
             content={
               <ChartTooltipContent
+                formatter={(value, _name, item) => {
+                  const row = item.payload as GlobalRecurrenceRow & { labelCount?: string }
+                  return (
+                    <span className="font-semibold">
+                      {row.labelCount} en la cartera
+                      {row.inCurrentCase ? ' · presente en este caso' : ''}
+                    </span>
+                  )
+                }}
                 labelFormatter={(_, payload) => {
                   const item = payload?.[0]?.payload as { fullName?: string } | undefined
                   return item?.fullName || ''
@@ -59,9 +83,19 @@ export function RecurrenceTopChart({ entities }: { entities: RecurringEntity[] }
               />
             }
           />
-          <Bar dataKey="total" radius={4} fill="var(--chart-1)" />
+          <Bar dataKey="total" radius={4}>
+            {chartRows.map((row) => (
+              <Cell
+                key={row.key}
+                fill={row.inCurrentCase ? 'var(--chart-4)' : 'var(--chart-1)'}
+              />
+            ))}
+          </Bar>
         </BarChart>
       </ChartContainer>
+      <p className="text-xs text-muted-foreground">
+        Barras resaltadas: elementos del caso activo dentro del ranking global.
+      </p>
     </div>
   )
 }

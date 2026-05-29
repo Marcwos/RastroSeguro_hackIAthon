@@ -53,7 +53,7 @@ export const UI_COPY = {
   scoreBreakdown: 'Desglose del puntaje',
   mainSignals: 'Señales que más destacan',
   topRecurrence: 'Principales recurrencias',
-  topRecurrenceSubtitle: 'Elementos que más se repiten en la cartera',
+  topRecurrenceSubtitle: 'Ranking global: posición en la cartera y veces que aparece',
   recurrenceCount: 'Veces en otros siniestros',
   vsAverage: 'respecto al promedio',
   comparePortfolio: 'Comparación con la cartera',

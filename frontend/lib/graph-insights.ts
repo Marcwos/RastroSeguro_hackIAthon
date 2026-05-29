@@ -1,5 +1,6 @@
 import { ClaimSummary } from '@/lib/api'
 import { ClaimGraphPayload } from '@/components/graph/graph-types'
+import { buildGlobalRecurrenceInsight, buildGlobalRecurrenceRanking } from '@/lib/global-recurrence'
 import { humanizeComponentKey, humanizeEntityType } from '@/lib/human-labels'
 import { COMPONENT_LABELS, ScoreComponentKey } from '@/lib/score-weights'
 
@@ -67,13 +68,12 @@ export function buildNetworkInsight(payload: ClaimGraphPayload): string {
   return `El caso tiene ${connections} conexión(es) con otros elementos.${entityPart}${alertPart}`
 }
 
-export function buildRecurrenceInsight(payload: ClaimGraphPayload): string {
-  const entities = payload.recurring_entities
-  if (!entities.length) {
-    return 'No hay elementos que se repitan de forma relevante en la cartera para este caso.'
+export function buildRecurrenceInsight(claims: ClaimSummary[], currentClaimId?: string | null): string {
+  const globalRows = buildGlobalRecurrenceRanking(claims, currentClaimId, 50)
+  if (globalRows.length) {
+    return buildGlobalRecurrenceInsight(globalRows, currentClaimId)
   }
-  const top = [...entities].sort((a, b) => b.total_siniestros - a.total_siniestros)[0]
-  return `El principal elemento repetido es ${humanizeEntityType(top.type)} «${top.value}», presente en ${top.total_siniestros} siniestro(s). Esto ayuda a priorizar la revisión.`
+  return 'No hay elementos que se repitan de forma relevante en la cartera.'
 }
 
 /** @deprecated use buildRecurrenceInsight */
@@ -88,7 +88,7 @@ export function buildChartInsights(
   claims: ClaimSummary[],
   payload: ClaimGraphPayload,
 ) {
-  const recurrence = buildRecurrenceInsight(payload)
+  const recurrence = buildRecurrenceInsight(claims, selectedClaim?.id_siniestro)
   return {
     graph: buildNetworkInsight(payload),
     rings: buildRingsInsight(),

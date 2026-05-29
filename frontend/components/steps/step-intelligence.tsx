@@ -7,7 +7,7 @@ import { useAppState } from '@/lib/app-context'
 import { safeGraphPayload } from '@/components/graph/graph-utils'
 import { buildClaimGraph } from '@/components/graph/graph-utils'
 import { ClaimNetworkReactFlow } from '@/components/graph/claim-network-reactflow'
-import { RecurringEntitiesList } from '@/components/graph/recurring-entities-list'
+import { GlobalRecurrenceList, RecurringEntitiesList } from '@/components/graph/recurring-entities-list'
 import { RecurrenceTopChart } from '@/components/graph/recurrence-top-chart'
 import { RiskSpiderChart } from '@/components/graph/risk-spider-chart'
 import { FraudRingsView } from '@/components/graph/fraud-rings-view'
@@ -77,11 +77,17 @@ export function StepIntelligence() {
           </TabsContent>
           <TabsContent value="recurrence" className="mt-3 space-y-4">
             <div className="institutional-card space-y-4 p-4">
-              <RecurrenceTopChart entities={payload.recurring_entities} />
+              <RecurrenceTopChart claims={claims} currentClaimId={selectedClaimId} />
               <div>
-                <h3 className="label-mono-md mb-2 font-bold uppercase text-muted-foreground">{UI_COPY.repeatingElements}</h3>
-                <RecurringEntitiesList entities={payload.recurring_entities} limit={12} />
+                <h3 className="label-mono-md mb-2 font-bold uppercase text-muted-foreground">Ranking global de la cartera</h3>
+                <GlobalRecurrenceList claims={claims} currentClaimId={selectedClaimId} limit={12} />
               </div>
+              {payload.recurring_entities.length > 0 && (
+                <div>
+                  <h3 className="label-mono-md mb-2 font-bold uppercase text-muted-foreground">{UI_COPY.repeatingElements} (este caso)</h3>
+                  <RecurringEntitiesList entities={payload.recurring_entities} limit={8} />
+                </div>
+              )}
             </div>
             <ChartInsight text={insights.recurrence} />
           </TabsContent>
