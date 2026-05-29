@@ -7,58 +7,43 @@ import { SolutionPillars } from '@/components/landing/solution-pillars'
 export const metadata: Metadata = {
   title: 'RastroSeguro | Inteligencia antifraude',
   description:
-    'RastroSeguro prioriza siniestros con señales de posible fraude y explica por qué, para que el equipo humano revise primero donde más importa.',
+    'RastroSeguro prioriza siniestros con senales de posible fraude y explica por que, para que el equipo humano revise primero donde mas importa.',
 }
-
-const magnitudeFacts = [
-  {
-    label: 'Toda la región',
-    detail:
-      'Ecuador y América Latina comparten el mismo patrón: el fraude no distingue aseguradora ni tamaño. Prácticamente todas conviven con él.',
-  },
-  {
-    label: 'Dónde se concentra',
-    detail:
-      'En las líneas de alto volumen (salud, vehículos y vida) un caso fraudulento se pierde con facilidad entre miles de reclamos legítimos.',
-  },
-  {
-    label: 'Cómo se revisa hoy',
-    detail:
-      'La mayoría de los equipos aún prioriza por muestreo e intuición, no por nivel de riesgo. Lo difícil no es saber que hay fraude, es saber dónde mirar.',
-  },
-]
 
 const problemQuestions = [
   {
-    question: '¿Cuáles reclamos debo revisar hoy?',
-    consequence: 'Sin una guía, el tiempo se reparte igual entre casos de bajo y alto riesgo.',
+    question: '¿Como separo prioridad de ruido?',
+    consequence: 'Sin una forma clara de filtrar, los casos urgentes se mezclan con los rutinarios.',
   },
   {
-    question: '¿Por qué este caso me genera dudas?',
-    consequence: 'Las señales están dispersas. Reunirlas manualmente toma horas que no hay.',
+    question: '¿Por que este caso me genera dudas?',
+    consequence: 'Las señales estan dispersas. Reunirlas manualmente toma horas que no hay.',
   },
   {
-    question: '¿Cómo sustento mi decisión?',
-    consequence: 'La intuición sola no es evidencia. Sin razones claras, la decisión queda expuesta.',
+    question: '¿Como sustento mi decision?',
+    consequence: 'La intuicion sola no es evidencia. Sin razones claras, la decision queda expuesta.',
   },
 ]
 
 const solutionPillars = [
   {
     title: 'Ordena los casos por nivel de riesgo',
-    detail:
-      'RastroSeguro analiza cada expediente y lo ubica en una bandeja priorizada: los casos con más señales de alerta aparecen primero.',
+    detail: 'Los casos con mas senales aparecen primero.',
   },
   {
-    title: 'Explica por qué un caso genera alerta',
-    detail:
-      'Cada prioridad llega con sus razones: proveedor recurrente, narrativa similar a otros casos, monto fuera de lo esperado, documentos inconsistentes.',
+    title: 'Explica por que un caso genera alerta',
+    detail: 'Cada prioridad llega con razones visibles y auditables.',
   },
   {
-    title: 'La decisión siempre la toma una persona',
-    detail:
-      'RastroSeguro no acusa fraude ni rechaza reclamos. Genera alertas con evidencia para que el analista decida con más contexto y menos ruido.',
+    title: 'La decision siempre la toma una persona',
+    detail: 'La IA orienta; el criterio humano decide.',
   },
+]
+
+const closingBenefits = [
+  'Los casos de mayor riesgo aparecen primero, con sus razones.',
+  'Cada alerta tiene evidencia revisable, no es una caja negra.',
+  'El analista mantiene el control y toma la decision final.',
 ]
 
 export default function LandingPage() {
@@ -71,7 +56,6 @@ export default function LandingPage() {
         Ir al Contenido
       </a>
 
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-40 border-b border-border bg-background/88 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 lg:px-8">
           <Link href="/" className="min-w-0">
@@ -96,147 +80,85 @@ export default function LandingPage() {
       </header>
 
       <div id="contenido">
-
-        {/* ── Hero ────────────────────────────────────────────────────────────── */}
-        <section className="dark-panel landing-hero-shell relative overflow-hidden border-b border-border">
+        <section className="dark-panel landing-hero-shell landing-section-shell relative overflow-hidden border-b border-border">
           <div aria-hidden="true" className="landing-mesh absolute inset-0" />
           <div aria-hidden="true" className="landing-noise absolute inset-0 opacity-[0.14]" />
+          <div aria-hidden="true" className="landing-orb landing-orb-primary" />
+          <div aria-hidden="true" className="landing-orb landing-orb-secondary" />
 
-          <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-12 lg:grid-cols-[1.1fr_.9fr] lg:px-8 lg:py-16">
-            <div className="landing-reveal space-y-8">
-              <div className="flex flex-wrap gap-3">
-                <span className="landing-tag">~10% de siniestros con fraude</span>
-                <span className="landing-tag">Razones visibles</span>
-                <span className="landing-tag">Revisión humana</span>
-              </div>
-
+          <div className="relative mx-auto grid min-h-[calc(92vh-4rem)] max-w-7xl items-center gap-10 px-4 py-12 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:py-16">
+            <div className="landing-reveal landing-copy-stack space-y-8">
               <div className="max-w-3xl">
-                <p className="dark-panel-kicker label-mono-md uppercase">
-                  Para equipos de análisis de siniestros
-                </p>
-                <h1 className="landing-hero-title mt-4 select-none text-balance text-4xl lg:text-5xl xl:text-6xl">
-                  ¿Cuáles reclamos hay que revisar primero? RastroSeguro lo dice y explica por qué.
+                <h1 className="landing-hero-title mt-4 select-none text-balance text-4xl lg:text-6xl xl:text-[4.75rem]">
+                  ¿Cuales reclamos hay que revisar primero? RastroSeguro lo dice y explica por que.
                 </h1>
-                <p className="dark-panel-muted mt-5 max-w-2xl text-lg leading-8">
-                  Carga tu cartera de siniestros y en segundos tienes una bandeja ordenada por nivel de riesgo, con las razones detrás de cada alerta y una recomendación de revisión clara para el analista.
+                <p className="dark-panel-muted mt-5 max-w-xl text-lg leading-8 lg:text-xl">
+                  Carga tu cartera de siniestros y en segundos tienes una bandeja ordenada por nivel de riesgo, con las razones detras de cada alerta y una recomendacion de revision clara para el analista.
                 </p>
-              </div>
-
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/platform"
-                  className="dark-panel-cta focus-ring inline-flex items-center justify-center gap-2 px-5 py-3 label-mono-md font-bold uppercase transition-colors"
-                >
-                  Ver la plataforma <ArrowRight aria-hidden="true" className="h-4 w-4" />
-                </Link>
-                <a
-                  href="#problema"
-                  className="focus-ring inline-flex items-center justify-center gap-2 border border-[var(--primary-fixed-dim)] px-5 py-3 label-mono-md font-bold uppercase text-white transition-colors hover:bg-white/10"
-                >
-                  ¿Cuál es el problema?
-                </a>
               </div>
             </div>
 
-            {/* Demo animado */}
-            <div className="landing-reveal lg:pl-4" style={{ animationDelay: '140ms' }}>
+            <div className="landing-reveal landing-demo-wrap lg:pl-4" style={{ animationDelay: '140ms' }}>
               <LiveDemo />
             </div>
           </div>
         </section>
 
-        {/* ── Magnitud ─────────────────────────────────────────────────────── */}
-        <section className="border-b border-border bg-[var(--surface-low)]">
-          <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-20">
-            <p className="label-mono-md uppercase text-muted-foreground">La magnitud del problema</p>
-
-            <div className="mt-8 grid items-start gap-10 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
-              <div>
-                <p className="landing-stat-hero text-primary">
-                  ~10<span className="align-top text-[0.45em] font-semibold">%</span>
-                </p>
-                <p className="mt-5 max-w-xl text-balance font-display text-2xl font-semibold leading-snug lg:text-3xl">
-                  de cada dólar pagado en siniestros se estima ligado a fraude.
-                </p>
-                <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground">
-                  Es la cifra que el sector asegurador maneja a nivel global y en América Latina. En una cartera de miles de reclamos, ese 10% se traduce en pérdidas que casi nunca se ven hasta que ya se pagaron.
-                </p>
-              </div>
-
-              <dl className="border-t border-border">
-                {magnitudeFacts.map(({ label, detail }) => (
-                  <div key={label} className="border-b border-border py-5">
-                    <dt className="label-mono uppercase text-primary">{label}</dt>
-                    <dd className="mt-2 text-sm leading-7 text-muted-foreground">{detail}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Problema ─────────────────────────────────────────────────────── */}
-        <section id="problema" className="scroll-mt-24 border-b border-border bg-background">
-          <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
-            <h2 className="display-heading max-w-3xl text-balance text-3xl lg:text-4xl">
-              Saber que el fraude existe es fácil. Cada mañana, la pregunta es otra:
-            </h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-              Tres preguntas que un analista de siniestros enfrenta con cada cartera, sin una guía clara de por dónde empezar.
-            </p>
-
-            <div className="mt-10 grid gap-4 lg:grid-cols-3">
-              {problemQuestions.map(({ question, consequence }) => (
-                <article
-                  key={question}
-                  className="institutional-card flex flex-col gap-4 border border-border bg-[var(--surface-low)] p-6"
-                >
-                  <h3 className="font-display text-lg font-semibold leading-snug text-balance">
+        <section id="problema" className="landing-band-ink landing-section-shell scroll-mt-24 border-b border-border">
+          <div className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
+            <div className="grid gap-4 lg:grid-cols-3">
+              {problemQuestions.map(({ question, consequence }, index) => (
+                <article key={question} className="landing-problem-card landing-tilt-card landing-stagger-card">
+                  <span className="landing-problem-index label-mono-md">0{index + 1}</span>
+                  <h3 className="font-display text-lg font-semibold leading-snug text-balance text-white">
                     {question}
                   </h3>
-                  <p className="text-sm leading-6 text-muted-foreground">{consequence}</p>
+                  <p className="text-sm leading-6 text-[var(--editorial-soft-copy)]">{consequence}</p>
                 </article>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ── Solución ─────────────────────────────────────────────────────── */}
-        <section className="border-b border-border bg-[var(--surface-low)]">
-          <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
-            <div className="max-w-3xl">
-              <p className="label-mono-md uppercase text-muted-foreground">La solución</p>
-              <h2 className="display-heading mt-4 text-balance text-3xl lg:text-4xl">
-                Convierte esa cartera en una bandeja ordenada por riesgo.
-              </h2>
-              <p className="mt-4 text-sm leading-7 text-muted-foreground">
-                RastroSeguro toma los miles de reclamos, detecta las señales de alerta en cada expediente y los ordena para que el analista empiece por donde más importa, con las razones a la vista.
-              </p>
-            </div>
+        <section className="landing-band-solution landing-section-shell border-b border-border">
+          <div className="mx-auto max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
+            <div className="grid gap-10 lg:grid-cols-[.92fr_1.08fr] lg:items-start">
+              <div className="landing-reveal max-w-2xl">
+                <p className="label-mono-md uppercase text-[var(--editorial-soft-kicker)]">La solucion</p>
+                <h2 className="landing-section-display-on-dark display-heading mt-4 text-balance text-4xl lg:text-6xl">
+                  Un sistema que prioriza antes, explica mejor y escala con la operacion.
+                </h2>
+                <p className="mt-5 max-w-xl text-base leading-7 text-[var(--editorial-soft-copy)] lg:text-lg">
+                  No es solo un dashboard. Es una forma mas inteligente de decidir que revisar, por que y con que evidencia.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <span className="landing-solution-chip">Priorizacion visible</span>
+                  <span className="landing-solution-chip">Razones explicables</span>
+                  <span className="landing-solution-chip">Decision humana</span>
+                </div>
+              </div>
 
-            <SolutionPillars pillars={solutionPillars} />
+              <div className="landing-solution-frame landing-tilt-card landing-reveal" style={{ animationDelay: '120ms' }}>
+                <SolutionPillars pillars={solutionPillars} />
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* ── Cierre ───────────────────────────────────────────────────────── */}
-        <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
-          <article className="institutional-card overflow-hidden">
-            <div className="section-header">¿Lista para ver cómo funciona?</div>
-            <div className="grid gap-6 p-6 lg:grid-cols-[1.2fr_.8fr] lg:p-8">
+        <section className="landing-band-closing landing-section-shell px-4 py-20 lg:px-8 lg:py-28">
+          <article className="landing-closing-panel landing-reveal mx-auto max-w-7xl overflow-hidden">
+            <div className="section-header">¿Lista para ver como funciona?</div>
+            <div className="grid gap-8 p-6 lg:grid-cols-[1.2fr_.8fr] lg:p-8">
               <div>
-                <h2 className="display-heading text-balance text-3xl lg:text-4xl">
-                  La inteligencia alerta y explica. La decisión es tuya.
+                <h2 className="display-heading max-w-3xl text-balance text-3xl lg:text-4xl">
+                  La inteligencia alerta y explica. La decision es tuya.
                 </h2>
-                <p className="mt-4 max-w-3xl text-sm leading-7 text-muted-foreground">
-                  RastroSeguro no reemplaza al analista: le da una ventaja operativa. Sabe qué revisar primero, por qué importa y cómo sustentarlo ante riesgos, auditoría y gerencia.
+                <p className="landing-closing-copy mt-4 max-w-3xl text-sm leading-7">
+                  RastroSeguro no reemplaza al analista: le da una ventaja operativa. Sabe que revisar primero, por que importa y como sustentarlo ante riesgos, auditoria y gerencia.
                 </p>
                 <div className="mt-6 space-y-3">
-                  {[
-                    'Los casos de mayor riesgo aparecen primero, con sus razones.',
-                    'Cada alerta tiene evidencia revisable, no es una caja negra.',
-                    'El analista mantiene el control y toma la decisión final.',
-                  ].map((item) => (
-                    <div key={item} className="flex items-start gap-3 border border-border bg-[var(--surface-low)] p-3">
+                  {closingBenefits.map((item) => (
+                    <div key={item} className="landing-closing-proof landing-proof-card">
                       <BadgeCheck aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-[var(--tertiary-fixed-dim)]" />
                       <p className="text-sm leading-6 text-foreground">{item}</p>
                     </div>
@@ -245,13 +167,13 @@ export default function LandingPage() {
               </div>
 
               <div className="flex flex-col gap-4">
-                <div className="border border-border bg-[var(--surface-low)] p-6">
+                <div className="landing-ethics-card landing-tilt-card p-6">
                   <div className="flex items-start gap-3">
                     <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[var(--tertiary-fixed-dim)]" aria-hidden />
                     <div>
-                      <p className="font-display font-semibold">Criterio ético integrado</p>
+                      <p className="font-display font-semibold">Criterio etico integrado</p>
                       <p className="mt-2 text-sm leading-7 text-muted-foreground">
-                        Cada pantalla deja claro que <span translate="no">RastroSeguro</span> genera alertas de revisión. No acusa fraude, no rechaza reclamos y no sustituye al analista.
+                        Cada pantalla deja claro que <span translate="no">RastroSeguro</span> genera alertas de revision. No acusa fraude, no rechaza reclamos y no sustituye al analista.
                       </p>
                     </div>
                   </div>
@@ -260,13 +182,13 @@ export default function LandingPage() {
                 <div className="flex flex-col gap-3">
                   <Link
                     href="/platform"
-                    className="focus-ring inline-flex items-center justify-center gap-2 bg-primary px-4 py-3 label-mono-md font-bold uppercase text-primary-foreground transition-opacity hover:opacity-95"
+                    className="landing-closing-cta focus-ring inline-flex items-center justify-center gap-2 px-4 py-3 label-mono-md font-bold uppercase transition-opacity hover:opacity-95"
                   >
                     Abrir Plataforma <ArrowRight aria-hidden className="h-4 w-4" />
                   </Link>
                   <a
                     href="#top"
-                    className="focus-ring inline-flex items-center justify-center gap-2 border border-border px-4 py-3 label-mono-md font-bold uppercase transition-colors hover:bg-[var(--surface-container)]"
+                    className="landing-closing-secondary focus-ring inline-flex items-center justify-center gap-2 px-4 py-3 label-mono-md font-bold uppercase transition-colors"
                   >
                     Volver arriba
                   </a>
@@ -275,7 +197,6 @@ export default function LandingPage() {
             </div>
           </article>
         </section>
-
       </div>
     </main>
   )

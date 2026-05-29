@@ -4,16 +4,13 @@ import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'RastroSeguro | Priorización clara de casos',
-  description: 'RastroSeguro ayuda a ordenar casos, explicar hallazgos y apoyar la revisión humana sin decisiones automáticas.',
-  generator: 'v0.app',
+  title: 'RastroSeguro | Priorizacion clara de casos',
+  description:
+    'RastroSeguro ayuda a ordenar casos, explicar hallazgos y apoyar la revision humana sin decisiones automaticas.',
   icons: {
-    icon: [
-      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
-      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
-    ],
-    apple: '/apple-icon.png',
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
   },
 }
 

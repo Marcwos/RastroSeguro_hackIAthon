@@ -3,6 +3,7 @@
 import { useEffect, useReducer, useRef } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { CheckCircle2, FileText, Info, Loader2, ShieldAlert } from 'lucide-react'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 // Strong ease-out curve per Emil Kowalski's design engineering principles
 const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1]
@@ -86,22 +87,24 @@ function useAnimFrame(cb: (elapsed: number) => void, active: boolean) {
 
 export function LiveDemo() {
   const prefersReduced = useReducedMotion()
+  const isMobile = useIsMobile()
+  const shouldReduceMotion = prefersReduced && !isMobile
   const [state, dispatch] = useReducer(reducer, undefined, init)
   const phaseRef = useRef<Phase>('receiving')
 
   // When reduced motion: always show result, no loop.
   useEffect(() => {
-    if (prefersReduced) {
+    if (shouldReduceMotion) {
       dispatch({ type: 'SET_PHASE', phase: 'result' })
       dispatch({ type: 'SET_SIGNALS', signals: SIGNAL_TARGETS })
       dispatch({ type: 'SET_COUNT', count: SCORE_TARGET })
       dispatch({ type: 'SET_BAR', bar: 100 })
     }
-  }, [prefersReduced])
+  }, [shouldReduceMotion])
 
   // Phase scheduler (not reduced motion)
   useEffect(() => {
-    if (prefersReduced) return
+    if (shouldReduceMotion) return
 
     phaseRef.current = state.phase
     const duration = PHASE_DURATIONS[state.phase]
@@ -122,7 +125,7 @@ export function LiveDemo() {
     }, duration)
 
     return () => clearTimeout(id)
-  }, [state.phase, prefersReduced])
+  }, [state.phase, shouldReduceMotion])
 
   // Upload bar animation (receiving phase)
   useAnimFrame((elapsed) => {
@@ -130,7 +133,7 @@ export function LiveDemo() {
     // ease-out cubic
     const eased = 1 - Math.pow(1 - progress, 3)
     dispatch({ type: 'SET_BAR', bar: Math.round(eased * 100) })
-  }, !prefersReduced && state.phase === 'receiving')
+  }, !shouldReduceMotion && state.phase === 'receiving')
 
   // Signal bars animation (analyzing phase)
   useAnimFrame((elapsed) => {
@@ -142,14 +145,14 @@ export function LiveDemo() {
       return Math.round(localProgress * target)
     })
     dispatch({ type: 'SET_SIGNALS', signals: filled })
-  }, !prefersReduced && state.phase === 'analyzing')
+  }, !shouldReduceMotion && state.phase === 'analyzing')
 
   // Count-up animation for the risk score (result phase)
   useAnimFrame((elapsed) => {
     const progress = Math.min(elapsed / (PHASE_DURATIONS.result * 0.45), 1)
     const eased = 1 - Math.pow(1 - progress, 2)
     dispatch({ type: 'SET_COUNT', count: Math.round(eased * SCORE_TARGET) })
-  }, !prefersReduced && state.phase === 'result')
+  }, !shouldReduceMotion && state.phase === 'result')
 
   const { phase, bar, signals, count } = state
 
@@ -186,7 +189,7 @@ export function LiveDemo() {
                   <p className="landing-shot-label label-mono">Recibiendo expediente</p>
                   <p className="font-display text-base font-semibold landing-shot-value">expediente-SIN-045.csv</p>
                 </div>
-                <Loader2 className="h-5 w-5 shrink-0 animate-spin text-primary" aria-hidden />
+                <Loader2 className="landing-demo-spin h-5 w-5 shrink-0 text-primary" aria-hidden />
               </div>
 
               <div>
@@ -210,7 +213,7 @@ export function LiveDemo() {
                 {['Proveedor', 'Monto reclamado', 'Ciudad', 'Fecha'].map((label) => (
                   <div key={label} className="landing-shot-tile p-3">
                     <p className="landing-shot-label label-mono text-xs">{label}</p>
-                    <div className="landing-shot-skeleton mt-1 h-3 w-3/4 rounded animate-pulse" />
+                    <div className="landing-demo-pulse landing-shot-skeleton mt-1 h-3 w-3/4 rounded" />
                   </div>
                 ))}
               </div>
@@ -228,7 +231,7 @@ export function LiveDemo() {
               className="space-y-4"
             >
               <div className="landing-shot-tile flex items-center gap-3 p-4">
-                <Loader2 className="h-6 w-6 shrink-0 animate-spin text-primary" aria-hidden />
+                <Loader2 className="landing-demo-spin h-6 w-6 shrink-0 text-primary" aria-hidden />
                 <div>
                   <p className="landing-shot-label label-mono">Analizando señales del caso</p>
                   <p className="font-display text-base font-semibold landing-shot-value">Cruzando patrones y relaciones...</p>
@@ -324,7 +327,7 @@ export function LiveDemo() {
         </AnimatePresence>
 
         {/* Phase indicator dots */}
-        {!prefersReduced && (
+        {!shouldReduceMotion && (
           <div className="flex items-center justify-center gap-2 pt-2" aria-hidden>
             {(['receiving', 'analyzing', 'result'] as Phase[]).map((p) => (
               <span
