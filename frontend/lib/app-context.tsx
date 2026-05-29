@@ -12,6 +12,11 @@ export interface AnalystSubmittedCase {
   filename?: string | null
 }
 
+export interface PendingChatPrompt {
+  id: string
+  text: string
+}
+
 interface AppState {
   currentStep: number
   setCurrentStep: (step: number) => void
@@ -41,6 +46,9 @@ interface AppState {
   addChatMessage: (message: ChatMessage) => void
   replaceChatMessages: (messages: ChatMessage[]) => void
   clearChatMessages: () => void
+  pendingChatPrompt: PendingChatPrompt | null
+  requestChatPrompt: (prompt: string) => void
+  consumeChatPrompt: () => void
   showChat: boolean
   setShowChat: (show: boolean) => void
   showCommandBar: boolean
@@ -75,6 +83,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isDataLoaded, setIsDataLoaded] = useState(false)
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+  const [pendingChatPrompt, setPendingChatPrompt] = useState<PendingChatPrompt | null>(null)
   const [showChat, setShowChat] = useState(false)
   const [showCommandBar, setShowCommandBar] = useState(false)
   const [analystSubmittedCases, setAnalystSubmittedCases] = useState<AnalystSubmittedCase[]>([])
@@ -233,6 +242,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setChatMessages([])
   }, [])
 
+  const requestChatPrompt = useCallback((prompt: string) => {
+    const text = prompt.trim()
+    if (!text) return
+    setPendingChatPrompt({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`, text })
+    setShowChat(true)
+  }, [])
+
+  const consumeChatPrompt = useCallback(() => {
+    setPendingChatPrompt(null)
+  }, [])
+
   return (
     <AppContext.Provider
       value={{
@@ -264,6 +284,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         addChatMessage,
         replaceChatMessages,
         clearChatMessages,
+        pendingChatPrompt,
+        requestChatPrompt,
+        consumeChatPrompt,
         showChat,
         setShowChat,
         showCommandBar,

@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { AIChartExplainButton } from '@/components/ai-chart-explain-button'
 
 const num = (value: unknown) => Number(value ?? 0)
 function normalizeRisk(level?: string | null) {
@@ -362,9 +363,15 @@ function GlobalRelationshipMap({ claims, onAnalyze }: { claims: ClaimSummary[]; 
     }
   })
   const activeClaim = hoveredClaim
+  const prompt = [
+    'Explica el gráfico "Mapa global de relaciones" del Centro de Control.',
+    'Quiero una explicación ejecutiva y accionable: qué representa, qué patrones se observan, qué casos parecen más prioritarios y qué preguntas debería hacer el analista.',
+    `Top nodos visibles: ${topClaims.map((claim) => `${claim.id_siniestro} score ${Math.round(num(claim.score_final))} nivel ${getRiskLabel(normalizeRisk(claim.nivel_riesgo))}`).join('; ') || 'sin datos'}.`,
+  ].join('\n')
 
   return (
     <div className="dark-panel relative h-[300px] overflow-hidden">
+      <AIChartExplainButton prompt={prompt} className="border-white/25 bg-black/35 text-white hover:bg-white hover:text-black" />
       <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(var(--primary-fixed)_1px,transparent_1px),linear-gradient(90deg,var(--primary-fixed)_1px,transparent_1px)] [background-size:32px_32px]" />
       <svg viewBox="0 0 520 320" className="absolute inset-0 h-full w-full">
         {satellites.map((node) => (
@@ -624,7 +631,10 @@ export function StepCommandCenter() {
               </div>
               <div className="institutional-card col-span-12 overflow-hidden xl:col-span-5">
                 <div className="section-header flex items-center gap-2"><BarChart3 className="h-4 w-4" />Distribución por semáforo</div>
-                <div className="p-4">
+                <div className="relative p-4">
+                  <AIChartExplainButton
+                    prompt={`Explica el gráfico "Distribución por semáforo" del Centro de Control. Resume qué significa la proporción de casos críticos, medios y bajos, qué tan urgente es la cartera y qué acciones recomendarías. Datos: ${analytics.riskDistribution.map((row) => `${row.name}: ${row.total}`).join(', ') || 'sin datos'}. Total cartera: ${analytics.total}.`}
+                  />
                   <ChartContainer config={{ total: { label: 'Casos', color: 'var(--chart-1)' } }} className="h-[220px] w-full">
                     <PieChart>
                       <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
@@ -648,7 +658,10 @@ export function StepCommandCenter() {
             <div className="grid grid-cols-12 gap-4">
               <div className="institutional-card col-span-12 overflow-hidden lg:col-span-4">
                 <div className="section-header flex items-center gap-2"><Building2 className="h-4 w-4" />Riesgo por proveedor</div>
-                <div className="p-3">
+                <div className="relative p-3">
+                  <AIChartExplainButton
+                    prompt={`Explica el gráfico "Riesgo por proveedor". Identifica proveedores con mayor puntaje promedio, concentración de casos rojos y posibles acciones de auditoría. Datos principales: ${analytics.providerRows.slice(0, 6).map((row) => `${row.name}: score ${row.avgRisk}, ${row.total} casos, ${row.casosRojos} rojos`).join('; ') || 'sin datos'}.`}
+                  />
                   <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-4)' } }} className="h-[200px] w-full">
                     <BarChart data={analytics.providerRows} layout="vertical" margin={{ left: 8, right: 8 }}>
                       <CartesianGrid horizontal={false} />
@@ -662,7 +675,10 @@ export function StepCommandCenter() {
               </div>
               <div className="institutional-card col-span-12 overflow-hidden lg:col-span-4">
                 <div className="section-header flex items-center gap-2"><UsersRound className="h-4 w-4" />Riesgo por ramo</div>
-                <div className="p-3">
+                <div className="relative p-3">
+                  <AIChartExplainButton
+                    prompt={`Explica el gráfico "Riesgo por ramo". Indica qué ramos concentran más riesgo, cómo interpretarlo sin acusar fraude y qué priorización sugieres. Datos principales: ${analytics.branchRows.slice(0, 6).map((row) => `${row.name}: score ${row.avgRisk}, ${row.total} casos, ${row.casosRojos} rojos`).join('; ') || 'sin datos'}.`}
+                  />
                   <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-3)' } }} className="h-[200px] w-full">
                     <BarChart data={analytics.branchRows} margin={{ left: 4, right: 4 }}>
                       <CartesianGrid vertical={false} />
@@ -676,7 +692,10 @@ export function StepCommandCenter() {
               </div>
               <div className="institutional-card col-span-12 overflow-hidden lg:col-span-4">
                 <div className="section-header flex items-center gap-2"><MapPin className="h-4 w-4" />Riesgo por ciudad</div>
-                <div className="p-3">
+                <div className="relative p-3">
+                  <AIChartExplainButton
+                    prompt={`Explica el gráfico "Riesgo por ciudad". Señala ciudades con mayor exposición, posibles sesgos/limitaciones y siguientes pasos de revisión humana. Datos principales: ${analytics.cityRows.slice(0, 6).map((row) => `${row.name}: score ${row.avgRisk}, ${row.total} casos, ${row.casosRojos} rojos`).join('; ') || 'sin datos'}.`}
+                  />
                   <ChartContainer config={{ avgRisk: { label: 'Puntaje promedio', color: 'var(--chart-1)' } }} className="h-[200px] w-full">
                     <BarChart data={analytics.cityRows} margin={{ left: 4, right: 4 }}>
                       <CartesianGrid vertical={false} />

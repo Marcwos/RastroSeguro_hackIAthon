@@ -99,6 +99,8 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
     chatMessages,
     addChatMessage,
     replaceChatMessages,
+    pendingChatPrompt,
+    consumeChatPrompt,
   } = useAppState()
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -108,7 +110,9 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
   const [sessions, setSessions] = useState<AgentChatSessionSummary[]>([])
   const [sections, setSections] = useState<AgentChatSection[]>([])
   const [showSessionHistory, setShowSessionHistory] = useState(false)
+  const [isDesktopViewport, setIsDesktopViewport] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const lastConsumedPromptIdRef = useRef<string | null>(null)
   const lastGuideStepRef = useRef<number | null>(null)
   const prevClaimRef = useRef<string | null | undefined>(undefined)
   const reduceMotion = useReducedMotion()
@@ -132,6 +136,14 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
     }
     return merged.slice(0, 5)
   }, [apiQuickQuestions, currentStep, selectedClaimId, userRole])
+
+  useEffect(() => {
+    const media = window.matchMedia('(min-width: 1024px)')
+    const apply = () => setIsDesktopViewport(media.matches)
+    apply()
+    media.addEventListener('change', apply)
+    return () => media.removeEventListener('change', apply)
+  }, [])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -341,6 +353,17 @@ export function AIAssistant({ variant = 'floating' }: { variant?: AssistantVaria
       setIsTyping(false)
     }
   }
+
+  useEffect(() => {
+    if (!showChat || !pendingChatPrompt || isTyping) return
+    const isActiveInstance = variant === 'sidebar' ? isDesktopViewport : !isDesktopViewport
+    if (!isActiveInstance) return
+    if (lastConsumedPromptIdRef.current === pendingChatPrompt.id) return
+    lastConsumedPromptIdRef.current = pendingChatPrompt.id
+    const prompt = pendingChatPrompt.text
+    consumeChatPrompt()
+    void handleSend(prompt)
+  }, [showChat, pendingChatPrompt, isTyping, consumeChatPrompt, variant, isDesktopViewport])
 
   const sectionTitleById = useMemo(() => {
     return new Map(sections.map((section) => [section.section_id, section.title]))

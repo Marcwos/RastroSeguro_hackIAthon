@@ -12,6 +12,7 @@ import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartToo
 import { buildSpiderNarrative, computeSpiderData, getTopSpiderDrivers } from '@/lib/graph-insights'
 import { ChartInsight } from '@/components/report/chart-insight'
 import { UI_COPY } from '@/lib/human-labels'
+import { AIChartExplainButton } from '@/components/ai-chart-explain-button'
 
 const gridStroke = 'color-mix(in oklch, var(--chart-grid) 45%, transparent)'
 
@@ -31,7 +32,10 @@ export function RiskSpiderChart({ selectedClaim, claims }: { selectedClaim: Clai
   return (
     <div className="space-y-3">
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="institutional-card p-3 lg:col-span-2">
+        <div className="institutional-card relative p-3 lg:col-span-2">
+          <AIChartExplainButton
+            prompt={`Explica el gráfico radar "Señales del caso vs promedio de la cartera" para el siniestro ${selectedClaim.id_siniestro}. Compara dimensiones, destaca desviaciones relevantes y sugiere qué debería validar el analista. Datos: ${data.map((row) => `${row.dimension}: caso ${row.Caso}, promedio ${row.Promedio}, diferencia ${row.diff}`).join('; ')}.`}
+          />
           <p className="label-mono mb-2 text-muted-foreground">
             Señales del caso {UI_COPY.vsAverage} de la cartera
           </p>

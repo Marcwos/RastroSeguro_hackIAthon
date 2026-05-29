@@ -9,6 +9,7 @@ import {
   GlobalRecurrenceRow,
 } from '@/lib/global-recurrence'
 import { UI_COPY } from '@/lib/human-labels'
+import { AIChartExplainButton } from '@/components/ai-chart-explain-button'
 
 const gridStroke = 'color-mix(in oklch, var(--chart-grid) 45%, transparent)'
 const axisStyle = { fill: 'var(--muted-foreground)', fontSize: 11 }
@@ -45,7 +46,10 @@ export function RecurrenceTopChart({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="relative space-y-2">
+      <AIChartExplainButton
+        prompt={`Explica el gráfico "Top recurrencias" de la cartera${currentClaimId ? ` para el contexto del caso ${currentClaimId}` : ''}. Interpreta qué entidades o atributos repetidos merecen revisión, qué significa que una barra esté resaltada y qué próximos pasos sugieres. Datos: ${chartRows.map((row) => `${row.fullName}: ${row.total} apariciones${row.inCurrentCase ? ', presente en el caso activo' : ''}`).join('; ')}.`}
+      />
       <p className="text-sm text-muted-foreground">
         Ranking global de la cartera: posición, tipo de elemento y cuántas veces aparece en otros siniestros.
       </p>
